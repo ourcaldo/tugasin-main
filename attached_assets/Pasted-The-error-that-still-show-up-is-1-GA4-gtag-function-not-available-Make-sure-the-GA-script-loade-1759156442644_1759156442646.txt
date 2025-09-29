@@ -1,0 +1,15 @@
+The error that still show up is:
+1. GA4: gtag function not available. Make sure the GA script loaded correctly - I already add the GA enviroment variables, but from the Google Analytics it's still not detected. Make sure the analytics is working. You can use manual implementation or module, i don't care as long it's working and standarized.
+2. Error related to Blob Refused to create a worker from 'blob: record.js:4351 Refused to create a worker from 'blob:https://tugasin.me/e885e34c-95a6-4d6c-98b0-eb7f45207633' because it violates the following Content Security Policy directive: "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://va.vercel-scripts.com https://*.posthog.com https://us-assets.i.posthog.com https://www.googletagmanager.com". Note that 'worker-src' was not explicitly set, so 'script-src' is used as a fallback.
+3. Refused to connect to 'https://us-assets.i.posthog.com/static/surveys.js?v=1.268.6' because it violates the following Content Security Policy directive: "connect-src 'self' https://cms.tugasin.me https://va.vercel-scripts.com https://fonts.googleapis.com https://us.i.posthog.com".
+4. sw-simple.js:66 Fetch API cannot load https://us-assets.i.posthog.com/static/surveys.js?v=1.268.6. Refused to connect because it violates the document's Content Security Policy.
+5. Failed to load resource: the server responded with a status of 503 (Service Unavailable)
+6. There's a call request to endpoint which I didn't know what is this layout-d8e1e74e2811e127.js:1 POST https://tugasin.me/dev/null net::ERR_ABORTED 405 (Method Not Allowed)
+
+Related to CSP, I already ask you to allowing CSP from posthog using asterisk, so it's allowing all posthog, all analytics things includeing google, sentry, etc, Google font, and anything related to Google.
+
+But, before you do it, please look up the plan and the current implementation so you know where's last part you implemented the phase.
+Before you do code changes, make sure you're already understand all the things, beside that please also read this rules:
+1. The implemented of the phase must be good documented, good refacotred (not a single file that handle all the function things), and it's must be standarized as production ready
+2. After you implement the phase or sub-phase, give marks/checklist to note that it's done implemented, make sure to do this before you jump on another files.
+3. No hardcoded, I don't want any hardcoded like credentials, url, or anything related to variables get it from .env.
