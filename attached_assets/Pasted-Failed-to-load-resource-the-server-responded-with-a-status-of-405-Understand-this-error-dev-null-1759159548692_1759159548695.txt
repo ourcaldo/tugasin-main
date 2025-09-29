@@ -1,0 +1,132 @@
+Failed to load resource: the server responded with a status of 405 ()Understand this error
+/dev/null:1  Failed to load resource: the server responded with a status of 405 ()Understand this error
+/dev/null:1  Failed to load resource: the server responded with a status of 405 ()Understand this error
+430-a9d848405f720663.js:5 GA4: gtag function not available. Make sure the GA script loaded correctly.
+(anonymous) @ 430-a9d848405f720663.js:5Understand this error
+record.js:4351 Refused to create a worker from 'blob:https://tugasin.me/e885e34c-95a6-4d6c-98b0-eb7f45207633' because it violates the following Content Security Policy directive: "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://va.vercel-scripts.com https://*.posthog.com https://us-assets.i.posthog.com https://www.googletagmanager.com". Note that 'worker-src' was not explicitly set, so 'script-src' is used as a fallback.
+
+Ft @ record.js:4351Understand this error
+sw-simple.js:66 Refused to connect to 'https://us-assets.i.posthog.com/static/surveys.js?v=1.268.6' because it violates the following Content Security Policy directive: "connect-src 'self' https://cms.tugasin.me https://va.vercel-scripts.com https://fonts.googleapis.com https://us.i.posthog.com".
+
+(anonymous) @ sw-simple.js:66Understand this error
+sw-simple.js:66 Fetch API cannot load https://us-assets.i.posthog.com/static/surveys.js?v=1.268.6. Refused to connect because it violates the document's Content Security Policy.
+(anonymous) @ sw-simple.js:66Understand this error
+surveys.js:1  Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+layout-d8e1e74e2811e127.js:1  POST https://tugasin.me/dev/null net::ERR_ABORTED 405 (Method Not Allowed)
+window.fetch @ layout-d8e1e74e2811e127.js:1
+(anonymous) @ 430-a9d848405f720663.js:5
+logToServer @ 0-01776260b03f8805.js:1
+info @ 0-01776260b03f8805.js:1
+getAllPosts @ 0-01776260b03f8805.js:1Understand this error
+sw-simple.js:66 Refused to connect to 'https://www.googletagmanager.com/gtag/js?id=G-15MHZ6EXEN' because it violates the following Content Security Policy directive: "connect-src 'self' https://cms.tugasin.me https://va.vercel-scripts.com https://fonts.googleapis.com https://us.i.posthog.com".
+
+(anonymous) @ sw-simple.js:66
+Promise.then
+(anonymous) @ sw-simple.js:61Understand this error
+sw-simple.js:66 Fetch API cannot load https://www.googletagmanager.com/gtag/js?id=G-15MHZ6EXEN. Refused to connect because it violates the document's Content Security Policy.
+(anonymous) @ sw-simple.js:66
+Promise.then
+(anonymous) @ sw-simple.js:61Understand this error
+sw-simple.js:66 Refused to connect to 'https://us-assets.i.posthog.com/static/recorder.js?v=1.268.6' because it violates the following Content Security Policy directive: "connect-src 'self' https://cms.tugasin.me https://va.vercel-scripts.com https://fonts.googleapis.com https://us.i.posthog.com".
+
+(anonymous) @ sw-simple.js:66
+Promise.then
+(anonymous) @ sw-simple.js:61Understand this error
+sw-simple.js:66 Fetch API cannot load https://us-assets.i.posthog.com/static/recorder.js?v=1.268.6. Refused to connect because it violates the document's Content Security Policy.
+(anonymous) @ sw-simple.js:66
+Promise.then
+(anonymous) @ sw-simple.js:61Understand this error
+sw-simple.js:66 Refused to connect to 'https://us-assets.i.posthog.com/static/dead-clicks-autocapture.js?v=1.268.6' because it violates the following Content Security Policy directive: "connect-src 'self' https://cms.tugasin.me https://va.vercel-scripts.com https://fonts.googleapis.com https://us.i.posthog.com".
+
+(anonymous) @ sw-simple.js:66
+Promise.then
+(anonymous) @ sw-simple.js:61Understand this error
+sw-simple.js:66 Fetch API cannot load https://us-assets.i.posthog.com/static/dead-clicks-autocapture.js?v=1.268.6. Refused to connect because it violates the document's Content Security Policy.
+(anonymous) @ sw-simple.js:66
+Promise.then
+(anonymous) @ sw-simple.js:61Understand this error
+sw-simple.js:66 Refused to connect to 'https://us-assets.i.posthog.com/static/web-vitals.js?v=1.268.6' because it violates the following Content Security Policy directive: "connect-src 'self' https://cms.tugasin.me https://va.vercel-scripts.com https://fonts.googleapis.com https://us.i.posthog.com".
+
+(anonymous) @ sw-simple.js:66
+Promise.then
+(anonymous) @ sw-simple.js:61Understand this error
+sw-simple.js:66 Fetch API cannot load https://us-assets.i.posthog.com/static/web-vitals.js?v=1.268.6. Refused to connect because it violates the document's Content Security Policy.
+(anonymous) @ sw-simple.js:66
+Promise.then
+(anonymous) @ sw-simple.js:61Understand this error
+sw-simple.js:66 Refused to connect to 'https://us-assets.i.posthog.com/array/phc_5OcXPsbxulECrc3yaLPiFmf36KSFziEoxmQvwrdsmI1/config.js' because it violates the following Content Security Policy directive: "connect-src 'self' https://cms.tugasin.me https://va.vercel-scripts.com https://fonts.googleapis.com https://us.i.posthog.com".
+
+(anonymous) @ sw-simple.js:66
+Promise.then
+(anonymous) @ sw-simple.js:61Understand this error
+sw-simple.js:66 Fetch API cannot load https://us-assets.i.posthog.com/array/phc_5OcXPsbxulECrc3yaLPiFmf36KSFziEoxmQvwrdsmI1/config.js. Refused to connect because it violates the document's Content Security Policy.
+(anonymous) @ sw-simple.js:66
+Promise.then
+(anonymous) @ sw-simple.js:61Understand this error
+sw-simple.js:66 Refused to connect to 'https://us-assets.i.posthog.com/array/phc_5OcXPsbxulECrc3yaLPiFmf36KSFziEoxmQvwrdsmI1/config?ip=0&_=1759159137717&ver=1.268.6' because it violates the following Content Security Policy directive: "connect-src 'self' https://cms.tugasin.me https://va.vercel-scripts.com https://fonts.googleapis.com https://us.i.posthog.com".
+
+(anonymous) @ sw-simple.js:66
+Promise.then
+(anonymous) @ sw-simple.js:61Understand this error
+sw-simple.js:66 Fetch API cannot load https://us-assets.i.posthog.com/array/phc_5OcXPsbxulECrc3yaLPiFmf36KSFziEoxmQvwrdsmI1/config?ip=0&_=1759159137717&ver=1.268.6. Refused to connect because it violates the document's Content Security Policy.
+(anonymous) @ sw-simple.js:66
+Promise.then
+(anonymous) @ sw-simple.js:61Understand this error
+sw-simple.js:66 Refused to connect to 'https://us-assets.i.posthog.com/static/surveys.js?v=1.268.6' because it violates the following Content Security Policy directive: "connect-src 'self' https://cms.tugasin.me https://va.vercel-scripts.com https://fonts.googleapis.com https://us.i.posthog.com".
+
+(anonymous) @ sw-simple.js:66
+Promise.then
+(anonymous) @ sw-simple.js:61Understand this error
+sw-simple.js:66 Fetch API cannot load https://us-assets.i.posthog.com/static/surveys.js?v=1.268.6. Refused to connect because it violates the document's Content Security Policy.
+(anonymous) @ sw-simple.js:66
+Promise.then
+(anonymous) @ sw-simple.js:61Understand this error
+sw-simple.js:66 Refused to connect to 'https://us-assets.i.posthog.com/static/surveys.js?v=1.268.6' because it violates the following Content Security Policy directive: "connect-src 'self' https://cms.tugasin.me https://va.vercel-scripts.com https://fonts.googleapis.com https://us.i.posthog.com".
+
+(anonymous) @ sw-simple.js:66
+Promise.then
+(anonymous) @ sw-simple.js:61Understand this error
+sw-simple.js:66 Fetch API cannot load https://us-assets.i.posthog.com/static/surveys.js?v=1.268.6. Refused to connect because it violates the document's Content Security Policy.
+(anonymous) @ sw-simple.js:66
+Promise.then
+(anonymous) @ sw-simple.js:61Understand this error
+9da6db1e-d4a24366abf1eb07.js:1 Refused to create a worker from 'blob:https://tugasin.me/27b4a6b2-6444-4620-ab56-adb2d1333bd9' because it violates the following Content Security Policy directive: "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://va.vercel-scripts.com https://*.posthog.com https://us-assets.i.posthog.com https://www.googletagmanager.com". Note that 'worker-src' was not explicitly set, so 'script-src' is used as a fallback.
+
+Ft @ record.js:4351
+initCanvasFPSObserver @ record.js:4428
+Mt @ record.js:4400
+Wt @ record.js:4876
+Pi @ 9da6db1e-d4a24366abf1eb07.js:1
+mi @ 9da6db1e-d4a24366abf1eb07.js:1
+startIfEnabledOrStop @ 9da6db1e-d4a24366abf1eb07.js:1
+Ti @ 9da6db1e-d4a24366abf1eb07.js:1
+onRRwebEmit @ 9da6db1e-d4a24366abf1eb07.js:1
+emit @ 9da6db1e-d4a24366abf1eb07.js:1
+St @ record.js:4801
+Wt.addCustomEvent @ record.js:5584
+(anonymous) @ 9da6db1e-d4a24366abf1eb07.js:1
+Mi @ 9da6db1e-d4a24366abf1eb07.js:1
+tryAddCustomEvent @ 9da6db1e-d4a24366abf1eb07.js:1
+(anonymous) @ 9da6db1e-d4a24366abf1eb07.js:1
+(anonymous) @ 9da6db1e-d4a24366abf1eb07.js:1
+checkAndGetSessionAndWindowId @ 9da6db1e-d4a24366abf1eb07.js:1
+Ti @ 9da6db1e-d4a24366abf1eb07.js:1
+onRRwebEmit @ 9da6db1e-d4a24366abf1eb07.js:1
+emit @ 9da6db1e-d4a24366abf1eb07.js:1
+St @ record.js:4801
+Wt.addCustomEvent @ record.js:5584
+(anonymous) @ 9da6db1e-d4a24366abf1eb07.js:1
+Mi @ 9da6db1e-d4a24366abf1eb07.js:1
+tryAddCustomEvent @ 9da6db1e-d4a24366abf1eb07.js:1
+Ti @ 9da6db1e-d4a24366abf1eb07.js:1
+onRRwebEmit @ 9da6db1e-d4a24366abf1eb07.js:1
+emit @ 9da6db1e-d4a24366abf1eb07.js:1
+St @ record.js:4801
+mousemoveCb @ record.js:5414
+e.mousemoveCb @ record.js:3495
+(anonymous) @ record.js:2675
+(anonymous) @ record.js:1746
+(anonymous) @ record.js:2702
+(anonymous) @ record.js:1746
+r @ 430-a9d848405f720663.js:2Understand this error
+9da6db1e-d4a24366abf1eb07.js:1 Refused to create a worker from 'blob:https://tugasin.me/387f0544-9322-4ae5-afb3-0a958db1308d' because it violates the following Content Security Policy directive: "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://va.vercel-scripts.com https://*.posthog.com https://us-assets.i.posthog.com https://www.googletagmanager.com". Note that 'worker-src' was not explicitly set, so 'script-src' is used as a fallback.

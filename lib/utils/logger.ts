@@ -22,7 +22,7 @@ export class Logger {
     // Send to server console via a background fetch request that doesn't interfere with user experience
     try {
       // Use a fake endpoint that will show in network logs but not affect user
-      fetch('/dev/null', {
+      fetch('/api/dev/null', {
         method: 'POST',
         body: JSON.stringify(logEntry),
         headers: { 'Content-Type': 'application/json' }
