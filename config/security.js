@@ -7,21 +7,21 @@ const securityConfig = {
     preload: true,
   },
 
-  // Content Security Policy
+  // Content Security Policy - Very permissive (allows everything)
   csp: {
-    defaultSrc: "'self'",
-    scriptSrc: "'self' 'unsafe-eval' 'unsafe-inline' https://va.vercel-scripts.com https://*.posthog.com https://us-assets.i.posthog.com https://www.googletagmanager.com https://www.google-analytics.com",
-    styleSrc: "'self' 'unsafe-inline' https://fonts.googleapis.com",
-    fontSrc: "'self' https://fonts.gstatic.com",
-    connectSrc: "'self' https://cms.tugasin.me https://va.vercel-scripts.com https://fonts.googleapis.com https://*.posthog.com https://us.i.posthog.com https://us-assets.i.posthog.com https://*.ingest.us.sentry.io https://www.google-analytics.com https://analytics.google.com https://region1.google-analytics.com https://stats.g.doubleclick.net https://www.googletagmanager.com",
-    imgSrc: "'self' blob: data: https://images.unsplash.com https://cms.tugasin.me https://www.google-analytics.com",
-    mediaSrc: "'self'",
-    objectSrc: "'none'",
-    baseUri: "'self'",
-    formAction: "'self'",
-    frameAncestors: "'self'",
-    workerSrc: "'self' blob:",
-    upgradeInsecureRequests: true,
+    defaultSrc: "*",
+    scriptSrc: "* 'unsafe-eval' 'unsafe-inline' data: blob:",
+    styleSrc: "* 'unsafe-inline' data: blob:",
+    fontSrc: "* data: blob:",
+    connectSrc: "* data: blob:",
+    imgSrc: "* data: blob:",
+    mediaSrc: "* data: blob:",
+    objectSrc: "*",
+    baseUri: "*",
+    formAction: "*",
+    frameAncestors: "*",
+    workerSrc: "* data: blob:",
+    upgradeInsecureRequests: false,
   },
 
   // Permissions Policy
