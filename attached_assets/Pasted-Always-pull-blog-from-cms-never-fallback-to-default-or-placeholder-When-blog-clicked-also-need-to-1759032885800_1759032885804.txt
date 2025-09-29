@@ -1,0 +1,206 @@
+Always pull blog from cms, never fallback to default or placeholder. When blog clicked, also need to show the content article (single post)
+
+You need to POST to endpoint:
+{
+  "query": "mutation LoginUser($username: String!, $password: String!) { login(input: { clientMutationId: \"uniqueId\", username: $username, password: $password }) { authToken refreshToken user { id name } } }",
+  "variables": {
+    "username": "tugasin",
+    "password": "Jembut123!"
+  }
+}
+
+Then, you will get:
+{
+    "data": {
+        "login": {
+            "authToken": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL2Ntcy50dWdhc2luLm1lIiwiaWF0IjoxNzU4OTk3MjE2LCJuYmYiOjE3NTg5OTcyMTYsImV4cCI6MTc1ODk5NzUxNiwiZGF0YSI6eyJ1c2VyIjp7ImlkIjoiMSJ9fX0.3VaOU24l9k2RCaD3nc43y-0CPai7oU9EuC_R2Spu1CQ",
+            "refreshToken": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL2Ntcy50dWdhc2luLm1lIiwiaWF0IjoxNzU4OTk3MjE2LCJuYmYiOjE3NTg5OTcyMTYsImV4cCI6MTc5MDUzMzIxNiwiZGF0YSI6eyJ1c2VyIjp7ImlkIjoiMSIsInVzZXJfc2VjcmV0IjoiZ3JhcGhxbF9qd3RfNjhkODFjYmRlYTFmNCJ9fX0.l8SxjF8KS4GW1pja2zqtyCFmtSSUAngs8zi8KF4ssGM",
+            "user": {
+                "id": "dXNlcjox",
+                "name": "Tugasin"
+            }
+        }
+    },
+    "extensions": {
+        "debug": [{
+            "type": "DEBUG_LOGS_INACTIVE",
+            "message": "GraphQL Debug logging is not active. To see debug logs, GRAPHQL_DEBUG must be enabled."
+        }]
+    }
+}
+
+Use auth token to pull the blog (bearer authentication)
+
+query GetAllPostsWithSEO($first: Int!, $after: String) {
+  posts(first: $first, after: $after) {
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+    nodes {
+      id
+      databaseId
+      title
+      slug
+      excerpt
+      date
+      featuredImage {
+        node {
+          sourceUrl
+        }
+      }
+      fifuImageUrl
+      seo {
+        title
+        description
+        focusKeywords
+        seoScore {
+          score
+        }
+        canonicalUrl
+      }
+      author {
+        node {
+          id
+          name
+          slug
+        }
+      }
+      categories {
+        nodes {
+          id
+          name
+          slug
+        }
+      }
+      tags {
+        nodes {
+          id
+          name
+          slug
+        }
+      }
+      content
+    }
+  }
+}
+
+Sample of response:
+{
+    "data": {
+        "posts": {
+            "pageInfo": {
+                "hasNextPage": true,
+                "endCursor": "YXJyYXljb25uZWN0aW9uOjU4ODg="
+            },
+            "nodes": [{
+                "id": "cG9zdDo1OTA3",
+                "databaseId": 5907,
+                "title": "Belajar Bahasa Jepang: Kunci Kuliah, Karier, dan Jaringan Global!",
+                "slug": "belajar-bahasa-jepang-kunci-kuliah-karier-dan-jaringan-global",
+                "excerpt": "<p>Temukan kunci sukses kuliah di Jepang, karier global, dan jaringan internasional hanya dengan menguasai bahasa Jepang! Dari beasiswa bergengsi hingga peluang kerja di perusahaan top, skill ini akan ubah hidupmu. Mulai sekarang?<\/p>\n",
+                "date": "2025-09-23T13:00:46",
+                "featuredImage": null,
+                "fifuImageUrl": "https:\/\/syd.cloud.appwrite.io\/v1\/storage\/buckets\/68bc90e000120a53466f\/files\/68cbfde121d0082f5c3f\/view?project=687cd909003a482a66b7&mode=admin",
+                "seo": {
+                    "title": "Belajar Bahasa Jepang: Kunci Kuliah, Karier, Dan Jaringan Global! - Tugasin.me",
+                    "description": "Temukan kunci sukses kuliah di Jepang, karier global, dan jaringan internasional hanya dengan menguasai bahasa Jepang! Dari beasiswa bergengsi hingga peluang kerja di perusahaan top, skill ini akan ubah hidupmu. Mulai sekarang?",
+                    "focusKeywords": ["manfaat belajar bahasa Jepang"],
+                    "seoScore": {
+                        "score": 0
+                    },
+                    "canonicalUrl": "https:\/\/cms.tugasin.me\/blog\/edukasi\/belajar-bahasa-jepang-kunci-kuliah-karier-dan-jaringan-global\/"
+                },
+                "author": {
+                    "node": {
+                        "id": "dXNlcjox",
+                        "name": "Tugasin",
+                        "slug": "tugasin"
+                    }
+                },
+                "categories": {
+                    "nodes": [{
+                        "id": "dGVybTo5MQ==",
+                        "name": "Edukasi",
+                        "slug": "edukasi"
+                    }]
+                },
+                "tags": {
+                    "nodes": [{
+                        "id": "dGVybToxMDM=",
+                        "name": "Belajar Bahasa Jepang",
+                        "slug": "belajar-bahasa-jepang"
+                    }, {
+                        "id": "dGVybToxMTI=",
+                        "name": "Karier",
+                        "slug": "karier"
+                    }, {
+                        "id": "dGVybTo4Ng==",
+                        "name": "Kursus Online",
+                        "slug": "kursus-online"
+                    }, {
+                        "id": "dGVybTo4OQ==",
+                        "name": "Motivasi Belajar",
+                        "slug": "motivasi-belajar"
+                    }, {
+                        "id": "dGVybTo4Nw==",
+                        "name": "Tips Belajar",
+                        "slug": "tips-belajar"
+                    }]
+                },
+                "content": "<p>Belajar bahasa Jepang bukan lagi sekadar hobi atau tren semata, melainkan sebuah investasi jangka panjang yang bisa membuka pintu kesempatan di berbagai bidang. Dari dunia pendidikan hingga karier internasional, kemampuan berbahasa Jepang telah menjadi salah satu <em>skill<\/em> yang semakin dicari\u2014baik di Indonesia maupun di luar negeri. Bagi kamu yang tertarik dengan budaya pop Jepang seperti anime, manga, atau J-Pop, menguasai bahasanya akan memberikan pengalaman yang jauh lebih mendalam. Namun, manfaatnya tidak berhenti di situ. Bahasa Jepang juga menjadi kunci untuk meraih beasiswa kuliah di luar negeri, membangun jaringan global, bahkan meningkatkan peluang kerja di perusahaan-perusahaan ternama.<\/p>\n<p>Tidak hanya itu, belajar bahasa Jepang juga melatih disiplin, ketelitian, dan etos kerja yang tinggi\u2014nilai-nilai yang sangat dihargai dalam dunia profesional. Dengan semakin eratnya hubungan Indonesia dan Jepang, baik dalam bidang ekonomi, teknologi, maupun pendidikan, menguasai bahasa ini bisa menjadi keunggulan kompetitif yang sulit ditandingi. Jika kamu masih ragu atau berpikir bahwa belajar bahasa Jepang hanya bermanfaat untuk menonton anime tanpa teks terjemahan, artikel ini akan membuktikan sebaliknya. Simak enam alasan mengapa belajar bahasa Jepang bisa mengubah masa depanmu\u2014dari kuliah impian hingga karier global!<\/p>\n<h2>1. Pintu Masuk Kuliah di Jepang dengan Beasiswa Bergengsi<\/h2>\n<p>Jepang dikenal sebagai salah satu negara dengan sistem pendidikan berkualitas tinggi, dan banyak universitas di sana menawarkan beasiswa penuh bagi pelajar internasional. Namun, salah satu syarat utama untuk bisa kuliah di Jepang\u2014terutama di jurusan-jurusan unggulan seperti teknik, kedokteran, atau bisnis\u2014adalah kemampuan berbahasa Jepang yang mumpuni. Bukan hanya sekadar lulus ujian kemampuan bahasa seperti JLPT (Japanese-Language Proficiency Test), tetapi juga mampu berkomunikasi sehari-hari dengan lancar.<\/p>\n<p>Bagi kamu yang masih duduk di bangku SMA atau baru lulus, memulai belajar bahasa Jepang sejak dini bisa menjadi langkah strategis. Banyak lembaga kursus yang menawarkan program intensif selama 1\u20132 tahun, yang setara dengan kemampuan lulusan Sastra Jepang selama empat tahun. Dengan persiapan yang matang, kamu tidak hanya bisa mendaftar ke universitas ternama seperti Universitas Tokyo, Waseda, atau Kyoto, tetapi juga berpeluang mendapatkan beasiswa dari pemerintah Jepang (Monbukagakusho) atau perusahaan-perusahaan besar seperti Toyota dan Sony. Bayangkan, kuliah gratis sambil merasakan kehidupan di negeri sakura\u2014bukan impian semata, bukan?<\/p>\n<h2>2. Membangun Jaringan Internasional dengan Komunitas Global<\/h2>\n<p>Bahasa Jepang bukan hanya dipelajari oleh orang Indonesia, tetapi juga oleh jutaan pelajar dari berbagai negara, terutama Korea Selatan, Tiongkok, Vietnam, dan Thailand. Dengan menguasai bahasa ini, kamu tidak hanya bisa berkomunikasi dengan penutur asli, tetapi juga dengan pelajar internasional lainnya yang memiliki minat sama. Hal ini membuka peluang untuk bertukar pengalaman, berkolaborasi dalam proyek, atau bahkan membangun bisnis bersama.<\/p>\n<p>Misalnya, jika kamu tertarik dengan dunia startup atau digital marketing, banyak komunitas online dan offline yang menghubungkan penggemar budaya Jepang dari berbagai belahan dunia. Kamu bisa bergabung dalam forum diskusi, mengikuti acara pertukaran budaya, atau bahkan menjadi relawan dalam event-event internasional seperti Japan Expo. Selain memperluas pertemanan, jaringan ini juga bisa menjadi modal berharga untuk karier di masa depan\u2014siapa tahu kamu menemukan mitra bisnis atau mentor dari negara lain?<\/p>\n<h2>3. Peluang Karier di Perusahaan Jepang dan Multinasional<\/h2>\n<p>Indonesia dan Jepang memiliki hubungan ekonomi yang sangat kuat, terutama melalui kerja sama seperti <em>Indonesia-Japan Economic Partnership Agreement<\/em> (IJEPA). Banyak perusahaan Jepang, seperti Mitsubishi, Panasonic, dan Unilever Japan, yang beroperasi di Indonesia dan membutuhkan tenaga kerja lokal yang fasih berbahasa Jepang. Kemampuan ini tidak hanya membuka peluang kerja di dalam negeri, tetapi juga kesempatan untuk dikirim ke kantor pusat di Jepang atau negara lain.<\/p>\n<p>Selain itu, perusahaan-perusahaan multinasional juga sering mencari karyawan yang bisa berbahasa Jepang karena Jepang merupakan salah satu kekuatan ekonomi terbesar di dunia. Posisi-posisi seperti <em>business development<\/em>, hubungan internasional, atau bahkan manajemen proyek sering kali memprioritaskan kandidat dengan kemampuan bahasa Jepang. Gaji yang ditawarkan pun biasanya lebih kompetitif dibandingkan posisi serupa yang tidak membutuhkan bahasa asing. Jadi, jika kamu ingin karier yang cepat berkembang, belajar bahasa Jepang bisa menjadi <em>game-changer<\/em>!<\/p>\n<h2>4. Soft Skill Bernilai Tinggi: Dari Penerjemah Hingga Content Creator<\/h2>\n<p>Menguasai bahasa Jepang tidak hanya bermanfaat untuk bekerja di perusahaan, tetapi juga membuka peluang di berbagai bidang kreatif dan profesional. Misalnya, kamu bisa menjadi penerjemah lepas untuk dokumen bisnis, novel, atau bahkan subtitle film. Penerjemah bahasa Jepang dengan kualitas baik sangat dicari, terutama untuk konten-konten yang berkaitan dengan teknologi, hukum, atau budaya pop.<\/p>\n<p>Selain itu, kamu juga bisa mengejar karier sebagai <em>tour guide<\/em> untuk wisatawan Jepang yang berkunjung ke Indonesia, penulis konten untuk media berbahasa Jepang, atau bahkan <em>content creator<\/em> yang fokus pada budaya Jepang. Platform seperti YouTube, TikTok, atau blog pribadi bisa menjadi wadah untuk berbagi pengetahuanmu sambil menghasilkan pendapatan. Dengan semakin populernya konten-konten seputar Jepang, peluang ini semakin terbuka lebar\u2014terutama jika kamu bisa menggabungkan kemampuan bahasa dengan kreativitas.<\/p>\n<h2>5. Tantangan Menguasai Bahasa dengan Tiga Sistem Tulisan<\/h2>\n<p>Salah satu hal yang membuat bahasa Jepang menarik sekaligus menantang adalah sistem tulisannya yang terdiri dari tiga jenis: Hiragana, Katakana, dan Kanji. Hiragana dan Katakana adalah alfababet fonetik yang relatif mudah dipelajari, tetapi Kanji\u2014yang diadopsi dari karakter Tiongkok\u2014membutuhkan waktu dan latihan ekstra. Meskipun terlihat rumit, proses belajar ini justru melatih otak untuk berpikir lebih sistematis dan teliti.<\/p>\n<p>Ketika kamu berhasil menguasai ketiganya, rasa pencapaian yang didapatkan tidak tertandingi. Selain itu, kemampuan membaca Kanji juga memudahkanmu untuk memahami bahasa Tiongkok atau Korea, karena ketiga bahasa ini memiliki kesamaan dalam beberapa karakter. Tantangan ini tidak hanya membuat belajar bahasa Jepang menjadi lebih seru, tetapi juga mengasah kesabaran dan ketekunan\u2014dua <em>skill<\/em> yang sangat berharga dalam kehidupan sehari-hari.<\/p>\n<h2>6. Menanamkan Disiplin dan Etos Kerja ala Jepang<\/h2>\n<p>Budaya Jepang terkenal dengan tingkat kesopanan, ketepatan waktu, dan kerja keras yang tinggi. Ketika kamu belajar bahasanya, secara tidak langsung kamu juga akan terbiasa dengan struktur kalimat yang rapi, penggunaan kata yang sopan (<em>keigo<\/em>), dan etika berkomunikasi yang jelas. Hal-hal ini tidak hanya berguna saat berbicara dengan orang Jepang, tetapi juga membentuk kepribadianmu menjadi lebih disiplin dan profesional.<\/p>\n<p>Misalnya, dalam bahasa Jepang, ada tingkat kesopanan yang berbeda tergantung pada lawan bicara\u2014mulai dari teman sebaya hingga atasan atau klien. Kebiasaan ini melatihmu untuk lebih peka terhadap situasi dan menghargai hierarki, sesuatu yang sangat dihargai dalam dunia kerja. Selain itu, etos kerja orang Jepang yang mengutamakan kualitas dan detail juga akan terbawa dalam cara kerjamu, membuatmu lebih teliti dan bertanggung jawab.<\/p>\n<h2>Mulai Belajar Bahasa Jepang dengan Bantuan Profesional<\/h2>\n<p>Jika kamu tertarik untuk mempelajari bahasa Jepang tetapi merasa kesulitan memulainya sendiri, jangan khawatir! Layanan seperti <strong>Tugasin.me<\/strong> tidak hanya membantu dengan tugas-tugas akademis, tetapi juga menyediakan bimbingan untuk belajar bahasa asing, termasuk bahasa Jepang. Dengan pendampingan dari tutor berpengalaman, kamu bisa belajar dengan metode yang menyenangkan dan efektif\u2014mulai dari dasar hingga tingkat lanjut.<\/p>\n<p>Tidak perlu menunggu lama, mulailah dari hal-hal yang kamu sukai, seperti menonton anime tanpa subtitle, membaca manga, atau mendengarkan lagu J-Pop sambil memperhatikan liriknya. Semakin sering kamu berinteraksi dengan bahasa Jepang, semakin cepat pula kemajuanmu. Ingat, setiap <em>skill<\/em> berharga dimulai dari langkah kecil. Jadi, siapkah kamu mengambil langkah pertama menuju masa depan yang lebih cerah dengan belajar bahasa Jepang?<\/p>\n"
+            }, {
+                "id": "cG9zdDo1OTA2",
+                "databaseId": 5906,
+                "title": "Mengapa Bahasa Jepang Jadi Skill Wajib untuk Generasi Muda?",
+                "slug": "mengapa-bahasa-jepang-jadi-skill-wajib-untuk-generasi-muda",
+                "excerpt": "<p>Temukan mengapa bahasa Jepang jadi skill wajib generasi muda! Dari peluang karier di perusahaan top Jepang, beasiswa kuliah gratis, hingga pengalaman travelling yang lebih dalam\u2014semua bisa dimulai dengan menguasai bahasa ini. Yuk, simak rahasianya dan mulai langkah pertamamu!<\/p>\n",
+                "date": "2025-09-23T12:55:46",
+                "featuredImage": null,
+                "fifuImageUrl": "https:\/\/syd.cloud.appwrite.io\/v1\/storage\/buckets\/68bc90e000120a53466f\/files\/68cbfcb5d83fd226f6fe\/view?project=687cd909003a482a66b7&mode=admin",
+                "seo": {
+                    "title": "Mengapa Bahasa Jepang Jadi Skill Wajib Untuk Generasi Muda? - Tugasin.me",
+                    "description": "Temukan mengapa bahasa Jepang jadi skill wajib generasi muda! Dari peluang karier di perusahaan top Jepang, beasiswa kuliah gratis, hingga pengalaman travelling yang lebih dalam\u2014semua bisa dimulai dengan menguasai bahasa ini. Yuk, simak rahasianya dan mulai langkah pertamamu!",
+                    "focusKeywords": ["manfaat belajar bahasa Jepang untuk generasi muda"],
+                    "seoScore": {
+                        "score": 0
+                    },
+                    "canonicalUrl": "https:\/\/cms.tugasin.me\/blog\/edukasi\/mengapa-bahasa-jepang-jadi-skill-wajib-untuk-generasi-muda\/"
+                },
+                "author": {
+                    "node": {
+                        "id": "dXNlcjox",
+                        "name": "Tugasin",
+                        "slug": "tugasin"
+                    }
+                },
+                "categories": {
+                    "nodes": [{
+                        "id": "dGVybTo5MQ==",
+                        "name": "Edukasi",
+                        "slug": "edukasi"
+                    }]
+                },
+                "tags": {
+                    "nodes": [{
+                        "id": "dGVybToxMDM=",
+                        "name": "Belajar Bahasa Jepang",
+                        "slug": "belajar-bahasa-jepang"
+                    }, {
+                        "id": "dGVybToxMTI=",
+                        "name": "Karier",
+                        "slug": "karier"
+                    }, {
+                        "id": "dGVybTo4OQ==",
+                        "name": "Motivasi Belajar",
+                        "slug": "motivasi-belajar"
+                    }, {
+                        "id": "dGVybTo4OA==",
+                        "name": "Produktivitas",
+                        "slug": "produktivitas"
+                    }, {
+                        "id": "dGVybTo4Nw==",
+                        "name": "Tips Belajar",
+                        "slug": "tips-belajar"
+                    }]
+                },

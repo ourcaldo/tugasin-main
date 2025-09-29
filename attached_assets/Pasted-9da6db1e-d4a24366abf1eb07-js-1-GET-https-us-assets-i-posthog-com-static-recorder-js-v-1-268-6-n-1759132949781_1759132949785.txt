@@ -1,0 +1,14 @@
+9da6db1e-d4a24366abf1eb07.js:1 
+ GET https://us-assets.i.posthog.com/static/recorder.js?v=1.268.6 net::ERR_ABORTED 503 (Service Unavailable)
+9da6db1e-d4a24366abf1eb07.js:1 
+ GET https://us-assets.i.posthog.com/static/dead-clicks-autocapture.js?v=1.268.6 net::ERR_ABORTED 503 (Service Unavailable)
+9da6db1e-d4a24366abf1eb07.js:1 
+ GET https://us-assets.i.posthog.com/static/web-vitals.js?v=1.268.6 net::ERR_ABORTED 503 (Service Unavailable)
+9da6db1e-d4a24366abf1eb07.js:1 
+ GET https://us-assets.i.posthog.com/array/phc_5OcXPsbxulECrc3yaLPiFmf36KSFziEoxmQvwrdsmI1/config.js net::ERR_ABORTED 503 (Service Unavailable)
+layout-c463d7ed6d16033f.js:1 Refused to connect to 'https://us-assets.i.posthog.com/array/phc_5OcXPsbxulECrc3yaLPiFmf36KSFziEoxmQvwrdsmI1/config?ip=0&_=1759132875502&ver=1.268.6' because it violates the following Content Security Policy directive: "connect-src 'self' https://cms.tugasin.me https://va.vercel-scripts.com https://fonts.googleapis.com https://us.i.posthog.com https://*.ingest.us.sentry.io https://www.google-analytics.com https://analytics.google.com https://region1.google-analytics.com".
+layout-c463d7ed6d16033f.js:1 Fetch API cannot load https://us-assets.i.posthog.com/array/phc_5OcXPsbxulECrc3yaLPiFmf36KSFziEoxmQvwrdsmI1/config?ip=0&_=1759132875502&ver=1.268.6. Refused to connect because it violates the document's Content Security Policy.
+sw-simple.js:66 Refused to connect to 'https://us-assets.i.posthog.com/static/surveys.js?v=1.268.6' because it violates the following Content Security Policy directive: "connect-src 'self' https://cms.tugasin.me https://va.vercel-scripts.com https://fonts.googleapis.com https://us.i.posthog.com https://*.ingest.us.sentry.io https://www.google-analytics.com https://analytics.google.com https://region1.google-analytics.com".
+sw-simple.js:66 Fetch API cannot load https://us-assets.i.posthog.com/static/surveys.js?v=1.268.6. Refused to connect because it violates the document's Content Security Policy.
+9da6db1e-d4a24366abf1eb07.js:1 
+ GET https://us-assets.i.posthog.com/static/surveys.js?v=1.268.6 net::ERR_ABORTED 503 (Service Unavailable)

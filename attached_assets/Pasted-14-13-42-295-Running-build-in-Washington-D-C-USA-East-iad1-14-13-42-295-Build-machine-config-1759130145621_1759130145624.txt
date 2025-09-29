@@ -1,0 +1,95 @@
+14:13:42.295 Running build in Washington, D.C., USA (East) – iad1
+14:13:42.295 Build machine configuration: 2 cores, 8 GB
+14:13:42.313 Cloning github.com/ourcaldo/tugasin.me (Branch: main, Commit: 755cb81)
+14:13:42.461 Previous build caches not available
+14:13:55.114 Cloning completed: 12.800s
+14:13:55.463 Running "vercel build"
+14:13:55.906 Vercel CLI 48.1.6
+14:13:56.286 Running "install" command: `npm install`...
+14:13:59.952 npm warn deprecated sourcemap-codec@1.4.8: Please use @jridgewell/sourcemap-codec instead
+14:14:00.161 npm warn deprecated rimraf@3.0.2: Rimraf versions prior to v4 are no longer supported
+14:14:01.241 npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+14:14:03.702 npm warn deprecated @humanwhocodes/object-schema@2.0.3: Use @eslint/object-schema instead
+14:14:03.744 npm warn deprecated @humanwhocodes/config-array@0.13.0: Use @eslint/config-array instead
+14:14:04.652 npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+14:14:04.795 npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+14:14:05.181 npm warn deprecated source-map@0.8.0-beta.0: The work that was done in this beta branch won't be included in future versions
+14:14:08.956 npm warn deprecated eslint@8.57.1: This version is no longer supported. Please see https://eslint.org/version-support for other options.
+14:14:18.664 
+14:14:18.665 added 1004 packages, and audited 1005 packages in 22s
+14:14:18.666 
+14:14:18.666 212 packages are looking for funding
+14:14:18.666   run `npm fund` for details
+14:14:18.666 
+14:14:18.667 found 0 vulnerabilities
+14:14:18.719 Detected Next.js version: 15.5.4
+14:14:18.720 Running "npm run build"
+14:14:18.831 
+14:14:18.832 > Tugasin@0.1.0 build
+14:14:18.832 > next build
+14:14:18.832 
+14:14:19.495    ▲ Next.js 15.5.4
+14:14:19.496    - Experiments (use with caution):
+14:14:19.496      · allowedRevalidateHeaderKeys
+14:14:19.496 
+14:14:19.596    Creating an optimized production build ...
+14:14:41.718  ⚠ Compiled with warnings in 21.8s
+14:14:41.719 
+14:14:41.719 ./node_modules/@prisma/instrumentation/node_modules/@opentelemetry/instrumentation/build/esm/platform/node/instrumentation.js
+14:14:41.719 Critical dependency: the request of a dependency is an expression
+14:14:41.720 
+14:14:41.720 Import trace for requested module:
+14:14:41.720 ./node_modules/@prisma/instrumentation/node_modules/@opentelemetry/instrumentation/build/esm/platform/node/instrumentation.js
+14:14:41.720 ./node_modules/@prisma/instrumentation/node_modules/@opentelemetry/instrumentation/build/esm/platform/node/index.js
+14:14:41.721 ./node_modules/@prisma/instrumentation/node_modules/@opentelemetry/instrumentation/build/esm/platform/index.js
+14:14:41.721 ./node_modules/@prisma/instrumentation/node_modules/@opentelemetry/instrumentation/build/esm/index.js
+14:14:41.721 ./node_modules/@prisma/instrumentation/dist/index.js
+14:14:41.722 ./node_modules/@sentry/node/build/cjs/integrations/tracing/prisma.js
+14:14:41.722 ./node_modules/@sentry/node/build/cjs/index.js
+14:14:41.722 ./node_modules/@sentry/nextjs/build/cjs/index.server.js
+14:14:41.722 ./lib/analytics/error-monitoring.ts
+14:14:41.723 ./lib/analytics/analytics-provider.tsx
+14:14:41.723 ./app/providers.tsx
+14:14:41.723 
+14:14:41.725    Linting and checking validity of types ...
+14:14:52.399    Collecting page data ...
+14:14:55.474    Generating static pages (0/13) ...
+14:14:56.844 Error generating numbered sitemap: TypeError: Cannot destructure property 'page' of '(intermediate value)' as it is undefined.
+14:14:56.844     at y (.next/server/app/sitemap-post-[page].xml/route.js:1:1015)
+14:14:57.415    Generating static pages (3/13) 
+14:14:57.416    Generating static pages (6/13) 
+14:15:02.759    Generating static pages (9/13) 
+14:15:02.760  ✓ Generating static pages (13/13)
+14:15:06.227    Finalizing page optimization ...
+14:15:06.228    Collecting build traces ...
+14:15:33.459 
+14:15:33.467 Route (app)                                 Size  First Load JS  Revalidate  Expire
+14:15:33.468 ┌ ○ /                                    3.89 kB         140 kB          1h      1y
+14:15:33.468 ├ ○ /_not-found                            143 B         102 kB
+14:15:33.469 ├ ƒ /api/revalidate                        143 B         102 kB
+14:15:33.469 ├ ○ /blog                                  171 B         142 kB          5m      1y
+14:15:33.469 ├ ƒ /blog/[...params]                     4.2 kB         146 kB
+14:15:33.469 ├ ○ /contact                             45.1 kB         175 kB          1d      1y
+14:15:33.469 ├ ○ /layanan                             1.19 kB         103 kB          1h      1y
+14:15:33.469 ├ ○ /offline                             3.15 kB         118 kB
+14:15:33.469 ├ ○ /robots.txt                            143 B         102 kB          1d      1y
+14:15:33.469 ├ ○ /sitemap-pages.xml                     143 B         102 kB          1d      1y
+14:15:33.469 ├ ○ /sitemap-post-[page].xml               143 B         102 kB          1h      1y
+14:15:33.469 ├ ○ /sitemap-post.xml                      143 B         102 kB          1h      1y
+14:15:33.469 └ ○ /sitemap.xml                           143 B         102 kB          1h      1y
+14:15:33.469 + First Load JS shared by all             102 kB
+14:15:33.470   ├ chunks/255-4efeec91c7871d79.js       45.7 kB
+14:15:33.470   ├ chunks/4bd1b696-c023c6e3521b1417.js  54.2 kB
+14:15:33.470   └ other shared chunks (total)          2.05 kB
+14:15:33.470 
+14:15:33.470 
+14:15:33.470 ƒ Middleware                             33.3 kB
+14:15:33.470 
+14:15:33.470 ○  (Static)   prerendered as static content
+14:15:33.473 ƒ  (Dynamic)  server-rendered on demand
+14:15:33.473 
+14:15:33.706 Traced Next.js server files in: 111.371ms
+14:15:34.573 Created all serverless functions in: 865.468ms
+14:15:34.626 Collected static files (public/, static/, .next/static): 5.802ms
+14:15:34.731 Build Completed in /vercel/output [2m]
+14:15:34.981 Deploying outputs...
