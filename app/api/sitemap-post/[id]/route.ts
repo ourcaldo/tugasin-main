@@ -55,12 +55,10 @@ function parseDate(dateString: string): string {
 
 export async function GET(
   request: NextRequest,
-  context: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
-    // Extract page ID from params
-    const { id } = await context.params
-    const pageNumber = parseInt(id, 10)
+    const pageNumber = parseInt(params.id, 10)
     
     if (isNaN(pageNumber) || pageNumber < 1) {
       return new NextResponse('Invalid page number', { status: 400 })

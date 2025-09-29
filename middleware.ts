@@ -9,6 +9,15 @@ export function middleware(request: NextRequest) {
   const userAgent = request.headers.get('user-agent') || '';
   const isBot = /bot|crawler|spider|crawling/i.test(userAgent);
   
+  // Handle sitemap-post-[number].xml routing
+  const sitemapPostMatch = pathname.match(/^\/sitemap-post-(\d+)\.xml$/);
+  if (sitemapPostMatch) {
+    const pageNumber = sitemapPostMatch[1];
+    const url = request.nextUrl.clone();
+    url.pathname = `/api/sitemap-post/${pageNumber}`;
+    return NextResponse.rewrite(url);
+  }
+  
   // Determine content type based on pathname
   let contentType: string | null = null;
   
