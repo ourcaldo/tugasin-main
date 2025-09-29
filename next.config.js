@@ -68,6 +68,7 @@ const nextConfig = {
               `base-uri ${securityConfig.csp.baseUri}`,
               `form-action ${securityConfig.csp.formAction}`,
               `frame-ancestors ${securityConfig.csp.frameAncestors}`,
+              `worker-src ${securityConfig.csp.workerSrc}`,
               securityConfig.csp.upgradeInsecureRequests ? 'upgrade-insecure-requests' : '',
             ].filter(Boolean).join('; '),
           },

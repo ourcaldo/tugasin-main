@@ -56,7 +56,7 @@ interface AnalyticsContextType {
 
 const defaultConfig: AnalyticsConfig = {
   googleAnalytics: {
-    enabled: !!GA_MEASUREMENT_ID && process.env.NODE_ENV === 'production',
+    enabled: !!GA_MEASUREMENT_ID,
     measurementId: GA_MEASUREMENT_ID,
     debugMode: process.env.NODE_ENV === 'development',
   },
