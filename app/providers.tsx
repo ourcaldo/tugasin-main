@@ -13,6 +13,7 @@ import { Toaster } from '@/components/ui/sonner';
 import { queryClient } from '@/lib/cache/query-client';
 import { DEV_CONFIG } from '@/lib/utils/constants';
 import { AnalyticsProvider } from '@/lib/analytics/analytics-provider';
+import PWAManager from '@/components/pwa/PWAManager';
 
 interface ProvidersProps {
   children: React.ReactNode;
@@ -23,15 +24,17 @@ export function Providers({ children }: ProvidersProps) {
   return (
     <QueryClientProvider client={queryClient}>
       <AnalyticsProvider>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="light"
-          enableSystem
-          disableTransitionOnChange
-        >
-          {children}
-          <Toaster />
-        </ThemeProvider>
+        <PWAManager>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="light"
+            enableSystem
+            disableTransitionOnChange
+          >
+            {children}
+            <Toaster />
+          </ThemeProvider>
+        </PWAManager>
         
         {/* Show React Query DevTools in development */}
         {DEV_CONFIG.debugMode && (
