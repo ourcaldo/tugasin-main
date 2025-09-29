@@ -55,13 +55,10 @@ function parseDate(dateString: string): string {
 
 export async function GET(
   request: Request,
-  context: any
+  { params }: { params: { page: string } }
 ) {
   try {
-    // Safely extract params with fallback
-    const params = await context?.params
-    
-    // Default to page 1 if params are not available or invalid
+    // Extract page parameter directly from params
     let pageNumber = 1
     
     if (params?.page) {

@@ -7,29 +7,12 @@ export class Logger {
   private static logToServer(level: string, message: string, data?: any) {
     if (!this.isServerLoggingEnabled) return;
     
-    // Create a detailed log entry for the server
-    const logEntry = {
-      timestamp: new Date().toISOString(),
-      level,
-      message,
-      data: data ? JSON.stringify(data, null, 2) : undefined
-    };
-
     // COMPLETELY SUPPRESS ALL BROWSER CONSOLE OUTPUT
     // No console.log, console.error, console.warn, etc.
-    // These logs will only appear in workflow logs (server-side)
+    // No network requests - completely silent logger
     
-    // Send to server console via a background fetch request that doesn't interfere with user experience
-    try {
-      // Use a fake endpoint that will show in network logs but not affect user
-      fetch('/api/dev/null', {
-        method: 'POST',
-        body: JSON.stringify(logEntry),
-        headers: { 'Content-Type': 'application/json' }
-      }).catch(() => {}); // Suppress any network errors
-    } catch {
-      // Completely silent - no browser console output at all
-    }
+    // Logger is now completely silent - no network calls, no console output
+    // This prevents any annoying network requests or browser console pollution
   }
 
   static info(message: string, data?: any) {
