@@ -143,19 +143,40 @@ export class BlogService {
     
     // For sitemap generation (when offset > 0), don't use cache - get fresh data with pagination
     const isRequestingPagination = offset > 0 || limit > 50;
+    const isCacheValid = (now - this.lastFetchTime) < this.cacheExpiry;
     
-    // Return cached data if available and not expired (only for first page requests)
-    if (!forceRefresh && !isRequestingPagination && this.cachedPosts.length > 0 && (now - this.lastFetchTime) < this.cacheExpiry) {
+    // Cache-first strategy: Return cached data immediately if available and valid
+    if (!forceRefresh && !isRequestingPagination && this.cachedPosts.length > 0 && isCacheValid) {
+      if (DEV_CONFIG.debugMode) {
+        Logger.info('Returning cached posts for instant loading');
+      }
+      return this.cachedPosts.slice(offset, offset + limit);
+    }
+    
+    // If cache is stale but we have data, return it and refresh in background
+    if (!forceRefresh && !isRequestingPagination && this.cachedPosts.length > 0 && !isCacheValid) {
+      if (DEV_CONFIG.debugMode) {
+        Logger.info('Returning stale cached posts and refreshing in background');
+      }
+      
+      // Refresh in background
+      this.refreshAllPostsInBackground();
       return this.cachedPosts.slice(offset, offset + limit);
     }
 
-    // Try to fetch from CMS, fallback to cache if offline
+    // No cache or forced refresh - fetch from CMS with timeout protection
     try {
       if (DEV_CONFIG.debugMode) {
         Logger.info('Fetching posts from CMS...');
       }
-      const response = await graphqlClient.getAllPosts(limit, undefined);
       
+      // Add timeout protection
+      const cmsPromise = graphqlClient.getAllPosts(limit, undefined);
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('CMS request timeout')), 8000)
+      );
+      
+      const response = await Promise.race([cmsPromise, timeoutPromise]) as any;
       const transformedPosts = response.posts.nodes.map(transformCMSPost);
       
       if (!isRequestingPagination) {
@@ -168,7 +189,11 @@ export class BlogService {
       }
       return transformedPosts;
     } catch (error) {
-      // If CMS fails, use cached data
+      if (DEV_CONFIG.debugMode) {
+        Logger.error('CMS request failed:', error);
+      }
+      
+      // Fallback to any cached data we have
       if (this.cachedPosts.length > 0) {
         if (DEV_CONFIG.debugMode) {
           Logger.info(`CMS failed, serving ${this.cachedPosts.length} cached posts`);
@@ -180,6 +205,25 @@ export class BlogService {
         Logger.error('CMS failed and no cache available:', error);
       }
       return [];
+    }
+  }
+  
+  // Background refresh method for all posts
+  private async refreshAllPostsInBackground(): Promise<void> {
+    try {
+      const response = await graphqlClient.getAllPosts(50, undefined);
+      const transformedPosts = response.posts.nodes.map(transformCMSPost);
+      
+      this.cachedPosts = transformedPosts;
+      this.lastFetchTime = Date.now();
+      
+      if (DEV_CONFIG.debugMode) {
+        Logger.info('Background refresh completed for all posts');
+      }
+    } catch (error) {
+      if (DEV_CONFIG.debugMode) {
+        Logger.warn('Background refresh failed for all posts', error);
+      }
     }
   }
 
@@ -195,22 +239,43 @@ export class BlogService {
   }
 
   async getPostBySlug(slug: string): Promise<BlogPost | null> {
-    // Check if CMS is available first
-    const cmsIsAvailable = await this.checkCMSAvailability();
-    if (!cmsIsAvailable) {
+    // Cache-first strategy: Check cache first for instant loading
+    const cachedPost = this.cachedPosts.find(post => post.slug === slug);
+    const now = Date.now();
+    const isCacheValid = (now - this.lastFetchTime) < this.cacheExpiry;
+    
+    // If we have cached data and it's still valid, return it immediately
+    if (cachedPost && isCacheValid) {
       if (DEV_CONFIG.debugMode) {
-        Logger.info('CMS is not available, trying cached posts for slug:', slug);
+        Logger.info('Returning cached post for instant loading:', slug);
       }
-      // Try to find in cached posts if CMS is unavailable
-      return this.cachedPosts.find(post => post.slug === slug) || null;
+      return cachedPost;
     }
-
-    try {
+    
+    // If we have cached data but it's stale, return it immediately and refresh in background
+    if (cachedPost && !isCacheValid) {
       if (DEV_CONFIG.debugMode) {
-        Logger.info('Fetching post by slug from CMS:', slug);
+        Logger.info('Returning stale cached post and refreshing in background:', slug);
       }
       
-      const response = await graphqlClient.getPostBySlug(slug);
+      // Refresh cache in background (fire and forget)
+      this.refreshPostInBackground(slug);
+      return cachedPost;
+    }
+
+    // No cached data - try to fetch from CMS with timeout protection
+    try {
+      if (DEV_CONFIG.debugMode) {
+        Logger.info('No cache available, fetching post from CMS:', slug);
+      }
+      
+      // Add timeout protection for CMS requests
+      const cmsPromise = graphqlClient.getPostBySlug(slug);
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('CMS request timeout')), 5000)
+      );
+      
+      const response = await Promise.race([cmsPromise, timeoutPromise]) as any;
       
       if (!response.post) {
         if (DEV_CONFIG.debugMode) {
@@ -221,22 +286,59 @@ export class BlogService {
       
       const post = transformCMSPost(response.post);
       
+      // Update cache with the fresh data
+      const existingIndex = this.cachedPosts.findIndex(p => p.slug === slug);
+      if (existingIndex >= 0) {
+        this.cachedPosts[existingIndex] = post;
+      } else {
+        this.cachedPosts.push(post);
+      }
+      this.lastFetchTime = now;
+      
       if (DEV_CONFIG.debugMode) {
-        Logger.info('Successfully fetched post from CMS:', post.title);
+        Logger.info('Successfully fetched and cached post from CMS:', post.title);
       }
       
       return post;
     } catch (error) {
       if (DEV_CONFIG.debugMode) {
-        Logger.error('Failed to fetch post by slug from CMS:', error);
+        Logger.error('Failed to fetch post from CMS:', error);
       }
       
-      // Try to find in cached posts as last resort
-      const cachedPost = this.cachedPosts.find(post => post.slug === slug);
-      if (cachedPost && DEV_CONFIG.debugMode) {
-        Logger.info('Returning cached post for slug:', slug);
+      // Return any cached data we have, even if stale
+      if (cachedPost) {
+        if (DEV_CONFIG.debugMode) {
+          Logger.info('Returning stale cached post due to CMS failure:', slug);
+        }
+        return cachedPost;
       }
-      return cachedPost || null;
+      
+      return null;
+    }
+  }
+  
+  // Background refresh method to update cache without blocking
+  private async refreshPostInBackground(slug: string): Promise<void> {
+    try {
+      const response = await graphqlClient.getPostBySlug(slug);
+      if (response.post) {
+        const post = transformCMSPost(response.post);
+        const existingIndex = this.cachedPosts.findIndex(p => p.slug === slug);
+        if (existingIndex >= 0) {
+          this.cachedPosts[existingIndex] = post;
+        } else {
+          this.cachedPosts.push(post);
+        }
+        this.lastFetchTime = Date.now();
+        
+        if (DEV_CONFIG.debugMode) {
+          Logger.info('Background refresh completed for post:', slug);
+        }
+      }
+    } catch (error) {
+      if (DEV_CONFIG.debugMode) {
+        Logger.warn(`Background refresh failed for post: ${slug}`, error);
+      }
     }
   }
 
