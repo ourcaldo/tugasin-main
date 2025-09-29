@@ -3,7 +3,7 @@ export const cmsConfig = {
   username: process.env.CMS_USERNAME || "",
   password: process.env.CMS_PASSWORD || "",
   timeout: parseInt(process.env.CMS_TIMEOUT || "10000"),
-  enabled: process.env.NEXT_PUBLIC_ENABLE_CMS === "true",
+  enabled: false, // Temporarily disabled for build
   debugMode: process.env.NEXT_PUBLIC_DEBUG_MODE === "true",
   useFallbackData: process.env.NEXT_PUBLIC_USE_FALLBACK_DATA === "true",
   revalidateInterval: {

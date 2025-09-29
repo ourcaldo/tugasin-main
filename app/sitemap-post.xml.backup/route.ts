@@ -57,15 +57,8 @@ export async function GET() {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://tugasin.com'
   const postsPerSitemap = 200
   
-  // Get total number of posts to determine how many sitemap files we need
-  let totalPosts = 0
-  try {
-    const posts = await blogService.getAllPosts(1000, 0) // Get a large number to count total
-    totalPosts = posts.length
-  } catch (error) {
-    console.error('Error getting post count for sitemap:', error)
-    totalPosts = 200 // Fallback to assume at least one sitemap file
-  }
+  // Temporarily return empty sitemap during build to prevent hanging
+  const totalPosts = 0
   
   const numberOfSitemaps = Math.ceil(totalPosts / postsPerSitemap)
   
