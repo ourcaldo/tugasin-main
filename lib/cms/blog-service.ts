@@ -141,12 +141,13 @@ export class BlogService {
   async getAllPosts(limit: number = 50, offset: number = 0, forceRefresh: boolean = false): Promise<BlogPost[]> {
     const now = Date.now();
     
-    // For sitemap generation (when offset > 0), don't use cache - get fresh data with pagination
+    // For sitemap generation (when requesting all posts), use pagination to fetch everything
+    const isSitemapRequest = limit > 200; // Sitemap requests usually ask for 1000+ posts
     const isRequestingPagination = offset > 0 || limit > 50;
     const isCacheValid = (now - this.lastFetchTime) < this.cacheExpiry;
     
     // Cache-first strategy: Return cached data immediately if available and valid
-    if (!forceRefresh && !isRequestingPagination && this.cachedPosts.length > 0 && isCacheValid) {
+    if (!forceRefresh && !isRequestingPagination && !isSitemapRequest && this.cachedPosts.length > 0 && isCacheValid) {
       if (DEV_CONFIG.debugMode) {
         Logger.info('Returning cached posts for instant loading');
       }
@@ -154,7 +155,7 @@ export class BlogService {
     }
     
     // If cache is stale but we have data, return it and refresh in background
-    if (!forceRefresh && !isRequestingPagination && this.cachedPosts.length > 0 && !isCacheValid) {
+    if (!forceRefresh && !isRequestingPagination && !isSitemapRequest && this.cachedPosts.length > 0 && !isCacheValid) {
       if (DEV_CONFIG.debugMode) {
         Logger.info('Returning stale cached posts and refreshing in background');
       }
@@ -162,6 +163,11 @@ export class BlogService {
       // Refresh in background
       this.refreshAllPostsInBackground();
       return this.cachedPosts.slice(offset, offset + limit);
+    }
+
+    // For sitemap generation, fetch ALL posts using pagination
+    if (isSitemapRequest) {
+      return this.getAllPostsForSitemap(limit, offset);
     }
 
     // No cache or forced refresh - fetch from CMS with timeout protection
@@ -203,6 +209,53 @@ export class BlogService {
       
       if (DEV_CONFIG.debugMode) {
         Logger.error('CMS failed and no cache available:', error);
+      }
+      return [];
+    }
+  }
+  
+  // Special method for sitemap generation that fetches ALL posts using pagination
+  private async getAllPostsForSitemap(requestedLimit: number, offset: number): Promise<BlogPost[]> {
+    try {
+      if (DEV_CONFIG.debugMode) {
+        Logger.info('Fetching ALL posts for sitemap generation using pagination...');
+      }
+      
+      let allPosts: BlogPost[] = [];
+      let hasNextPage = true;
+      let after: string | undefined = undefined;
+      const batchSize = 100; // WordPress/CMS limit per request
+      
+      while (hasNextPage && allPosts.length < requestedLimit) {
+        const response = await graphqlClient.getAllPosts(batchSize, after);
+        const transformedPosts = response.posts.nodes.map(transformCMSPost);
+        
+        allPosts = allPosts.concat(transformedPosts);
+        hasNextPage = response.posts.pageInfo.hasNextPage;
+        after = response.posts.pageInfo.endCursor;
+        
+        if (DEV_CONFIG.debugMode) {
+          Logger.info(`Fetched batch: ${transformedPosts.length} posts. Total so far: ${allPosts.length}`);
+        }
+        
+        // Safety break to prevent infinite loops
+        if (allPosts.length > 2000) {
+          if (DEV_CONFIG.debugMode) {
+            Logger.warn('Reached safety limit of 2000 posts, stopping pagination');
+          }
+          break;
+        }
+      }
+      
+      if (DEV_CONFIG.debugMode) {
+        Logger.info(`Successfully fetched ${allPosts.length} total posts for sitemap`);
+      }
+      
+      // Return the requested slice with offset and limit
+      return allPosts.slice(offset, offset + requestedLimit);
+    } catch (error) {
+      if (DEV_CONFIG.debugMode) {
+        Logger.error('Failed to fetch posts for sitemap:', error);
       }
       return [];
     }
