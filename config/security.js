@@ -41,6 +41,10 @@ const securityConfig = {
     '127.0.0.1',
     'localhost',
     'worf.replit.dev',
+    // Dynamic Replit domains pattern
+    /.*\.replit\.dev$/,
+    /.*\.janeway\.replit\.dev$/,
+    /.*\.worf\.replit\.dev$/,
   ],
 }
 

@@ -251,10 +251,20 @@ const nextConfig = {
 
     return config;
   },
-  // Allow all hosts for Replit proxy
+  // Allow all hosts for Replit proxy  
   async rewrites() {
     return [];
   },
+  // Enhanced allowed dev origins for Replit environment
+  allowedDevOrigins: [
+    '127.0.0.1',
+    'localhost', 
+    'worf.replit.dev',
+    // Pattern to match all Replit dev domains
+    '*.replit.dev',
+    '*.janeway.replit.dev',
+    '*.worf.replit.dev',
+  ],
   // Disable host checking for Replit environment
   typescript: {
     ignoreBuildErrors: false,
