@@ -1,10 +1,12 @@
 import Blog from '@/components/pages/Blog'
-import BlogPost from '@/components/pages/BlogPost'
+import BlogPostClient from '@/components/pages/BlogPostClient'
 import { notFound } from 'next/navigation'
 import { generateMetadata as genMetadata } from '@/lib/seo/metadata'
 import { articleSchema, breadcrumbSchema, generateStructuredDataScript } from '@/lib/seo/structured-data'
 import { siteConfig } from '@/config/site'
 import { getRevalidationForPageType, scheduleBackgroundRevalidation } from '@/lib/cache/isr-revalidation'
+import { blogService } from '@/lib/cms/blog-service'
+import type { BlogPost as BlogPostType } from '@/lib/utils/types'
 
 interface PageProps {
   params: Promise<{
@@ -25,24 +27,52 @@ export default async function Page({ params }: PageProps) {
   if (routeParams.length === 2) {
     const [category, slug] = routeParams
     
+    // Fetch blog post data on the server for faster loading
+    let post: BlogPostType | null = null
+    let relatedPosts: BlogPostType[] = []
+    let error: string | null = null
+    
+    try {
+      // Fetch the main post
+      post = await blogService.getPostBySlug(slug)
+      
+      if (!post) {
+        notFound()
+      }
+      
+      // Fetch related posts (same category, excluding current post)
+      const allPosts = await blogService.getAllPosts()
+      relatedPosts = allPosts
+        .filter((p: BlogPostType) => p.category === post!.category && p.id !== post!.id)
+        .slice(0, 3)
+        
+    } catch (err) {
+      console.error('Error fetching blog post:', err)
+      error = 'Gagal memuat artikel'
+    }
+    
+    if (error || !post) {
+      notFound()
+    }
+    
     // Generate structured data for blog post
     const breadcrumbs = [
       { name: 'Beranda', url: siteConfig.url },
       { name: 'Blog', url: `${siteConfig.url}/blog` },
       { name: category, url: `${siteConfig.url}/blog/${category}` },
-      { name: slug.replace(/-/g, ' '), url: `${siteConfig.url}/blog/${category}/${slug}` }
+      { name: post.title, url: `${siteConfig.url}/blog/${category}/${slug}` }
     ]
     
     const structuredData = [
       articleSchema(
-        slug.replace(/-/g, ' '), // Convert slug to readable title
-        `Artikel tentang ${slug.replace(/-/g, ' ')} dalam kategori ${category}`,
+        post.title,
+        post.seo?.description || post.excerpt,
         new Date().toISOString(), // Published time - ideally from CMS
         new Date().toISOString(), // Modified time - ideally from CMS  
-        'Tim Tugasin',
+        post.author || 'Tim Tugasin',
         `${category}/${slug}`,
         category,
-        [category, 'akademik', 'tips']
+        post.tags || [category, 'akademik', 'tips']
       ),
       breadcrumbSchema(breadcrumbs)
     ]
@@ -53,7 +83,11 @@ export default async function Page({ params }: PageProps) {
           type="application/ld+json"
           dangerouslySetInnerHTML={generateStructuredDataScript(structuredData)}
         />
-        <BlogPost />
+        <BlogPostClient 
+          post={post}
+          relatedPosts={relatedPosts}
+          categoryParam={category}
+        />
       </>
     )
   }
