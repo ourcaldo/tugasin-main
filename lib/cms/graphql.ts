@@ -30,6 +30,14 @@ export interface PostResponse {
   post: CMSPost;
 }
 
+export interface PostCountResponse {
+  posts: {
+    nodes: Array<{
+      id: string;
+    }>;
+  };
+}
+
 export interface CMSPost {
   id: string;
   databaseId: number;
@@ -251,7 +259,28 @@ class GraphQLClient {
     return this.query<PostResponse>(query, { slug });
   }
 
-  
+  // Optimized query to get total post count without fetching full content
+  async getTotalPostCount(): Promise<number> {
+    const query = `
+      query GetPostCount {
+        posts(first: 1000) {
+          nodes {
+            id
+          }
+        }
+      }
+    `;
+
+    try {
+      const response = await this.query<PostCountResponse>(query);
+      return response.posts.nodes.length;
+    } catch (error) {
+      if (DEV_CONFIG.debugMode) {
+        Logger.error('Failed to get post count:', error);
+      }
+      return 0;
+    }
+  }
 
   // Check if CMS is available
   async isAvailable(): Promise<boolean> {
