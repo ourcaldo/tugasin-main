@@ -87,8 +87,11 @@ function transformCMSPost(cmsPost: CMSPost): BlogPost {
 export class BlogService {
   private cachedPosts: BlogPost[] = [];
   private cachedCategories: BlogCategory[] = [];
+  private cachedPostCount: number = 0;
   private lastFetchTime: number = 0;
+  private lastCountFetchTime: number = 0;
   private cacheExpiry: number = 5 * 60 * 1000; // 5 minutes
+  private countCacheExpiry: number = 15 * 60 * 1000; // 15 minutes - longer for count
   private cmsAvailable: boolean | null = null;
   private lastCMSCheck: number = 0;
   private cmsCheckInterval: number = 2 * 60 * 1000; // 2 minutes
@@ -410,6 +413,67 @@ export class BlogService {
     }
   }
 
+  // Optimized method to get total post count with longer cache TTL
+  async getTotalPostCount(): Promise<number> {
+    const now = Date.now();
+    const isCountCacheValid = (now - this.lastCountFetchTime) < this.countCacheExpiry;
+
+    // Return cached count if valid
+    if (this.cachedPostCount > 0 && isCountCacheValid) {
+      if (DEV_CONFIG.debugMode) {
+        Logger.info(`Returning cached post count: ${this.cachedPostCount}`);
+      }
+      return this.cachedPostCount;
+    }
+
+    // If we have cached posts, we can count them
+    const isCacheValid = (now - this.lastFetchTime) < this.cacheExpiry;
+    if (this.cachedPosts.length > 0 && isCacheValid) {
+      this.cachedPostCount = this.cachedPosts.length;
+      this.lastCountFetchTime = now;
+      if (DEV_CONFIG.debugMode) {
+        Logger.info(`Using cached posts for count: ${this.cachedPostCount}`);
+      }
+      return this.cachedPostCount;
+    }
+
+    // Fetch count from CMS using optimized query
+    try {
+      if (DEV_CONFIG.debugMode) {
+        Logger.info('Fetching post count from CMS...');
+      }
+
+      const count = await graphqlClient.getTotalPostCount();
+      this.cachedPostCount = count;
+      this.lastCountFetchTime = now;
+
+      if (DEV_CONFIG.debugMode) {
+        Logger.info(`Successfully fetched post count from CMS: ${count}`);
+      }
+
+      return count;
+    } catch (error) {
+      if (DEV_CONFIG.debugMode) {
+        Logger.error('Failed to fetch post count from CMS:', error);
+      }
+
+      // Fallback to cached count if available
+      if (this.cachedPostCount > 0) {
+        if (DEV_CONFIG.debugMode) {
+          Logger.info(`Returning stale cached count: ${this.cachedPostCount}`);
+        }
+        return this.cachedPostCount;
+      }
+
+      // Last resort: count from cached posts even if stale
+      if (this.cachedPosts.length > 0) {
+        return this.cachedPosts.length;
+      }
+
+      return 0;
+    }
+  }
+
   async getCategories(): Promise<BlogCategory[]> {
     if (this.cachedCategories.length > 0) {
       return this.cachedCategories;
@@ -455,7 +519,9 @@ export class BlogService {
   clearCache(): void {
     this.cachedPosts = [];
     this.cachedCategories = [];
+    this.cachedPostCount = 0;
     this.lastFetchTime = 0;
+    this.lastCountFetchTime = 0;
     this.cmsAvailable = null;
     this.lastCMSCheck = 0;
   }
