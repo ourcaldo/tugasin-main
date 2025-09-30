@@ -42,19 +42,18 @@ export default async function Page({
   let totalPosts = 0;
   
   try {
-    const [featured, posts, cats] = await Promise.all([
+    // Fetch blog data and total count in parallel for better performance
+    const [featured, posts, cats, count] = await Promise.all([
       blogService.getFeaturedPost(),
       blogService.getAllPosts(postsPerPage, offset),
-      blogService.getCategories()
+      blogService.getCategories(),
+      blogService.getTotalPostCount() // Optimized count query
     ]);
     
     featuredPost = featured;
     blogPosts = posts;
     categories = cats;
-    
-    // Get total count from all posts (for pagination)
-    const allPosts = await blogService.getAllPosts(1000);
-    totalPosts = allPosts.length;
+    totalPosts = count;
   } catch (err) {
     console.error('Failed to load blog data:', err);
     error = 'Gagal memuat data blog';
