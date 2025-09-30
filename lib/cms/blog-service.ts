@@ -142,7 +142,7 @@ export class BlogService {
     const now = Date.now();
     
     // For sitemap generation (when requesting all posts), use pagination to fetch everything
-    const isSitemapRequest = limit > 200; // Sitemap requests usually ask for 1000+ posts
+    const isSitemapRequest = limit >= 200; // Sitemap requests use 200+ posts per page
     const isRequestingPagination = offset > 0 || limit > 50;
     const isCacheValid = (now - this.lastFetchTime) < this.cacheExpiry;
     
