@@ -152,16 +152,6 @@ const nextConfig = {
           },
         ],
       },
-      // Manifest and service worker - immediate revalidation
-      {
-        source: '/(manifest\\.json|sw\\.js|workbox-.*\\.js)',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=0, must-revalidate',
-          },
-        ],
-      },
       // API routes - no caching for dynamic content
       {
         source: '/api/(.*)',

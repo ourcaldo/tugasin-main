@@ -39,18 +39,6 @@ export const metadata = {
   authors: [{ name: 'Tugasin' }],
   creator: 'Tugasin',
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:5000'),
-  manifest: '/manifest.json',
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: 'default',
-    title: 'Tugasin',
-    startupImage: [
-      {
-        url: '/icon-192x192.png',
-        media: '(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)',
-      },
-    ],
-  },
   formatDetection: {
     telephone: false,
   },
@@ -82,27 +70,6 @@ export default function RootLayout({
     <html lang="id" suppressHydrationWarning>
       <head>
         <meta name="theme-color" content="#2563eb" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="Tugasin" />
-        <meta name="application-name" content="Tugasin" />
-        <meta name="mobile-web-app-capable" content="yes" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-        
-        {/* Apple Touch Icons */}
-        <link rel="apple-touch-icon" href="/icon-192x192.png" />
-        <link rel="apple-touch-icon" sizes="152x152" href="/icon-152x152.png" />
-        <link rel="apple-touch-icon" sizes="180x180" href="/icon-192x192.png" />
-        
-        {/* Favicon */}
-        <link rel="icon" type="image/png" sizes="32x32" href="/icon-192x192.png" />
-        <link rel="icon" type="image/png" sizes="16x16" href="/icon-192x192.png" />
-        <link rel="shortcut icon" href="/icon-192x192.png" />
-        
-        {/* Microsoft Tiles */}
-        <meta name="msapplication-TileColor" content="#2563eb" />
-        <meta name="msapplication-TileImage" content="/icon-144x144.png" />
-        <meta name="msapplication-config" content="/browserconfig.xml" />
       </head>
       <body className={inter.className}>
         
