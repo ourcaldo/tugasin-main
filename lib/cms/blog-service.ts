@@ -217,17 +217,28 @@ export class BlogService {
   // Special method for sitemap generation that fetches ALL posts using pagination
   private async getAllPostsForSitemap(requestedLimit: number, offset: number): Promise<BlogPost[]> {
     try {
+      const cacheKey = `sitemap_posts_all`;
+      const now = Date.now();
+      
+      // Check if we have cached sitemap data (1 hour TTL)
+      const cachedData = cmsCache.get<{ posts: BlogPost[], timestamp: number }>(cacheKey);
+      if (cachedData && (now - cachedData.timestamp) < 3600000) { // 1 hour cache
+        if (DEV_CONFIG.debugMode) {
+          Logger.info(`Returning cached sitemap posts: ${cachedData.posts.length} total posts`);
+        }
+        return cachedData.posts.slice(offset, offset + requestedLimit);
+      }
+      
       if (DEV_CONFIG.debugMode) {
-        Logger.info(`Fetching posts for sitemap: offset=${offset}, limit=${requestedLimit}`);
+        Logger.info(`Fetching fresh posts for sitemap: offset=${offset}, limit=${requestedLimit}`);
       }
       
       let allPosts: BlogPost[] = [];
       let hasNextPage = true;
       let after: string | undefined = undefined;
       const batchSize = 100; // WordPress/CMS limit per request
-      const totalNeeded = offset + requestedLimit; // Need to fetch offset + limit posts
       
-      while (hasNextPage && allPosts.length < totalNeeded) {
+      while (hasNextPage) {
         const response = await graphqlClient.getAllPosts(batchSize, after);
         const transformedPosts = response.posts.nodes.map(transformCMSPost);
         
@@ -248,8 +259,11 @@ export class BlogService {
         }
       }
       
+      // Cache the complete posts list for 1 hour
+      cmsCache.set(cacheKey, { posts: allPosts, timestamp: now });
+      
       if (DEV_CONFIG.debugMode) {
-        Logger.info(`Successfully fetched ${allPosts.length} total posts, slicing from ${offset} to ${offset + requestedLimit}`);
+        Logger.info(`Successfully fetched and cached ${allPosts.length} total posts for sitemap`);
       }
       
       // Return the requested slice with offset and limit
