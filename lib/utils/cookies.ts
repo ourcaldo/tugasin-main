@@ -84,35 +84,3 @@ export function hasCookie(name: string): boolean {
   return getCookie(name) !== null;
 }
 
-/**
- * PWA Install Prompt specific cookie functions
- */
-const PWA_DISMISS_COOKIE = 'pwa-install-dismissed';
-
-/**
- * Set cookie to remember PWA install prompt dismissal for 24 hours
- */
-export function setPWAInstallDismissed() {
-  const expiryDate = new Date();
-  expiryDate.setTime(expiryDate.getTime() + (24 * 60 * 60 * 1000)); // 24 hours
-  
-  setCookie(PWA_DISMISS_COOKIE, new Date().toISOString(), {
-    expires: expiryDate,
-    path: '/',
-    sameSite: 'lax'
-  });
-}
-
-/**
- * Check if PWA install prompt was dismissed within the last 24 hours
- */
-export function isPWAInstallDismissed(): boolean {
-  return hasCookie(PWA_DISMISS_COOKIE);
-}
-
-/**
- * Clear PWA install dismissal cookie (for testing purposes)
- */
-export function clearPWAInstallDismissed() {
-  deleteCookie(PWA_DISMISS_COOKIE);
-}

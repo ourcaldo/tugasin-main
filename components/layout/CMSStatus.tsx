@@ -26,7 +26,7 @@ export default function CMSStatus({ isConnected, error, showAlert = false, class
     return (
       <Badge variant="outline" className={`text-orange-600 border-orange-300 ${className}`}>
         <WifiOff className="h-3 w-3 mr-1" />
-        Mode Offline
+        Cached Content
       </Badge>
     );
   }

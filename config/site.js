@@ -26,7 +26,6 @@ const siteConfig = {
   assets: {
     defaultImage: "/og-default.jpg",
     favicon: "/favicon.ico",
-    manifest: "/manifest.json",
   },
 }
 
