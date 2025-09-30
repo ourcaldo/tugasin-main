@@ -218,15 +218,16 @@ export class BlogService {
   private async getAllPostsForSitemap(requestedLimit: number, offset: number): Promise<BlogPost[]> {
     try {
       if (DEV_CONFIG.debugMode) {
-        Logger.info('Fetching ALL posts for sitemap generation using pagination...');
+        Logger.info(`Fetching posts for sitemap: offset=${offset}, limit=${requestedLimit}`);
       }
       
       let allPosts: BlogPost[] = [];
       let hasNextPage = true;
       let after: string | undefined = undefined;
       const batchSize = 100; // WordPress/CMS limit per request
+      const totalNeeded = offset + requestedLimit; // Need to fetch offset + limit posts
       
-      while (hasNextPage && allPosts.length < requestedLimit) {
+      while (hasNextPage && allPosts.length < totalNeeded) {
         const response = await graphqlClient.getAllPosts(batchSize, after);
         const transformedPosts = response.posts.nodes.map(transformCMSPost);
         
@@ -248,7 +249,7 @@ export class BlogService {
       }
       
       if (DEV_CONFIG.debugMode) {
-        Logger.info(`Successfully fetched ${allPosts.length} total posts for sitemap`);
+        Logger.info(`Successfully fetched ${allPosts.length} total posts, slicing from ${offset} to ${offset + requestedLimit}`);
       }
       
       // Return the requested slice with offset and limit
