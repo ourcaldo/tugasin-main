@@ -1,0 +1,86 @@
+Request URL
+https://tugasin.me/blog?page=1
+Request Method
+GET
+Status Code
+200 OK
+Remote Address
+216.198.79.1:443
+Referrer Policy
+strict-origin-when-cross-origin
+age
+0
+cache-control
+private, no-cache, no-store, max-age=0, must-revalidate
+content-encoding
+br
+content-security-policy
+default-src *; script-src * 'unsafe-eval' 'unsafe-inline' data: blob:; style-src * 'unsafe-inline' data: blob:; font-src * data: blob:; img-src * data: blob: https://images.unsplash.com https://cms.tugasin.me https://syd.cloud.appwrite.io; connect-src * data: blob:; media-src * data: blob:; object-src *; base-uri *; form-action *; frame-ancestors *; worker-src * data: blob:
+content-type
+text/html; charset=utf-8
+date
+Tue, 30 Sep 2025 07:32:19 GMT
+link
+</_next/static/media/e4af272ccee01ff0-s.p.woff2>; rel=preload; as="font"; crossorigin=""; type="font/woff2"
+permissions-policy
+camera=(), microphone=(), geolocation=(), interest-cohort=(), payment=(self), usb=(), clipboard-read=(self), clipboard-write=(self)
+referrer-policy
+strict-origin-when-cross-origin
+server
+Vercel
+strict-transport-security
+max-age=63072000; includeSubDomains; preload
+vary
+rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch
+x-content-type-options
+nosniff
+x-dns-prefetch-control
+on
+x-frame-options
+SAMEORIGIN
+x-matched-path
+/blog
+x-vercel-cache
+MISS
+x-vercel-id
+sin1::sin1::9x62w-1759217539623-806a847c97cd
+x-xss-protection
+1; mode=block
+:authority
+tugasin.me
+:method
+GET
+:path
+/blog?page=1
+:scheme
+https
+accept
+text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+accept-encoding
+gzip, deflate, br, zstd
+accept-language
+en-US,en;q=0.9
+cookie
+ph_phc_5OcXPsbxulECrc3yaLPiFmf36KSFziEoxmQvwrdsmI1_posthog=%7B%22distinct_id%22%3A%2201999985-4bfb-7740-a24d-01dfae0b278f%22%2C%22%24sesid%22%3A%5B1759217509958%2C%2201999985-4bf5-7abc-81f2-99edc56bcc70%22%2C1759217273844%5D%2C%22%24initial_person_info%22%3A%7B%22r%22%3A%22%24direct%22%2C%22u%22%3A%22https%3A%2F%2Ftugasin.me%2F%22%7D%7D
+priority
+u=4, i
+purpose
+prefetch
+referer
+https://tugasin.me/blog?page=2
+sec-ch-ua
+"Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140"
+sec-ch-ua-mobile
+?0
+sec-ch-ua-platform
+"Windows"
+sec-fetch-dest
+empty
+sec-fetch-mode
+no-cors
+sec-fetch-site
+same-origin
+sec-purpose
+prefetch
+user-agent
+Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36

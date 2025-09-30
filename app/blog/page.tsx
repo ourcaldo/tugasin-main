@@ -7,8 +7,8 @@ import { getRevalidationForPageType, scheduleBackgroundRevalidation } from '@/li
 import { blogService } from '@/lib/cms/blog-service'
 import type { BlogPost, BlogCategory } from '@/lib/utils/types'
 
-// Use dynamic rendering with Vercel edge caching (24 hour cache via Cache-Control headers)
-export const dynamic = 'force-dynamic'
+// Use ISR with 24-hour revalidation to cache the page and serve from cache
+export const revalidate = 86400 // 24 hours in seconds
 
 export async function generateMetadata() {
   const canonical = `${siteConfig.url}/blog`
