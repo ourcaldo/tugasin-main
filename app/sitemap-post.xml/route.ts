@@ -9,9 +9,8 @@ export async function GET() {
   const postsPerSitemap = 200
   
   try {
-    // Fetch total posts count from CMS to calculate number of sitemaps needed
-    const allPosts = await blogService.getAllPosts(1000, 0, false) // Get up to 1000 posts to count
-    const totalPosts = allPosts.length
+    // Get total posts count efficiently - NO fetching posts
+    const totalPosts = await blogService.getTotalPostCount()
     
     if (totalPosts === 0) {
       // Return empty sitemap index if no posts

@@ -42,12 +42,12 @@ export default async function Page({
   let totalPosts = 0;
   
   try {
-    // Fetch blog data and total count in parallel for better performance
+    // Fetch exactly 20 posts using GraphQL limit - NO slicing
     const [featured, posts, cats, count] = await Promise.all([
       blogService.getFeaturedPost(),
-      blogService.getAllPosts(postsPerPage, offset),
+      blogService.getPosts(postsPerPage), // Fetch exactly 20 posts
       blogService.getCategories(),
-      blogService.getTotalPostCount() // Optimized count query
+      blogService.getTotalPostCount()
     ]);
     
     featuredPost = featured;

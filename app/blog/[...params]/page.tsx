@@ -40,11 +40,9 @@ export default async function Page({ params }: PageProps) {
         notFound()
       }
       
-      // Fetch related posts (same category, excluding current post)
-      const allPosts = await blogService.getAllPosts()
-      relatedPosts = allPosts
-        .filter((p: BlogPostType) => p.category === post!.category && p.id !== post!.id)
-        .slice(0, 3)
+      // Fetch related posts by category - limited query, no fetching all posts
+      const categoryPosts = await blogService.getPostsByCategory(post.category, 4)
+      relatedPosts = categoryPosts.filter((p: BlogPostType) => p.id !== post!.id).slice(0, 3)
         
     } catch (err) {
       console.error('Error fetching blog post:', err)

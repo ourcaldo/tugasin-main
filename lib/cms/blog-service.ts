@@ -141,108 +141,54 @@ export class BlogService {
     }
   }
 
-  async getAllPosts(limit: number = 50, offset: number = 0, forceRefresh: boolean = false): Promise<BlogPost[]> {
-    const now = Date.now();
-    
-    // For sitemap generation (when requesting all posts), use pagination to fetch everything
-    const isSitemapRequest = limit >= 200; // Sitemap requests use 200+ posts per page
-    const isRequestingPagination = offset > 0 || limit > 50;
-    const isCacheValid = (now - this.lastFetchTime) < this.cacheExpiry;
-    
-    // Cache-first strategy: Return cached data immediately if available and valid
-    if (!forceRefresh && !isRequestingPagination && !isSitemapRequest && this.cachedPosts.length > 0 && isCacheValid) {
-      if (DEV_CONFIG.debugMode) {
-        Logger.info('Returning cached posts for instant loading');
-      }
-      return this.cachedPosts.slice(offset, offset + limit);
-    }
-    
-    // If cache is stale but we have data, return it and refresh in background
-    if (!forceRefresh && !isRequestingPagination && !isSitemapRequest && this.cachedPosts.length > 0 && !isCacheValid) {
-      if (DEV_CONFIG.debugMode) {
-        Logger.info('Returning stale cached posts and refreshing in background');
-      }
-      
-      // Refresh in background
-      this.refreshAllPostsInBackground();
-      return this.cachedPosts.slice(offset, offset + limit);
-    }
-
-    // For sitemap generation, fetch ALL posts using pagination
-    if (isSitemapRequest) {
-      return this.getAllPostsForSitemap(limit, offset);
-    }
-
-    // No cache or forced refresh - fetch from CMS with timeout protection
+  // Fetch posts with proper GraphQL pagination - NO slicing in memory
+  async getPosts(limit: number = 20, after?: string): Promise<BlogPost[]> {
     try {
       if (DEV_CONFIG.debugMode) {
-        Logger.info('Fetching posts from CMS...');
+        Logger.info(`Fetching ${limit} posts from CMS...`);
       }
       
-      // Add timeout protection
-      const cmsPromise = graphqlClient.getAllPosts(limit, undefined);
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('CMS request timeout')), 8000)
-      );
-      
-      const response = await Promise.race([cmsPromise, timeoutPromise]) as any;
+      const response = await graphqlClient.getAllPosts(limit, after);
       const transformedPosts = response.posts.nodes.map(transformCMSPost);
-      
-      if (!isRequestingPagination) {
-        this.cachedPosts = transformedPosts;
-        this.lastFetchTime = now;
-      }
       
       if (DEV_CONFIG.debugMode) {
         Logger.info(`Successfully fetched ${transformedPosts.length} posts from CMS`);
       }
+      
       return transformedPosts;
     } catch (error) {
       if (DEV_CONFIG.debugMode) {
-        Logger.error('CMS request failed:', error);
-      }
-      
-      // Fallback to any cached data we have
-      if (this.cachedPosts.length > 0) {
-        if (DEV_CONFIG.debugMode) {
-          Logger.info(`CMS failed, serving ${this.cachedPosts.length} cached posts`);
-        }
-        return this.cachedPosts.slice(offset, offset + limit);
-      }
-      
-      if (DEV_CONFIG.debugMode) {
-        Logger.error('CMS failed and no cache available:', error);
+        Logger.error('Failed to fetch posts from CMS:', error);
       }
       return [];
     }
   }
   
-  // Special method for sitemap generation that fetches ALL posts using pagination
-  private async getAllPostsForSitemap(requestedLimit: number, offset: number): Promise<BlogPost[]> {
+  // For sitemap only - fetches ALL posts using cursor pagination
+  async getAllPostsForSitemap(limit: number = 200): Promise<BlogPost[]> {
     try {
       const cacheKey = `sitemap_posts_all`;
       const now = Date.now();
       
       // Check if we have cached sitemap data (1 hour TTL)
       const cachedData = cmsCache.get<{ posts: BlogPost[], timestamp: number }>(cacheKey);
-      if (cachedData && (now - cachedData.timestamp) < 3600000) { // 1 hour cache
+      if (cachedData && (now - cachedData.timestamp) < 3600000) {
         if (DEV_CONFIG.debugMode) {
           Logger.info(`Returning cached sitemap posts: ${cachedData.posts.length} total posts`);
         }
-        return cachedData.posts.slice(offset, offset + requestedLimit);
+        return cachedData.posts;
       }
       
       if (DEV_CONFIG.debugMode) {
-        Logger.info(`Fetching fresh posts for sitemap: offset=${offset}, limit=${requestedLimit}`);
+        Logger.info(`Fetching all posts for sitemap with limit=${limit} per batch`);
       }
       
       let allPosts: BlogPost[] = [];
       let hasNextPage = true;
       let after: string | undefined = undefined;
-      const batchSize = 100; // WordPress/CMS limit per request
       
       while (hasNextPage) {
-        const response = await graphqlClient.getAllPosts(batchSize, after);
+        const response = await graphqlClient.getAllPosts(limit, after);
         const transformedPosts = response.posts.nodes.map(transformCMSPost);
         
         allPosts = allPosts.concat(transformedPosts);
@@ -250,27 +196,26 @@ export class BlogService {
         after = response.posts.pageInfo.endCursor;
         
         if (DEV_CONFIG.debugMode) {
-          Logger.info(`Fetched batch: ${transformedPosts.length} posts. Total so far: ${allPosts.length}`);
+          Logger.info(`Fetched batch: ${transformedPosts.length} posts. Total: ${allPosts.length}`);
         }
         
-        // Safety break to prevent infinite loops
+        // Safety break
         if (allPosts.length > 2000) {
           if (DEV_CONFIG.debugMode) {
-            Logger.warn('Reached safety limit of 2000 posts, stopping pagination');
+            Logger.warn('Reached safety limit of 2000 posts');
           }
           break;
         }
       }
       
-      // Cache the complete posts list for 1 hour
+      // Cache for 1 hour
       cmsCache.set(cacheKey, { posts: allPosts, timestamp: now });
       
       if (DEV_CONFIG.debugMode) {
-        Logger.info(`Successfully fetched and cached ${allPosts.length} total posts for sitemap`);
+        Logger.info(`Cached ${allPosts.length} posts for sitemap`);
       }
       
-      // Return the requested slice with offset and limit
-      return allPosts.slice(offset, offset + requestedLimit);
+      return allPosts;
     } catch (error) {
       if (DEV_CONFIG.debugMode) {
         Logger.error('Failed to fetch posts for sitemap:', error);
@@ -278,35 +223,28 @@ export class BlogService {
       return [];
     }
   }
-  
-  // Background refresh method for all posts
-  private async refreshAllPostsInBackground(): Promise<void> {
-    try {
-      const response = await graphqlClient.getAllPosts(50, undefined);
-      const transformedPosts = response.posts.nodes.map(transformCMSPost);
-      
-      this.cachedPosts = transformedPosts;
-      this.lastFetchTime = Date.now();
-      
-      if (DEV_CONFIG.debugMode) {
-        Logger.info('Background refresh completed for all posts');
-      }
-    } catch (error) {
-      if (DEV_CONFIG.debugMode) {
-        Logger.warn('Background refresh failed for all posts', error);
-      }
-    }
-  }
 
   async getFeaturedPost(): Promise<BlogPost | null> {
-    const posts = await this.getAllPosts();
-    // Return the most recent post as featured, or the first one
+    const posts = await this.getPosts(1);
     return posts.length > 0 ? { ...posts[0], featured: true } : null;
   }
 
   async getRecentPosts(limit: number = 6): Promise<BlogPost[]> {
-    const posts = await this.getAllPosts(50, 0);
-    return posts.slice(0, limit);
+    return this.getPosts(limit);
+  }
+  
+  // Get posts by category with limit - no fetching all posts
+  async getPostsByCategory(category: string, limit: number = 3): Promise<BlogPost[]> {
+    try {
+      // Fetch more posts to filter by category, but still limited
+      const posts = await this.getPosts(50);
+      return posts.filter(post => post.category === category).slice(0, limit);
+    } catch (error) {
+      if (DEV_CONFIG.debugMode) {
+        Logger.error('Failed to fetch posts by category:', error);
+      }
+      return [];
+    }
   }
 
   async getPostBySlug(slug: string): Promise<BlogPost | null> {
@@ -479,7 +417,7 @@ export class BlogService {
       return this.cachedCategories;
     }
 
-    const posts = await this.getAllPosts();
+    const posts = await this.getPosts(50);
     
     if (posts.length === 0) {
       // Return empty categories if no posts - NO fallback data
@@ -490,7 +428,7 @@ export class BlogService {
     const categoryMap = new Map<string, number>();
 
     // Count posts per category
-    posts.forEach(post => {
+    posts.forEach((post: BlogPost) => {
       const count = categoryMap.get(post.category) || 0;
       categoryMap.set(post.category, count + 1);
     });
