@@ -145,7 +145,7 @@ export class BlogService {
   async getPosts(limit: number = 20, after?: string): Promise<BlogPost[]> {
     try {
       if (DEV_CONFIG.debugMode) {
-        Logger.info(`Fetching ${limit} posts from CMS...`);
+        Logger.info(`Fetching ${limit} posts from CMS with after cursor: ${after || 'none'}`);
       }
       
       const response = await graphqlClient.getAllPosts(limit, after);
@@ -159,6 +159,37 @@ export class BlogService {
     } catch (error) {
       if (DEV_CONFIG.debugMode) {
         Logger.error('Failed to fetch posts from CMS:', error);
+      }
+      return [];
+    }
+  }
+
+  // Fetch posts for a specific page number (for blog archive pagination)
+  // Uses cached sitemap data to avoid real-time CMS fetching for pagination
+  async getPostsForPage(page: number, postsPerPage: number = 20): Promise<BlogPost[]> {
+    try {
+      if (DEV_CONFIG.debugMode) {
+        Logger.info(`Fetching posts for page ${page} from cached data`);
+      }
+      
+      // Use the cached sitemap data (24 hour TTL) to avoid hitting CMS for every pagination request
+      const allPosts = await this.getAllPostsForSitemap();
+      
+      // Calculate start and end indices
+      const startIndex = (page - 1) * postsPerPage;
+      const endIndex = startIndex + postsPerPage;
+      
+      // Slice the posts for this page
+      const posts = allPosts.slice(startIndex, endIndex);
+      
+      if (DEV_CONFIG.debugMode) {
+        Logger.info(`Returning ${posts.length} posts for page ${page} from cache (total posts: ${allPosts.length})`);
+      }
+      
+      return posts;
+    } catch (error) {
+      if (DEV_CONFIG.debugMode) {
+        Logger.error(`Failed to fetch posts for page ${page}:`, error);
       }
       return [];
     }

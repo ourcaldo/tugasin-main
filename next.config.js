@@ -162,13 +162,13 @@ const nextConfig = {
           },
         ],
       },
-      // Blog pages with ISR - short-term caching
+      // Blog pages with Vercel edge caching - 24 hour cache
       {
         source: '/blog/(.*)',
         headers: [
           {
             key: 'Cache-Control',
-            value: 'public, max-age=300, s-maxage=300, stale-while-revalidate=86400',
+            value: 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=86400',
           },
         ],
       },

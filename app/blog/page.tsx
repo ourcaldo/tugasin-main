@@ -7,8 +7,8 @@ import { getRevalidationForPageType, scheduleBackgroundRevalidation } from '@/li
 import { blogService } from '@/lib/cms/blog-service'
 import type { BlogPost, BlogCategory } from '@/lib/utils/types'
 
-// Smart ISR configuration for blog listing page with CMS awareness
-export const revalidate = 300 // 5 minutes
+// Use dynamic rendering with Vercel edge caching (24 hour cache via Cache-Control headers)
+export const dynamic = 'force-dynamic'
 
 export async function generateMetadata() {
   const canonical = `${siteConfig.url}/blog`
@@ -32,9 +32,9 @@ export default async function Page({
   const params = await searchParams;
   const currentPage = parseInt(params.page || '1', 10);
   const postsPerPage = 20;
-  const offset = (currentPage - 1) * postsPerPage;
   
   // Pre-fetch blog data on the server for SEO
+  // Uses cached data (24 hour TTL) to avoid hitting CMS for every page request
   let featuredPost: BlogPost | null = null;
   let blogPosts: BlogPost[] = [];
   let categories: BlogCategory[] = [];
@@ -42,18 +42,18 @@ export default async function Page({
   let totalPosts = 0;
   
   try {
-    // Fetch exactly 20 posts using GraphQL limit - NO slicing
-    const [featured, posts, cats, count] = await Promise.all([
+    // Fetch all data using cached sitemap data - NO real-time CMS fetching for pagination
+    const [featured, posts, cats, allPostsData] = await Promise.all([
       blogService.getFeaturedPost(),
-      blogService.getPosts(postsPerPage), // Fetch exactly 20 posts
+      blogService.getPostsForPage(currentPage, postsPerPage), // Uses cached data for pagination
       blogService.getCategories(),
-      blogService.getTotalPostCount()
+      blogService.getAllPostsForSitemap() // Get all posts from 24-hour cache
     ]);
     
     featuredPost = featured;
     blogPosts = posts;
     categories = cats;
-    totalPosts = count;
+    totalPosts = allPostsData.length;
   } catch (err) {
     console.error('Failed to load blog data:', err);
     error = 'Gagal memuat data blog';
