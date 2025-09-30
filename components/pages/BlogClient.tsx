@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { Calendar, User, Clock, ArrowRight, BookOpen, Lightbulb, Target, TrendingUp, AlertCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '../ui/card';
 import { Badge } from '../ui/badge';
@@ -52,6 +52,7 @@ export default function BlogClient({
   postsPerPage = 20
 }: BlogClientProps) {
   const params = useParams();
+  const router = useRouter();
   const categoryParam = params?.category as string | undefined;
   const [featuredPost, setFeaturedPost] = useState<BlogPost | null>(initialFeaturedPost);
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>(initialBlogPosts);
@@ -59,6 +60,16 @@ export default function BlogClient({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(initialError);
   const [filteredPosts, setFilteredPosts] = useState<BlogPost[]>([]);
+
+  // Prefetch next page for faster navigation
+  useEffect(() => {
+    if (!categoryParam && currentPage < totalPages) {
+      const nextPage = currentPage + 1;
+      const nextPageUrl = nextPage === 1 ? '/blog' : `/blog?page=${nextPage}`;
+      // Prefetch the next page route
+      router.prefetch(nextPageUrl);
+    }
+  }, [currentPage, totalPages, categoryParam, router]);
 
   // Load blog data from CMS (for client-side refresh only)
   const loadBlogData = async (forceRefresh: boolean = false) => {
@@ -316,9 +327,9 @@ export default function BlogClient({
                   {currentPage === 1 ? (
                     <span className="cursor-not-allowed opacity-50">Previous</span>
                   ) : currentPage === 2 ? (
-                    <Link href="/blog">Previous</Link>
+                    <Link href="/blog" prefetch={true}>Previous</Link>
                   ) : (
-                    <Link href={`/blog/page/${currentPage - 1}`}>Previous</Link>
+                    <Link href={`/blog?page=${currentPage - 1}`} prefetch={true}>Previous</Link>
                   )}
                 </Button>
 
@@ -342,9 +353,9 @@ export default function BlogClient({
                           size="sm"
                         >
                           {page === 1 ? (
-                            <Link href="/blog">{page}</Link>
+                            <Link href="/blog" prefetch={true}>{page}</Link>
                           ) : (
-                            <Link href={`/blog/page/${page}`}>{page}</Link>
+                            <Link href={`/blog?page=${page}`} prefetch={true}>{page}</Link>
                           )}
                         </Button>
                       </React.Fragment>
@@ -359,7 +370,7 @@ export default function BlogClient({
                   {currentPage === totalPages ? (
                     <span className="cursor-not-allowed opacity-50">Next</span>
                   ) : (
-                    <Link href={`/blog/page/${currentPage + 1}`}>Next</Link>
+                    <Link href={`/blog?page=${currentPage + 1}`} prefetch={true}>Next</Link>
                   )}
                 </Button>
               </div>
