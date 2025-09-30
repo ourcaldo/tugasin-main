@@ -60,6 +60,43 @@ export default function BlogClient({
   const [error, setError] = useState<string | null>(initialError);
   const [filteredPosts, setFilteredPosts] = useState<BlogPost[]>([]);
 
+  // Prefetch adjacent pages for faster navigation
+  useEffect(() => {
+    if (!categoryParam && typeof window !== 'undefined') {
+      const prefetchUrls: string[] = [];
+      
+      // Previous page
+      if (currentPage > 1) {
+        prefetchUrls.push(`/blog?page=${currentPage - 1}`);
+      }
+      
+      // Next page
+      if (currentPage < totalPages) {
+        prefetchUrls.push(`/blog?page=${currentPage + 1}`);
+      }
+      
+      // Add prefetch links to the document head
+      const links: HTMLLinkElement[] = [];
+      prefetchUrls.forEach(url => {
+        const link = document.createElement('link');
+        link.rel = 'prefetch';
+        link.href = url;
+        link.as = 'document';
+        document.head.appendChild(link);
+        links.push(link);
+      });
+      
+      // Cleanup function to remove prefetch links when component unmounts
+      return () => {
+        links.forEach(link => {
+          if (link.parentNode) {
+            link.parentNode.removeChild(link);
+          }
+        });
+      };
+    }
+  }, [currentPage, totalPages, categoryParam]);
+
   // Load blog data from CMS (for client-side refresh only)
   const loadBlogData = async (forceRefresh: boolean = false) => {
     try {
