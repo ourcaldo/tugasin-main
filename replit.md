@@ -4,15 +4,23 @@
 This is a Next.js 15 + TypeScript application for Tugasin, an academic assistance service. The application uses Next.js App Router with modern React patterns and shadcn/ui components.
 
 ## Recent Changes
-- **2025-09-30**: ✅ **ISR-ONLY BLOG & SITEMAP IMPLEMENTATION**
+- **2025-09-30**: ✅ **QUERY PARAMETER PAGINATION WITH ISR + PREFETCH**
+  - **Pagination Route Change**: Migrated from `/blog/page/x` to `/blog?page=x` using query parameters
+  - **Hybrid Rendering Strategy**: 
+    - Page 1 (`/blog`) uses ISR with 24-hour revalidation for build-time caching
+    - Pages 2+ (`/blog?page=2`, etc.) use dynamic rendering with server-side caching
+  - **Cursor-Based Pagination**: Added `getPostsWithPagination()` method for proper GraphQL cursor pagination
+  - **Prefetch Implementation**: 
+    - Link components use `prefetch={true}` for automatic route prefetching
+    - `router.prefetch()` in useEffect to preload next page when current page loads
+  - **CMS Integration**: Maintains 24-hour cache for sitemap data (getAllPostsForSitemap fetches 1000 posts/batch)
+  - **Performance**: Page 1 ~30s initial (ISR), subsequent pages ~1.3s (dynamic with cache)
+  - **Deleted**: Removed old `/blog/page/[page]` static route structure
+
+- **2025-09-30**: ✅ **ISR-ONLY BLOG & SITEMAP IMPLEMENTATION** (SUPERSEDED by query param approach)
   - **Blog ISR Implementation**: Changed blog from dynamic to ISR with 24-hour revalidation (revalidate = 86400)
-  - **Static Pagination Routes**: Created /blog/page/[page] route with generateStaticParams for ISR-cached pagination
   - **Sitemap ISR**: Updated all sitemaps to use 24-hour ISR (revalidate = 86400)
   - **CMS Batch Fetching**: getAllPostsForSitemap() fetches 1000 posts per batch until hasNextPage is false
-  - **Zero Dynamic Rendering**: All blog and sitemap routes use ISR for optimal caching
-  - **Pagination Navigation**: Updated BlogClient to use /blog/page/[page] routes instead of query parameters
-  - **Cache Strategy**: Page 1 at /blog, subsequent pages at /blog/page/2, /blog/page/3, etc.
-  - **Result**: Vercel will cache all pages properly with x-vercel-cache: HIT after initial build
 
 - **2025-09-28**: ✅ **PHASE 1 COMPLETE** - Production-Ready Framework Migration
   - **File Structure Migration**: Successfully moved from src/ to root-level structure (components/, lib/, styles/, data/)

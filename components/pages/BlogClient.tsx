@@ -66,8 +66,8 @@ export default function BlogClient({
     if (!categoryParam && currentPage < totalPages) {
       const nextPage = currentPage + 1;
       const nextPageUrl = nextPage === 1 ? '/blog' : `/blog?page=${nextPage}`;
-      // Prefetch the next page route
-      router.prefetch(nextPageUrl);
+      // Prefetch the next page route (cast to any to handle Next.js 15 strict typing)
+      router.prefetch(nextPageUrl as any);
     }
   }, [currentPage, totalPages, categoryParam, router]);
 
