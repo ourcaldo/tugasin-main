@@ -164,15 +164,16 @@ export class BlogService {
     }
   }
   
-  // For sitemap only - fetches ALL posts using cursor pagination
-  async getAllPostsForSitemap(limit: number = 200): Promise<BlogPost[]> {
+  // For sitemap only - fetches ALL posts using cursor pagination with 1000 posts per request
+  async getAllPostsForSitemap(): Promise<BlogPost[]> {
     try {
       const cacheKey = `sitemap_posts_all`;
       const now = Date.now();
+      const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours
       
-      // Check if we have cached sitemap data (1 hour TTL)
+      // Check if we have cached sitemap data (24 hour TTL)
       const cachedData = cmsCache.get<{ posts: BlogPost[], timestamp: number }>(cacheKey);
-      if (cachedData && (now - cachedData.timestamp) < 3600000) {
+      if (cachedData && (now - cachedData.timestamp) < CACHE_TTL) {
         if (DEV_CONFIG.debugMode) {
           Logger.info(`Returning cached sitemap posts: ${cachedData.posts.length} total posts`);
         }
@@ -180,15 +181,16 @@ export class BlogService {
       }
       
       if (DEV_CONFIG.debugMode) {
-        Logger.info(`Fetching all posts for sitemap with limit=${limit} per batch`);
+        Logger.info(`Fetching all posts for sitemap with 1000 posts per batch`);
       }
       
       let allPosts: BlogPost[] = [];
       let hasNextPage = true;
       let after: string | undefined = undefined;
+      const BATCH_SIZE = 1000; // Fetch 1000 posts per request as specified
       
       while (hasNextPage) {
-        const response = await graphqlClient.getAllPosts(limit, after);
+        const response = await graphqlClient.getAllPosts(BATCH_SIZE, after);
         const transformedPosts = response.posts.nodes.map(transformCMSPost);
         
         allPosts = allPosts.concat(transformedPosts);
@@ -196,23 +198,23 @@ export class BlogService {
         after = response.posts.pageInfo.endCursor;
         
         if (DEV_CONFIG.debugMode) {
-          Logger.info(`Fetched batch: ${transformedPosts.length} posts. Total: ${allPosts.length}`);
+          Logger.info(`Fetched batch: ${transformedPosts.length} posts. Total: ${allPosts.length}. HasNextPage: ${hasNextPage}`);
         }
         
-        // Safety break
-        if (allPosts.length > 2000) {
+        // Safety break to prevent infinite loops (increased limit)
+        if (allPosts.length > 10000) {
           if (DEV_CONFIG.debugMode) {
-            Logger.warn('Reached safety limit of 2000 posts');
+            Logger.warn('Reached safety limit of 10000 posts');
           }
           break;
         }
       }
       
-      // Cache for 1 hour
+      // Cache for 24 hours
       cmsCache.set(cacheKey, { posts: allPosts, timestamp: now });
       
       if (DEV_CONFIG.debugMode) {
-        Logger.info(`Cached ${allPosts.length} posts for sitemap`);
+        Logger.info(`Cached ${allPosts.length} posts for sitemap (24 hour TTL)`);
       }
       
       return allPosts;

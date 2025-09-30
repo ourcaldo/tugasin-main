@@ -1,16 +1,17 @@
 import { NextResponse } from 'next/server'
 import { blogService } from '@/lib/cms/blog-service'
 
-// ISR configuration for blog posts sitemap index
-export const revalidate = 3600 // 1 hour
+// ISR configuration for blog posts sitemap index - 24 hour cache
+export const revalidate = 86400 // 24 hours
 
 export async function GET() {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://tugasin.com'
   const postsPerSitemap = 200
   
   try {
-    // Get total posts count efficiently - NO fetching posts
-    const totalPosts = await blogService.getTotalPostCount()
+    // Fetch all posts to get accurate count (uses 24-hour cache)
+    const allPosts = await blogService.getAllPostsForSitemap()
+    const totalPosts = allPosts.length
     
     if (totalPosts === 0) {
       // Return empty sitemap index if no posts
@@ -21,7 +22,7 @@ export async function GET() {
       return new NextResponse(emptySitemapIndex, {
         headers: {
           'Content-Type': 'application/xml',
-          'Cache-Control': 'public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400',
+          'Cache-Control': 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=86400',
         },
       })
     }
@@ -43,7 +44,7 @@ ${Array.from({ length: numberOfSitemaps }, (_, i) => {
     return new NextResponse(sitemapIndex, {
       headers: {
         'Content-Type': 'application/xml',
-        'Cache-Control': 'public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400',
+        'Cache-Control': 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=86400',
       },
     })
   } catch (error) {
@@ -57,7 +58,7 @@ ${Array.from({ length: numberOfSitemaps }, (_, i) => {
     return new NextResponse(emptySitemapIndex, {
       headers: {
         'Content-Type': 'application/xml',
-        'Cache-Control': 'public, max-age=3600, s-maxage=3600',
+        'Cache-Control': 'public, max-age=86400, s-maxage=86400',
       },
     })
   }

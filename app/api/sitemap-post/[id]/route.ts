@@ -1,8 +1,8 @@
 import { NextResponse, NextRequest } from 'next/server'
 import { blogService } from '@/lib/cms/blog-service'
 
-// ISR configuration for individual blog posts sitemap pages
-export const revalidate = 3600 // 1 hour
+// ISR configuration for individual blog posts sitemap pages - 24 hour cache
+export const revalidate = 86400 // 24 hours
 
 // Helper function to create URL-safe slugs
 function createSlug(text: string): string {
@@ -67,10 +67,16 @@ export async function GET(
 
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://tugasin.com'
     const postsPerSitemap = 200
-    const offset = (pageNumber - 1) * postsPerSitemap
-
-    // Fetch posts for this specific page with pagination
-    const posts = await blogService.getAllPosts(postsPerSitemap, offset, false)
+    
+    // Fetch ALL posts from cache (24 hour cache) and chunk them
+    const allPosts = await blogService.getAllPostsForSitemap()
+    
+    // Calculate start and end indices for this page
+    const startIndex = (pageNumber - 1) * postsPerSitemap
+    const endIndex = startIndex + postsPerSitemap
+    
+    // Get posts for this specific page
+    const posts = allPosts.slice(startIndex, endIndex)
     
     if (!posts || posts.length === 0) {
       // Return empty sitemap for pages with no content
@@ -81,7 +87,7 @@ export async function GET(
       return new NextResponse(emptySitemap, {
         headers: {
           'Content-Type': 'application/xml',
-          'Cache-Control': 'public, max-age=3600, s-maxage=3600',
+          'Cache-Control': 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=86400',
         },
       })
     }
@@ -105,7 +111,7 @@ ${posts.map(post => {
     return new NextResponse(sitemap, {
       headers: {
         'Content-Type': 'application/xml',
-        'Cache-Control': 'public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400',
+        'Cache-Control': 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=86400',
       },
     })
   } catch (error) {
@@ -119,7 +125,7 @@ ${posts.map(post => {
     return new NextResponse(emptySitemap, {
       headers: {
         'Content-Type': 'application/xml',
-        'Cache-Control': 'public, max-age=3600, s-maxage=3600',
+        'Cache-Control': 'public, max-age=86400, s-maxage=86400',
       },
     })
   }
