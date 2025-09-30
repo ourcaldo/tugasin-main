@@ -164,6 +164,109 @@ export class BlogService {
     }
   }
 
+  // Fetch posts for a specific page using cursor-based pagination
+  // Returns posts along with pagination info (endCursor, hasNextPage)
+  async getPostsWithPagination(page: number = 1, postsPerPage: number = 20): Promise<{
+    posts: BlogPost[];
+    pageInfo: {
+      hasNextPage: boolean;
+      endCursor: string | null;
+      hasPreviousPage: boolean;
+      totalCount: number;
+    };
+  }> {
+    try {
+      if (DEV_CONFIG.debugMode) {
+        Logger.info(`Fetching posts for page ${page} using cursor pagination`);
+      }
+      
+      // For page 1, fetch from the beginning
+      if (page === 1) {
+        const response = await graphqlClient.getAllPosts(postsPerPage);
+        const transformedPosts = response.posts.nodes.map(transformCMSPost);
+        const totalCount = await this.getTotalPostCount();
+        
+        if (DEV_CONFIG.debugMode) {
+          Logger.info(`Fetched page 1: ${transformedPosts.length} posts, hasNextPage: ${response.posts.pageInfo.hasNextPage}`);
+        }
+        
+        return {
+          posts: transformedPosts,
+          pageInfo: {
+            hasNextPage: response.posts.pageInfo.hasNextPage,
+            endCursor: response.posts.pageInfo.endCursor,
+            hasPreviousPage: false,
+            totalCount
+          }
+        };
+      }
+      
+      // For pages > 1, we need to build up the cursor chain
+      // We'll fetch sequentially from page 1 to reach the target page
+      let currentCursor: string | undefined = undefined;
+      let currentPage = 1;
+      
+      // Build up the cursor by fetching previous pages (only fetching endCursor info)
+      while (currentPage < page) {
+        const response = await graphqlClient.getAllPosts(postsPerPage, currentCursor);
+        currentCursor = response.posts.pageInfo.endCursor;
+        currentPage++;
+        
+        if (DEV_CONFIG.debugMode) {
+          Logger.info(`Building cursor chain: reached page ${currentPage}, cursor: ${currentCursor}`);
+        }
+        
+        // If there's no next page, we've reached the end
+        if (!response.posts.pageInfo.hasNextPage && currentPage < page) {
+          if (DEV_CONFIG.debugMode) {
+            Logger.info(`Reached end of posts at page ${currentPage}, requested page ${page} does not exist`);
+          }
+          return {
+            posts: [],
+            pageInfo: {
+              hasNextPage: false,
+              endCursor: null,
+              hasPreviousPage: true,
+              totalCount: await this.getTotalPostCount()
+            }
+          };
+        }
+      }
+      
+      // Now fetch the actual page we want
+      const response = await graphqlClient.getAllPosts(postsPerPage, currentCursor);
+      const transformedPosts = response.posts.nodes.map(transformCMSPost);
+      const totalCount = await this.getTotalPostCount();
+      
+      if (DEV_CONFIG.debugMode) {
+        Logger.info(`Fetched page ${page}: ${transformedPosts.length} posts, hasNextPage: ${response.posts.pageInfo.hasNextPage}`);
+      }
+      
+      return {
+        posts: transformedPosts,
+        pageInfo: {
+          hasNextPage: response.posts.pageInfo.hasNextPage,
+          endCursor: response.posts.pageInfo.endCursor,
+          hasPreviousPage: page > 1,
+          totalCount
+        }
+      };
+    } catch (error) {
+      if (DEV_CONFIG.debugMode) {
+        Logger.error(`Failed to fetch posts for page ${page}:`, error);
+      }
+      return {
+        posts: [],
+        pageInfo: {
+          hasNextPage: false,
+          endCursor: null,
+          hasPreviousPage: page > 1,
+          totalCount: 0
+        }
+      };
+    }
+  }
+
   // Fetch posts for a specific page number (for blog archive pagination)
   // Uses cached sitemap data to avoid real-time CMS fetching for pagination
   async getPostsForPage(page: number, postsPerPage: number = 20): Promise<BlogPost[]> {
