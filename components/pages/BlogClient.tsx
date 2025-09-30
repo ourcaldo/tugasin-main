@@ -60,43 +60,6 @@ export default function BlogClient({
   const [error, setError] = useState<string | null>(initialError);
   const [filteredPosts, setFilteredPosts] = useState<BlogPost[]>([]);
 
-  // Prefetch adjacent pages for faster navigation
-  useEffect(() => {
-    if (!categoryParam && typeof window !== 'undefined') {
-      const prefetchUrls: string[] = [];
-      
-      // Previous page
-      if (currentPage > 1) {
-        prefetchUrls.push(`/blog?page=${currentPage - 1}`);
-      }
-      
-      // Next page
-      if (currentPage < totalPages) {
-        prefetchUrls.push(`/blog?page=${currentPage + 1}`);
-      }
-      
-      // Add prefetch links to the document head
-      const links: HTMLLinkElement[] = [];
-      prefetchUrls.forEach(url => {
-        const link = document.createElement('link');
-        link.rel = 'prefetch';
-        link.href = url;
-        link.as = 'document';
-        document.head.appendChild(link);
-        links.push(link);
-      });
-      
-      // Cleanup function to remove prefetch links when component unmounts
-      return () => {
-        links.forEach(link => {
-          if (link.parentNode) {
-            link.parentNode.removeChild(link);
-          }
-        });
-      };
-    }
-  }, [currentPage, totalPages, categoryParam]);
-
   // Load blog data from CMS (for client-side refresh only)
   const loadBlogData = async (forceRefresh: boolean = false) => {
     try {
@@ -345,33 +308,27 @@ export default function BlogClient({
             {/* Pagination */}
             {!categoryParam && totalPages > 1 && (
               <div className="flex justify-center items-center space-x-2 mt-8">
-                {/* Previous Button */}
                 <Button
                   asChild
                   variant="outline"
                   disabled={currentPage === 1}
                 >
                   {currentPage === 1 ? (
-                    <span className="cursor-not-allowed opacity-50">
-                      Previous
-                    </span>
+                    <span className="cursor-not-allowed opacity-50">Previous</span>
+                  ) : currentPage === 2 ? (
+                    <Link href="/blog">Previous</Link>
                   ) : (
-                    <Link href={`/blog?page=${currentPage - 1}`}>
-                      Previous
-                    </Link>
+                    <Link href={`/blog/page/${currentPage - 1}`}>Previous</Link>
                   )}
                 </Button>
 
-                {/* Page Numbers */}
                 {Array.from({ length: totalPages }, (_, i) => i + 1)
                   .filter(page => {
-                    // Show first page, last page, current page, and pages around current
                     if (page === 1 || page === totalPages) return true;
                     if (Math.abs(page - currentPage) <= 1) return true;
                     return false;
                   })
                   .map((page, index, array) => {
-                    // Add ellipsis if there's a gap
                     const showEllipsisBefore = index > 0 && page - array[index - 1] > 1;
                     
                     return (
@@ -384,28 +341,25 @@ export default function BlogClient({
                           variant={currentPage === page ? "default" : "outline"}
                           size="sm"
                         >
-                          <Link href={`/blog?page=${page}`}>
-                            {page}
-                          </Link>
+                          {page === 1 ? (
+                            <Link href="/blog">{page}</Link>
+                          ) : (
+                            <Link href={`/blog/page/${page}`}>{page}</Link>
+                          )}
                         </Button>
                       </React.Fragment>
                     );
                   })}
 
-                {/* Next Button */}
                 <Button
                   asChild
                   variant="outline"
                   disabled={currentPage === totalPages}
                 >
                   {currentPage === totalPages ? (
-                    <span className="cursor-not-allowed opacity-50">
-                      Next
-                    </span>
+                    <span className="cursor-not-allowed opacity-50">Next</span>
                   ) : (
-                    <Link href={`/blog?page=${currentPage + 1}`}>
-                      Next
-                    </Link>
+                    <Link href={`/blog/page/${currentPage + 1}`}>Next</Link>
                   )}
                 </Button>
               </div>

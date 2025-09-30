@@ -4,15 +4,15 @@
 This is a Next.js 15 + TypeScript application for Tugasin, an academic assistance service. The application uses Next.js App Router with modern React patterns and shadcn/ui components.
 
 ## Recent Changes
-- **2025-09-30**: ✅ **CMS INTEGRATION & PERFORMANCE OPTIMIZATION**
-  - **Sitemap Optimization**: Fixed sitemap to use cursor-based pagination with 1000 posts per CMS request
-  - **Sitemap Chunking**: Posts are now properly chunked into 200 per sitemap file (sitemap-post-1.xml, sitemap-post-2.xml, etc.)
-  - **Sitemap Caching**: Implemented 24-hour cache for all sitemap endpoints using ISR
-  - **Blog Archive Caching**: Changed from ISR to dynamic rendering with Vercel edge caching (24-hour Cache-Control headers)
-  - **Pagination Prefetch**: Added automatic prefetch for adjacent blog pages to improve navigation speed
-  - **CMS Request Optimization**: Blog pagination now uses cached data instead of making real-time CMS requests
-  - **Blog Service Enhancement**: Added `getPostsForPage()` method that leverages 24-hour cached sitemap data
-  - **Zero Real-time CMS Calls**: Blog archive pages now serve from cache, reducing CMS load dramatically
+- **2025-09-30**: ✅ **ISR-ONLY BLOG & SITEMAP IMPLEMENTATION**
+  - **Blog ISR Implementation**: Changed blog from dynamic to ISR with 24-hour revalidation (revalidate = 86400)
+  - **Static Pagination Routes**: Created /blog/page/[page] route with generateStaticParams for ISR-cached pagination
+  - **Sitemap ISR**: Updated all sitemaps to use 24-hour ISR (revalidate = 86400)
+  - **CMS Batch Fetching**: getAllPostsForSitemap() fetches 1000 posts per batch until hasNextPage is false
+  - **Zero Dynamic Rendering**: All blog and sitemap routes use ISR for optimal caching
+  - **Pagination Navigation**: Updated BlogClient to use /blog/page/[page] routes instead of query parameters
+  - **Cache Strategy**: Page 1 at /blog, subsequent pages at /blog/page/2, /blog/page/3, etc.
+  - **Result**: Vercel will cache all pages properly with x-vercel-cache: HIT after initial build
 
 - **2025-09-28**: ✅ **PHASE 1 COMPLETE** - Production-Ready Framework Migration
   - **File Structure Migration**: Successfully moved from src/ to root-level structure (components/, lib/, styles/, data/)

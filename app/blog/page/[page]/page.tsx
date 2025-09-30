@@ -3,17 +3,27 @@ import BlogClient from '@/components/pages/BlogClient'
 import { generateMetadata as genMetadata } from '@/lib/seo/metadata'
 import { breadcrumbSchema, generateStructuredDataScript } from '@/lib/seo/structured-data'
 import { siteConfig } from '@/config/site'
-import { getRevalidationForPageType, scheduleBackgroundRevalidation } from '@/lib/cache/isr-revalidation'
 import { blogService } from '@/lib/cms/blog-service'
 import type { BlogPost, BlogCategory } from '@/lib/utils/types'
 
-// Use ISR with 24-hour revalidation to cache the page and serve from cache
-export const revalidate = 86400 // 24 hours in seconds
+// ISR with 24-hour revalidation
+export const revalidate = 86400
 
-export async function generateMetadata() {
-  const canonical = `${siteConfig.url}/blog`
+export async function generateStaticParams() {
+  const postsPerPage = 20
+  const allPosts = await blogService.getAllPostsForSitemap()
+  const totalPages = Math.ceil(allPosts.length / postsPerPage)
+  
+  return Array.from({ length: totalPages }, (_, i) => ({
+    page: String(i + 1)
+  }))
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ page: string }> }) {
+  const { page } = await params
+  const canonical = `${siteConfig.url}/blog/page/${page}`
   return genMetadata(
-    'Blog & Tips Akademik',
+    `Blog & Tips Akademik - Halaman ${page}`,
     'Artikel dan tips seputar dunia akademik, strategi mengerjakan tugas, dan panduan penelitian untuk mahasiswa.',
     canonical,
     `${siteConfig.url}/og-default.jpg`,
@@ -21,8 +31,9 @@ export async function generateMetadata() {
   )
 }
 
-export default async function Page() {
-  const currentPage = 1
+export default async function Page({ params }: { params: Promise<{ page: string }> }) {
+  const { page } = await params
+  const currentPage = parseInt(page, 10)
   const postsPerPage = 20
   
   let featuredPost: BlogPost | null = null
@@ -50,7 +61,8 @@ export default async function Page() {
   
   const breadcrumbs = [
     { name: 'Beranda', url: siteConfig.url },
-    { name: 'Blog', url: `${siteConfig.url}/blog` }
+    { name: 'Blog', url: `${siteConfig.url}/blog` },
+    { name: `Halaman ${currentPage}`, url: `${siteConfig.url}/blog/page/${currentPage}` }
   ]
   
   const structuredData = [breadcrumbSchema(breadcrumbs)]

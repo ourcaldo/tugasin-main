@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next'
 
 // ISR configuration for root sitemap
-export const revalidate = 3600 // 1 hour
+export const revalidate = 86400 // 24 hours
 
 // Root sitemap that references main sitemap categories
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
