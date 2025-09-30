@@ -35,7 +35,7 @@ export async function GET() {
 ${Array.from({ length: numberOfSitemaps }, (_, i) => {
   const pageNumber = i + 1
   return `  <sitemap>
-    <loc>${baseUrl}/api/sitemap-post/${pageNumber}</loc>
+    <loc>${baseUrl}/sitemap-post-${pageNumber}.xml</loc>
     <lastmod>${new Date().toISOString()}</lastmod>
   </sitemap>`
 }).join('\n')}
