@@ -4,6 +4,16 @@
 This is a Next.js 15 + TypeScript application for Tugasin, an academic assistance service. The application uses Next.js App Router with modern React patterns and shadcn/ui components.
 
 ## Recent Changes
+- **2025-09-30**: ✅ **CMS INTEGRATION & PERFORMANCE OPTIMIZATION**
+  - **Sitemap Optimization**: Fixed sitemap to use cursor-based pagination with 1000 posts per CMS request
+  - **Sitemap Chunking**: Posts are now properly chunked into 200 per sitemap file (sitemap-post-1.xml, sitemap-post-2.xml, etc.)
+  - **Sitemap Caching**: Implemented 24-hour cache for all sitemap endpoints using ISR
+  - **Blog Archive Caching**: Changed from ISR to dynamic rendering with Vercel edge caching (24-hour Cache-Control headers)
+  - **Pagination Prefetch**: Added automatic prefetch for adjacent blog pages to improve navigation speed
+  - **CMS Request Optimization**: Blog pagination now uses cached data instead of making real-time CMS requests
+  - **Blog Service Enhancement**: Added `getPostsForPage()` method that leverages 24-hour cached sitemap data
+  - **Zero Real-time CMS Calls**: Blog archive pages now serve from cache, reducing CMS load dramatically
+
 - **2025-09-28**: ✅ **PHASE 1 COMPLETE** - Production-Ready Framework Migration
   - **File Structure Migration**: Successfully moved from src/ to root-level structure (components/, lib/, styles/, data/)
   - **App Router Implementation**: Created loading.tsx, not-found.tsx, sitemap.ts for Next.js 15.5.4 App Router
