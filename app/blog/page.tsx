@@ -1,19 +1,23 @@
 import React from 'react'
+import { headers } from 'next/headers'
 import BlogClient from '@/components/pages/BlogClient'
 import { generateMetadata as genMetadata } from '@/lib/seo/metadata'
 import { breadcrumbSchema, generateStructuredDataScript } from '@/lib/seo/structured-data'
 import { siteConfig } from '@/config/site'
-import { getRevalidationForPageType, scheduleBackgroundRevalidation } from '@/lib/cache/isr-revalidation'
 import { blogService } from '@/lib/cms/blog-service'
 import type { BlogPost, BlogCategory } from '@/lib/utils/types'
 
-// Use ISR with 24-hour revalidation to cache the page and serve from cache
-export const revalidate = 86400 // 24 hours in seconds
+// Use ISR for page 1 only - this will be built at build time
+// For page > 1, we use dynamic rendering with cache headers
+export const revalidate = 86400 // 24 hours in seconds for ISR
 
-export async function generateMetadata() {
-  const canonical = `${siteConfig.url}/blog`
+export async function generateMetadata({ searchParams }: { searchParams: Promise<{ page?: string }> }) {
+  const params = await searchParams
+  const page = params.page ? parseInt(params.page, 10) : 1
+  const canonical = page === 1 ? `${siteConfig.url}/blog` : `${siteConfig.url}/blog?page=${page}`
+  
   return genMetadata(
-    'Blog & Tips Akademik',
+    page === 1 ? 'Blog & Tips Akademik' : `Blog & Tips Akademik - Halaman ${page}`,
     'Artikel dan tips seputar dunia akademik, strategi mengerjakan tugas, dan panduan penelitian untuk mahasiswa.',
     canonical,
     `${siteConfig.url}/og-default.jpg`,
@@ -21,9 +25,16 @@ export async function generateMetadata() {
   )
 }
 
-export default async function Page() {
-  const currentPage = 1
+export default async function Page({ searchParams }: { searchParams: Promise<{ page?: string }> }) {
+  const params = await searchParams
+  const currentPage = params.page ? parseInt(params.page, 10) : 1
   const postsPerPage = 20
+  
+  // For pages > 1, set dynamic rendering
+  if (currentPage > 1) {
+    // This forces dynamic rendering for paginated pages
+    await headers()
+  }
   
   let featuredPost: BlogPost | null = null
   let blogPosts: BlogPost[] = []
@@ -48,10 +59,16 @@ export default async function Page() {
     error = 'Gagal memuat data blog'
   }
   
-  const breadcrumbs = [
-    { name: 'Beranda', url: siteConfig.url },
-    { name: 'Blog', url: `${siteConfig.url}/blog` }
-  ]
+  const breadcrumbs = currentPage === 1
+    ? [
+        { name: 'Beranda', url: siteConfig.url },
+        { name: 'Blog', url: `${siteConfig.url}/blog` }
+      ]
+    : [
+        { name: 'Beranda', url: siteConfig.url },
+        { name: 'Blog', url: `${siteConfig.url}/blog` },
+        { name: `Halaman ${currentPage}`, url: `${siteConfig.url}/blog?page=${currentPage}` }
+      ]
   
   const structuredData = [breadcrumbSchema(breadcrumbs)]
   const totalPages = Math.ceil(totalPosts / postsPerPage)
