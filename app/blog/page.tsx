@@ -21,26 +21,40 @@ export async function generateMetadata() {
   )
 }
 
-export default async function Page() {
+export default async function Page({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>
+}) {
   // Schedule intelligent background revalidation for blog listing
   scheduleBackgroundRevalidation('blog-listing');
+  
+  const params = await searchParams;
+  const currentPage = parseInt(params.page || '1', 10);
+  const postsPerPage = 20;
+  const offset = (currentPage - 1) * postsPerPage;
   
   // Pre-fetch blog data on the server for SEO
   let featuredPost: BlogPost | null = null;
   let blogPosts: BlogPost[] = [];
   let categories: BlogCategory[] = [];
   let error: string | null = null;
+  let totalPosts = 0;
   
   try {
     const [featured, posts, cats] = await Promise.all([
       blogService.getFeaturedPost(),
-      blogService.getRecentPosts(50),
+      blogService.getAllPosts(postsPerPage, offset),
       blogService.getCategories()
     ]);
     
     featuredPost = featured;
     blogPosts = posts;
     categories = cats;
+    
+    // Get total count from all posts (for pagination)
+    const allPosts = await blogService.getAllPosts(1000);
+    totalPosts = allPosts.length;
   } catch (err) {
     console.error('Failed to load blog data:', err);
     error = 'Gagal memuat data blog';
@@ -56,6 +70,8 @@ export default async function Page() {
     breadcrumbSchema(breadcrumbs)
   ]
 
+  const totalPages = Math.ceil(totalPosts / postsPerPage);
+
   return (
     <>
       <script
@@ -67,6 +83,9 @@ export default async function Page() {
         initialBlogPosts={blogPosts}
         initialCategories={categories}
         initialError={error}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        postsPerPage={postsPerPage}
       />
     </>
   )

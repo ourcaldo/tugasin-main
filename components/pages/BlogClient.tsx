@@ -37,13 +37,19 @@ interface BlogClientProps {
   initialBlogPosts: BlogPost[];
   initialCategories: BlogCategory[];
   initialError: string | null;
+  currentPage?: number;
+  totalPages?: number;
+  postsPerPage?: number;
 }
 
 export default function BlogClient({ 
   initialFeaturedPost, 
   initialBlogPosts, 
   initialCategories, 
-  initialError 
+  initialError,
+  currentPage = 1,
+  totalPages = 1,
+  postsPerPage = 20
 }: BlogClientProps) {
   const params = useParams();
   const categoryParam = params?.category as string | undefined;
@@ -298,6 +304,75 @@ export default function BlogClient({
                 </Card>
               )}
             </div>
+
+            {/* Pagination */}
+            {!categoryParam && totalPages > 1 && (
+              <div className="flex justify-center items-center space-x-2 mt-8">
+                {/* Previous Button */}
+                <Button
+                  asChild
+                  variant="outline"
+                  disabled={currentPage === 1}
+                >
+                  {currentPage === 1 ? (
+                    <span className="cursor-not-allowed opacity-50">
+                      Previous
+                    </span>
+                  ) : (
+                    <Link href={`/blog?page=${currentPage - 1}`}>
+                      Previous
+                    </Link>
+                  )}
+                </Button>
+
+                {/* Page Numbers */}
+                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                  .filter(page => {
+                    // Show first page, last page, current page, and pages around current
+                    if (page === 1 || page === totalPages) return true;
+                    if (Math.abs(page - currentPage) <= 1) return true;
+                    return false;
+                  })
+                  .map((page, index, array) => {
+                    // Add ellipsis if there's a gap
+                    const showEllipsisBefore = index > 0 && page - array[index - 1] > 1;
+                    
+                    return (
+                      <React.Fragment key={page}>
+                        {showEllipsisBefore && (
+                          <span className="px-2 text-gray-500">...</span>
+                        )}
+                        <Button
+                          asChild
+                          variant={currentPage === page ? "default" : "outline"}
+                          size="sm"
+                        >
+                          <Link href={`/blog?page=${page}`}>
+                            {page}
+                          </Link>
+                        </Button>
+                      </React.Fragment>
+                    );
+                  })}
+
+                {/* Next Button */}
+                <Button
+                  asChild
+                  variant="outline"
+                  disabled={currentPage === totalPages}
+                >
+                  {currentPage === totalPages ? (
+                    <span className="cursor-not-allowed opacity-50">
+                      Next
+                    </span>
+                  ) : (
+                    <Link href={`/blog?page=${currentPage + 1}`}>
+                      Next
+                    </Link>
+                  )}
+                </Button>
+              </div>
+            )}
           </div>
 
           {/* Sidebar */}
