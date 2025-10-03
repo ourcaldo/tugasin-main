@@ -30,8 +30,14 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ p
   const currentPage = params.page ? parseInt(params.page, 10) : 1
   const postsPerPage = 20
   
+  console.log(`\n========== BLOG PAGE SERVER RENDER START ==========`)
+  console.log(`📄 Rendering /blog with page=${currentPage}`)
+  console.log(`⏰ Time: ${new Date().toISOString()}`)
+  console.log(`🔄 Rendering mode: ${currentPage === 1 ? 'ISR (24h revalidation)' : 'Dynamic with cache'}`)
+  
   // For pages > 1, set dynamic rendering
   if (currentPage > 1) {
+    console.log(`🔀 Forcing dynamic rendering for page ${currentPage}`)
     // This forces dynamic rendering for paginated pages
     await headers()
   }
@@ -42,21 +48,44 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ p
   let error: string | null = null
   let totalPosts = 0
   
+  const startTime = Date.now()
+  
   try {
+    console.log(`\n📡 Starting API calls...`)
+    
     const [featured, postsData, cats] = await Promise.all([
       blogService.getFeaturedPost(),
       blogService.getPostsWithPagination(currentPage, postsPerPage),
       blogService.getCategories()
     ])
     
+    const duration = Date.now() - startTime
+    
     featuredPost = featured
     blogPosts = postsData.posts
     categories = cats
     totalPosts = postsData.pageInfo.totalCount
+    
+    console.log(`\n✅ API calls completed successfully`)
+    console.log(`⏱️  Duration: ${duration}ms`)
+    console.log(`📊 Results:`)
+    console.log(`   - Featured post: ${featuredPost ? featuredPost.title : 'None'}`)
+    console.log(`   - Blog posts: ${blogPosts.length} posts fetched`)
+    console.log(`   - Categories: ${categories.length} categories`)
+    console.log(`   - Total posts: ${totalPosts}`)
+    console.log(`   - Total pages: ${Math.ceil(totalPosts / postsPerPage)}`)
+    console.log(`   - Current page: ${currentPage}`)
+    console.log(`\n📝 Post titles on this page:`)
+    blogPosts.forEach((post, i) => {
+      console.log(`   ${i + 1}. ${post.title}`)
+    })
   } catch (err) {
-    console.error('Failed to load blog data:', err)
+    const duration = Date.now() - startTime
+    console.error(`\n❌ Failed to load blog data after ${duration}ms:`, err)
     error = 'Gagal memuat data blog'
   }
+  
+  console.log(`========== BLOG PAGE SERVER RENDER END ==========\n`)
   
   const breadcrumbs = currentPage === 1
     ? [

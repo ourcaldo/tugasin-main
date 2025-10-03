@@ -42,7 +42,7 @@ export default function BlogClient({
   const [categories, setCategories] = useState<BlogCategory[]>(initialCategories);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(initialError);
-  const [filteredPosts, setFilteredPosts] = useState<BlogPost[]>([]);
+  const [filteredPosts, setFilteredPosts] = useState<BlogPost[]>(initialBlogPosts);
 
   // Prefetch next page for faster navigation
   useEffect(() => {
