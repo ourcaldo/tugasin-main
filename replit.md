@@ -10,6 +10,10 @@ This is a Next.js 15 + TypeScript application for Tugasin, an academic assistanc
   - **Clean Console**: Development server now runs without repetitive critical dependency warnings
   - **Improved UX**: Blog posts now render immediately without skeleton loading state causing visual jumps
   - **ISR Confirmation**: Page 1 uses ISR with 24-hour revalidation, pages 2+ use dynamic rendering with cache
+  - **Skeleton Loading**: Replaced spinner loading.tsx with proper skeleton UI for better UX
+  - **Debug Logging**: Added comprehensive server-side logging to track blog data fetching performance
+  - **Layout Fix**: Removed dynamic Footer import to fix chunk loading timeout errors
+  - **Client State Fix**: Fixed filteredPosts initialization to prevent empty state flash on initial render
 
 - **2025-10-03**: ✅ **API V1 MIGRATION - REST API WITH PAGE-BASED PAGINATION**
   - **API Endpoint Migration**: Migrated from `/api/public/posts` to `/api/v1/posts` REST API
