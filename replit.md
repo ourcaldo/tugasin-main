@@ -4,6 +4,16 @@
 This is a Next.js 15 + TypeScript application for Tugasin, an academic assistance service. The application uses Next.js App Router with modern React patterns and shadcn/ui components.
 
 ## Recent Changes
+- **2025-10-03**: ✅ **BLOG UX IMPROVEMENTS - PAGINATION, CATEGORY FILTERING & URL STRUCTURE**
+  - **Pagination Scroll Fix**: Added automatic scroll-to-top when page changes for better UX
+  - **API-Level Category Filtering**: Replaced client-side filtering with REST API `?category=` parameter
+  - **URL Trailing Slashes**: Enabled trailing slashes in next.config.js and updated all URLs throughout the app
+  - **Category Support in Blog Service**: Updated `getPosts()` and `getPostsWithPagination()` to accept optional category parameter
+  - **Category Page Integration**: Updated `/blog/[category]/` to use BlogClient with API-filtered posts
+  - **Author Update**: Changed default author from "Admin" to "Tugasin" for proper branding
+  - **Consistent URL Format**: All blog URLs now follow `/blog/`, `/blog/?page=2`, `/blog/{category}/`, `/blog/{category}/{slug}/` pattern
+  - **BlogPostCard Fix**: Updated to use proper category-based URL structure with trailing slashes
+
 - **2025-10-03**: ✅ **PERFORMANCE OPTIMIZATION - REMOVED IMPORT WARNINGS & FIXED BLOG GLITCHING**
   - **Webpack Configuration**: Suppressed annoying Prisma/Sentry instrumentation import trace warnings in console
   - **Blog Performance Fix**: Removed dynamic import of BlogPostCard component that was causing content glitching
