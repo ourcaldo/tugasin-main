@@ -1,8 +1,21 @@
 import { NextResponse, NextRequest } from 'next/server'
 import { blogService } from '@/lib/cms/blog-service'
+import { unstable_cache } from 'next/cache'
 
 // ISR configuration for individual blog posts sitemap pages - 24 hour cache
 export const revalidate = 86400 // 24 hours
+
+// Cached function to fetch all posts - this cache persists across requests
+const getCachedAllPosts = unstable_cache(
+  async () => {
+    return await blogService.getAllPostsForSitemap()
+  },
+  ['sitemap-all-posts'], // cache key
+  {
+    revalidate: 86400, // 24 hours
+    tags: ['sitemap-posts']
+  }
+)
 
 // Helper function to create URL-safe slugs
 function createSlug(text: string): string {
@@ -68,8 +81,8 @@ export async function GET(
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://tugasin.com'
     const postsPerSitemap = 200
     
-    // Fetch ALL posts from cache (24 hour cache) and chunk them
-    const allPosts = await blogService.getAllPostsForSitemap()
+    // Fetch ALL posts from Next.js cache (24 hour cache) and chunk them
+    const allPosts = await getCachedAllPosts()
     
     // Calculate start and end indices for this page
     const startIndex = (pageNumber - 1) * postsPerSitemap

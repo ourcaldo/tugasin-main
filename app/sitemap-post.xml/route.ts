@@ -1,16 +1,29 @@
 import { NextResponse } from 'next/server'
 import { blogService } from '@/lib/cms/blog-service'
+import { unstable_cache } from 'next/cache'
 
 // ISR configuration for blog posts sitemap index - 24 hour cache
 export const revalidate = 86400 // 24 hours
+
+// Cached function to fetch all posts - this cache persists across requests
+const getCachedAllPosts = unstable_cache(
+  async () => {
+    return await blogService.getAllPostsForSitemap()
+  },
+  ['sitemap-all-posts'], // cache key (same as the other route)
+  {
+    revalidate: 86400, // 24 hours
+    tags: ['sitemap-posts']
+  }
+)
 
 export async function GET() {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://tugasin.com'
   const postsPerSitemap = 200
   
   try {
-    // Fetch all posts to get accurate count (uses 24-hour cache)
-    const allPosts = await blogService.getAllPostsForSitemap()
+    // Fetch all posts to get accurate count (uses Next.js persistent cache - 24 hours)
+    const allPosts = await getCachedAllPosts()
     const totalPosts = allPosts.length
     
     if (totalPosts === 0) {

@@ -8,7 +8,7 @@ import { Button } from '../ui/button';
 import { Card, CardContent } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { ImageWithFallback } from '../figma/ImageWithFallback';
-import { useRecentPosts } from '@/lib/hooks/useBlog';
+import type { BlogPost } from '@/lib/utils/types';
 
 // Dynamic imports for below-the-fold sections
 const TestimonialsSection = dynamic(() => import('../sections/TestimonialsSection'), {
@@ -84,8 +84,12 @@ const ServicesSection = dynamic(() => import('../sections/ServicesSection'), {
   )
 });
 
-export default function Homepage() {
-  const { posts: recentPosts, isLoading: isLoadingPosts } = useRecentPosts(3);
+interface HomepageProps {
+  recentPosts: BlogPost[];
+}
+
+export default function Homepage({ recentPosts = [] }: HomepageProps) {
+  const isLoadingPosts = false;
 
   const features = [
     {

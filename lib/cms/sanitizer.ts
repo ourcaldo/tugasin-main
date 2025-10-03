@@ -62,6 +62,8 @@ export const sanitizeContent = (html: string): string => {
 
 /**
  * Sanitizes plain text content by escaping HTML entities
+ * Only use for text that will be inserted into HTML via innerHTML
+ * For React-rendered text, use cleanText() instead
  * @param text - Plain text content
  * @returns Escaped text safe for HTML rendering
  */
@@ -76,6 +78,25 @@ export const sanitizeText = (text: string): string => {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#x27;');
+};
+
+/**
+ * Cleans text without HTML encoding (for React-rendered content)
+ * React automatically escapes text, so we only need to strip dangerous chars
+ * @param text - Plain text content
+ * @returns Cleaned text safe for React rendering
+ */
+export const cleanText = (text: string): string => {
+  if (!text || typeof text !== 'string') {
+    return '';
+  }
+
+  // Only remove script injection attempts, let React handle the rest
+  return text
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    .replace(/javascript:/gi, '')
+    .replace(/on\w+=/gi, '')
+    .trim();
 };
 
 /**

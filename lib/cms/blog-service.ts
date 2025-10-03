@@ -2,7 +2,7 @@ import { apiClient, CMSPost, APIPagination } from './api-client';
 import type { BlogPost, BlogCategory } from '@/lib/utils/types';
 import { DEV_CONFIG } from '@/lib/utils/constants';
 import { Logger } from '@/lib/utils/logger';
-import { sanitizeContent, sanitizeText, sanitizeUrl, validateSanitizer } from './sanitizer';
+import { sanitizeContent, cleanText, sanitizeUrl, validateSanitizer } from './sanitizer';
 import { cmsCache, CacheKeys } from '../cache/memory-cache';
 
 function calculateReadTime(content: string): string {
@@ -35,7 +35,7 @@ function cleanContentForDisplay(content: string): string {
 }
 
 function transformCMSPost(cmsPost: CMSPost): BlogPost {
-  const primaryCategory = sanitizeText(cmsPost.categories.nodes[0]?.name || 'Umum');
+  const primaryCategory = cleanText(cmsPost.categories.nodes[0]?.name || 'Umum');
   const imageUrl = sanitizeUrl(
     cmsPost.featuredImage?.node.sourceUrl || 
     cmsPost.fifuImageUrl || 
@@ -43,16 +43,16 @@ function transformCMSPost(cmsPost: CMSPost): BlogPost {
     'https://images.unsplash.com/photo-1586339393565-32161f258eac?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080'
   );
 
-  const sanitizedTitle = sanitizeText(cmsPost.title || '');
+  const cleanedTitle = cleanText(cmsPost.title || '');
   const sanitizedContent = cmsPost.content || '';
-  const sanitizedExcerpt = sanitizeText(cmsPost.excerpt || extractExcerpt(sanitizedContent));
-  const sanitizedAuthor = sanitizeText(cmsPost.author.node.name || '');
+  const cleanedExcerpt = cleanText(cmsPost.excerpt || extractExcerpt(sanitizedContent));
+  const cleanedAuthor = cleanText(cmsPost.author.node.name || '');
 
   return {
     id: cmsPost.databaseId,
-    title: sanitizedTitle,
-    excerpt: sanitizedExcerpt,
-    author: sanitizedAuthor,
+    title: cleanedTitle,
+    excerpt: cleanedExcerpt,
+    author: cleanedAuthor,
     date: new Date(cmsPost.date).toLocaleDateString('id-ID', {
       day: 'numeric',
       month: 'long',
@@ -63,11 +63,11 @@ function transformCMSPost(cmsPost: CMSPost): BlogPost {
     image: imageUrl,
     slug: cmsPost.slug,
     content: cleanContentForDisplay(sanitizedContent),
-    tags: cmsPost.tags.nodes.map(tag => sanitizeText(tag.name || '')),
+    tags: cmsPost.tags.nodes.map(tag => cleanText(tag.name || '')),
     seo: {
-      title: sanitizeText(cmsPost.seo?.title || ''),
-      description: sanitizeText(cmsPost.seo?.description || ''),
-      focusKeywords: (cmsPost.seo?.focusKeywords || []).map(keyword => sanitizeText(keyword))
+      title: cleanText(cmsPost.seo?.title || ''),
+      description: cleanText(cmsPost.seo?.description || ''),
+      focusKeywords: (cmsPost.seo?.focusKeywords || []).map(keyword => cleanText(keyword))
     }
   };
 }
@@ -327,18 +327,6 @@ export class BlogService {
   
   async getAllPostsForSitemap(): Promise<BlogPost[]> {
     try {
-      const cacheKey = `sitemap_posts_all`;
-      const now = Date.now();
-      const CACHE_TTL = 24 * 60 * 60 * 1000;
-      
-      const cachedData = cmsCache.get<{ posts: BlogPost[], timestamp: number }>(cacheKey);
-      if (cachedData && (now - cachedData.timestamp) < CACHE_TTL) {
-        if (DEV_CONFIG.debugMode) {
-          Logger.info(`Returning cached sitemap posts: ${cachedData.posts.length} total posts`);
-        }
-        return cachedData.posts;
-      }
-      
       if (DEV_CONFIG.debugMode) {
         Logger.info(`Fetching all posts for sitemap using API pagination`);
       }
@@ -404,10 +392,8 @@ export class BlogService {
         }
       }
       
-      cmsCache.set(cacheKey, { posts: allPosts, timestamp: now });
-      
       if (DEV_CONFIG.debugMode) {
-        Logger.info(`Cached ${allPosts.length} posts for sitemap (24 hour TTL)`);
+        Logger.info(`Fetched ${allPosts.length} posts for sitemap`);
       }
       
       return allPosts;
