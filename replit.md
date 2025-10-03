@@ -4,6 +4,13 @@
 This is a Next.js 15 + TypeScript application for Tugasin, an academic assistance service. The application uses Next.js App Router with modern React patterns and shadcn/ui components.
 
 ## Recent Changes
+- **2025-10-03**: ✅ **PERFORMANCE OPTIMIZATION - REMOVED IMPORT WARNINGS & FIXED BLOG GLITCHING**
+  - **Webpack Configuration**: Suppressed annoying Prisma/Sentry instrumentation import trace warnings in console
+  - **Blog Performance Fix**: Removed dynamic import of BlogPostCard component that was causing content glitching
+  - **Clean Console**: Development server now runs without repetitive critical dependency warnings
+  - **Improved UX**: Blog posts now render immediately without skeleton loading state causing visual jumps
+  - **ISR Confirmation**: Page 1 uses ISR with 24-hour revalidation, pages 2+ use dynamic rendering with cache
+
 - **2025-10-03**: ✅ **API V1 MIGRATION - REST API WITH PAGE-BASED PAGINATION**
   - **API Endpoint Migration**: Migrated from `/api/public/posts` to `/api/v1/posts` REST API
   - **Pagination Change**: Replaced cursor-based pagination with page/limit query parameters
