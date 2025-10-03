@@ -46,57 +46,17 @@ export default function BlogClient({
   const [featuredPost, setFeaturedPost] = useState<BlogPost | null>(initialFeaturedPost);
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>(initialBlogPosts);
   const [categories, setCategories] = useState<BlogCategory[]>(initialCategories);
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(initialError);
   const [totalPages, setTotalPages] = useState(initialTotalPages);
 
-  // Track initial mount to prevent unnecessary client-side fetching
-  const isInitialMount = useRef(true);
-  const prevPage = useRef(currentPage);
-  const prevCategory = useRef(categoryParam);
-
-  // Fetch posts when page or category changes (but NOT on initial mount)
+  // Sync state with server-rendered props when they change
   useEffect(() => {
-    // Skip fetch on initial mount if we have server-rendered data
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      prevPage.current = currentPage;
-      prevCategory.current = categoryParam;
-      return;
-    }
-
-    // Check if we need to fetch:
-    // 1. Page or category changed
-    // 2. OR we have no posts (fallback when prefetch data is missing)
-    const pageChanged = prevPage.current !== currentPage;
-    const categoryChanged = prevCategory.current !== categoryParam;
-    const noPosts = blogPosts.length === 0;
-    
-    if (!pageChanged && !categoryChanged && !noPosts) {
-      return;
-    }
-
-    prevPage.current = currentPage;
-    prevCategory.current = categoryParam;
-
-    const fetchPosts = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
-        
-        const response = await blogService.getPostsWithPagination(currentPage, postsPerPage, categoryParam);
-        setBlogPosts(response.posts);
-        setTotalPages(response.pageInfo.totalPages);
-      } catch (err) {
-        console.error('Error fetching posts:', err);
-        setError('Gagal memuat data blog');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchPosts();
-  }, [currentPage, categoryParam, postsPerPage, blogPosts.length]);
+    setFeaturedPost(initialFeaturedPost);
+    setBlogPosts(initialBlogPosts);
+    setCategories(initialCategories);
+    setError(initialError);
+    setTotalPages(initialTotalPages);
+  }, [initialFeaturedPost, initialBlogPosts, initialCategories, initialError, initialTotalPages]);
 
   // Scroll to top when page changes
   useEffect(() => {
@@ -176,9 +136,8 @@ export default function BlogClient({
                         variant="outline" 
                         size="sm" 
                         className="mt-3"
-                        disabled={isLoading}
                       >
-                        {isLoading ? 'Memuat...' : 'Coba Lagi'}
+                        Coba Lagi
                       </Button>
                     </div>
                   </div>
@@ -246,23 +205,7 @@ export default function BlogClient({
                 {categoryParam ? `Artikel ${getCategoryDisplayName(categoryParam)}` : 'Artikel Terbaru'}
               </h2>
               
-              {isLoading ? (
-                <div className="grid md:grid-cols-2 gap-8">
-                  {Array.from({ length: 6 }).map((_, index) => (
-                    <div key={index} className="bg-white rounded-lg shadow animate-pulse overflow-hidden">
-                      <div className="h-48 bg-gray-200"></div>
-                      <div className="p-6">
-                        <div className="h-4 bg-gray-200 rounded mb-3 w-1/3"></div>
-                        <div className="h-6 bg-gray-200 rounded mb-3"></div>
-                        <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                        <div className="h-4 bg-gray-200 rounded mb-4 w-3/4"></div>
-                        <div className="h-4 bg-gray-200 rounded w-2/3 mb-4"></div>
-                        <div className="h-10 bg-gray-200 rounded w-full"></div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : displayPosts.length > 0 ? (
+              {displayPosts.length > 0 ? (
                 <div className="grid md:grid-cols-2 gap-8">
                   {displayPosts.map((post) => (
                     <BlogPostCard key={post.id} post={post} />

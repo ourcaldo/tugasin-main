@@ -1,0 +1,81 @@
+========== BLOG PAGE SERVER RENDER START ==========
+📄 Rendering /blog with page=1
+⏰ Time: 2025-10-03T19:03:56.683Z
+🔄 Rendering mode: ISR (24h revalidation)
+
+📡 Starting API calls...
+
+✅ API calls completed successfully
+⏱️  Duration: 3254ms
+📊 Results:
+   - Featured post: Bukan Cuma IELTS, Ini 11 Sertifikasi Bahasa Asing yang Harus Kamu Tahu!
+   - Blog posts: 20 posts fetched
+   - Categories: 11 categories
+   - Total posts: 800
+   - Total pages: 40
+   - Current page: 1
+
+📝 Post titles on this page:
+   1. Level Bahasa Jepang N1-N5: Pengertian, Kegunaan, hingga Cara Mendapatkannya
+   2. Jangan Sampai Salah! Ini Perbedaan HSK dan TOCFL yang Harus Kamu Tahu!
+   3. Mau Belajar Bahasa Korea? Yuk Belajar Dulu Asal-usul Hangeul dan Maknaya
+   4. Mau Liburan di Korea? Pelajari Kosakata di Hotel dan Penginapan Ini!
+   5. Belajar Bahasa Jerman Otodidak? Gampang, Ini Tipsnya!
+   6. British vs Ameran English: Pengertian, Perbedaan, dan Mana yang Lebih Penting? Cari Tahu Disini!
+   7. Full English Breakfast: Pengertian, Sejarah dan Contoh Menunya
+   8. Ini 10 Kata Kerja Bahasa Mandarin yang Sering Digunakan Native
+   9. Contoh Pidato Singkat Bahasa Inggris tentang Kesuksesan dan Artinya
+   10. Jangan Salah, 12 Lagu Bahasa Inggris Ini Punya Arti Romantis dan Galau, Loh!
+   11. Cara Membuat Kalimat Pasif dalam Bahasa Inggris dan Contohnya
+   12. Berapa Lama Belajar Bahasa Inggris Biar Lancar? Ini Faktanya!
+   13. Nani Ga Suki? Artinya + Lirik Viral yang Bikin Jatuh Hati!
+   14. Ennichisai Blok M 2025: Festival Jepang Kembali, Apa Saja Barunya?
+   15. Cara Gampang Hafal Der, Die, Das Tanpa Bingung!
+   16. Ulas Lengkap 7+ Game Squid Game &amp; Rahasia Dibaliknya
+   17. Jelajahi 10 Spot Syuting Drakor Ini untuk Liburan Berkesan!
+   18. Hongdae Seoul: Spot Keren, Seni Jalanan, dan Tips Hindari *Hongdae Guys*
+   19. 7 Film Prancis Terbaik untuk Belajar Bahasa dengan Asyik!
+   20. Bukan Cuma IELTS, Ini 11 Sertifikasi Bahasa Asing yang Harus Kamu Tahu!
+========== BLOG PAGE SERVER RENDER END ==========
+
+
+========== BLOG PAGE SERVER RENDER START ==========
+📄 Rendering /blog with page=2
+⏰ Time: 2025-10-03T19:04:33.296Z
+🔄 Rendering mode: Dynamic with cache
+🔀 Forcing dynamic rendering for page 2
+
+📡 Starting API calls...
+
+✅ API calls completed successfully
+⏱️  Duration: 2335ms
+📊 Results:
+   - Featured post: Bukan Cuma IELTS, Ini 11 Sertifikasi Bahasa Asing yang Harus Kamu Tahu!
+   - Blog posts: 20 posts fetched
+   - Categories: 11 categories
+   - Total posts: 800
+   - Total pages: 40
+   - Current page: 2
+
+📝 Post titles on this page:
+   1. Panduan Liburan ke Jepang: Hemat, Gak Bingung, dan Anti Ribet!
+   2. 15 Frasa Mandarin Wajib Buat Traveling ke China
+   3. 20 Frasa Inggris Gaul yang Bikin Ngobrolmu Lebih Natural
+   4. Pilih Bahasa Asing Pertama yang Tepat untuk Masa Depanmu!
+   5. Belajar Gratis, Bangun Masa Depan: VolunTeach Cetta untuk Anak Indonesia
+   6. Hafal Kosakata Jepang Gampang! 10 Metode Efektif Tanpa Bosan
+   7. 7 Culture Shock di Korea yang Bikin WNI Kaget Pertama Kali!
+   8. 7 Manfaat Belajar Bahasa Jerman: Kuliah Gratis Hingga Karier Global!
+   9. &quot;Danke&quot; Artinya Terima Kasih, Ini Cara Pakai &amp; Balasannya!
+   10. 50 Ucapan Bangga Bahasa Inggris untuk Semua Kesempatan
+   11. Cara Mudah Jelajah Jepang Pakai Transportasi Umum
+   12. 15 Kata Bijak Mandarin Penuh Makna, Wajib Tahu!
+   13. 25 Kata Jepang Penting untuk Liburan Tanpa Bingung
+   14. 12 Destinasi Wajib di Jepang: Dari Tokyo Hingga Hokkaido!
+   15. Belanja di Korea Gak Pusing! Kosakata &amp; Tips Tawar Harga
+   16. Kursus Bahasa Inggris Fleksibel untuk Karyawan Sibuk
+   17. Kelas Bahasa Inggris Terbaik untuk Lolos Beasiswa Impianmu
+   18. Kursus Bahasa Inggris untuk Pelajar, Lancar &amp; Siap Karir!
+   19. 50+ Kosakata Jepang Dasar yang Wajib Kamu Hafal!
+   20. Bukan Cuma IELTS, Ini 11 Sertifikasi Bahasa Asing yang Harus Kamu Tahu!
+========== BLOG PAGE SERVER RENDER END ==========
