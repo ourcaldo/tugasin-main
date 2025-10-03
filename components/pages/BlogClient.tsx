@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { Calendar, User, Clock, ArrowRight, BookOpen, Lightbulb, Target, TrendingUp, AlertCircle } from 'lucide-react';
@@ -49,8 +49,29 @@ export default function BlogClient({
   const [error, setError] = useState<string | null>(initialError);
   const [totalPages, setTotalPages] = useState(initialTotalPages);
 
-  // Fetch posts when page or category changes
+  // Track initial mount to prevent unnecessary client-side fetching
+  const isInitialMount = useRef(true);
+  const prevPage = useRef(currentPage);
+  const prevCategory = useRef(categoryParam);
+
+  // Fetch posts when page or category changes (but NOT on initial mount)
   useEffect(() => {
+    // Skip fetch on initial mount if we have server-rendered data
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      prevPage.current = currentPage;
+      prevCategory.current = categoryParam;
+      return;
+    }
+
+    // Only fetch if page or category actually changed
+    if (prevPage.current === currentPage && prevCategory.current === categoryParam) {
+      return;
+    }
+
+    prevPage.current = currentPage;
+    prevCategory.current = categoryParam;
+
     const fetchPosts = async () => {
       try {
         setIsLoading(true);
@@ -77,9 +98,18 @@ export default function BlogClient({
 
   // Prefetch next page for faster navigation
   useEffect(() => {
-    if (!categoryParam && currentPage < totalPages) {
+    if (currentPage < totalPages) {
       const nextPage = currentPage + 1;
-      const nextPageUrl = nextPage === 1 ? '/blog/' : `/blog/?page=${nextPage}`;
+      let nextPageUrl: string;
+      
+      if (categoryParam) {
+        // Category page pagination
+        nextPageUrl = `/blog/${categoryParam}/?page=${nextPage}`;
+      } else {
+        // Main blog page pagination
+        nextPageUrl = nextPage === 1 ? '/blog/' : `/blog/?page=${nextPage}`;
+      }
+      
       router.prefetch(nextPageUrl as any);
     }
   }, [currentPage, totalPages, categoryParam, router]);
@@ -273,7 +303,7 @@ export default function BlogClient({
             </div>
 
             {/* Pagination */}
-            {!categoryParam && totalPages > 1 && (
+            {totalPages > 1 && (
               <div className="flex justify-center items-center space-x-2 mt-8">
                 <Button
                   asChild
@@ -283,9 +313,17 @@ export default function BlogClient({
                   {currentPage === 1 ? (
                     <span className="cursor-not-allowed opacity-50">Previous</span>
                   ) : currentPage === 2 ? (
-                    <Link href="/blog/" prefetch={true} as any>Previous</Link>
+                    categoryParam ? (
+                      <Link href={`/blog/${categoryParam}/`} prefetch={true} as any>Previous</Link>
+                    ) : (
+                      <Link href="/blog/" prefetch={true} as any>Previous</Link>
+                    )
                   ) : (
-                    <Link href={`/blog/?page=${currentPage - 1}` as any} prefetch={true}>Previous</Link>
+                    categoryParam ? (
+                      <Link href={`/blog/${categoryParam}/?page=${currentPage - 1}` as any} prefetch={true}>Previous</Link>
+                    ) : (
+                      <Link href={`/blog/?page=${currentPage - 1}` as any} prefetch={true}>Previous</Link>
+                    )
                   )}
                 </Button>
 
@@ -309,9 +347,17 @@ export default function BlogClient({
                           size="sm"
                         >
                           {page === 1 ? (
-                            <Link href="/blog/" prefetch={true} as any>{page}</Link>
+                            categoryParam ? (
+                              <Link href={`/blog/${categoryParam}/`} prefetch={true} as any>{page}</Link>
+                            ) : (
+                              <Link href="/blog/" prefetch={true} as any>{page}</Link>
+                            )
                           ) : (
-                            <Link href={`/blog/?page=${page}` as any} prefetch={true}>{page}</Link>
+                            categoryParam ? (
+                              <Link href={`/blog/${categoryParam}/?page=${page}` as any} prefetch={true}>{page}</Link>
+                            ) : (
+                              <Link href={`/blog/?page=${page}` as any} prefetch={true}>{page}</Link>
+                            )
                           )}
                         </Button>
                       </React.Fragment>
@@ -326,7 +372,11 @@ export default function BlogClient({
                   {currentPage === totalPages ? (
                     <span className="cursor-not-allowed opacity-50">Next</span>
                   ) : (
-                    <Link href={`/blog/?page=${currentPage + 1}` as any} prefetch={true}>Next</Link>
+                    categoryParam ? (
+                      <Link href={`/blog/${categoryParam}/?page=${currentPage + 1}` as any} prefetch={true}>Next</Link>
+                    ) : (
+                      <Link href={`/blog/?page=${currentPage + 1}` as any} prefetch={true}>Next</Link>
+                    )
                   )}
                 </Button>
               </div>
