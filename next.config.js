@@ -239,6 +239,22 @@ const nextConfig = {
       };
     }
 
+    // Suppress annoying import trace warnings from Prisma/Sentry instrumentation
+    config.infrastructureLogging = {
+      level: 'error',
+    };
+
+    // Filter out specific warnings
+    const originalWarnings = config.ignoreWarnings || [];
+    config.ignoreWarnings = [
+      ...originalWarnings,
+      // Ignore Prisma instrumentation warnings
+      /Critical dependency: the request of a dependency is an expression/,
+      /@prisma\/instrumentation/,
+      /@opentelemetry\/instrumentation/,
+      /node_modules\/@sentry/,
+    ];
+
     return config;
   },
   // Allow all hosts for Replit proxy  
