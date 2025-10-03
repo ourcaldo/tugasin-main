@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import dynamic from 'next/dynamic';
 import { useParams, useRouter } from 'next/navigation';
 import { Calendar, User, Clock, ArrowRight, BookOpen, Lightbulb, Target, TrendingUp, AlertCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '../ui/card';
@@ -10,27 +9,11 @@ import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { ImageWithFallback } from '../figma/ImageWithFallback';
 import { IconMapper } from '../ui/icon-mapper';
+import BlogPostCard from '../blog/BlogPostCard';
 
 import SEO from '../layout/SEO';
 import { blogService } from '@/lib/cms/blog-service';
 import type { BlogPost, BlogCategory } from '@/lib/utils/types';
-
-// Dynamic import for BlogPostCard (not critical for initial load)
-const BlogPostCard = dynamic(() => import('../blog/BlogPostCard'), {
-  loading: () => (
-    <div className="bg-white rounded-lg shadow animate-pulse overflow-hidden">
-      <div className="h-48 bg-gray-200"></div>
-      <div className="p-6">
-        <div className="h-4 bg-gray-200 rounded mb-3 w-1/3"></div>
-        <div className="h-6 bg-gray-200 rounded mb-3"></div>
-        <div className="h-4 bg-gray-200 rounded mb-2"></div>
-        <div className="h-4 bg-gray-200 rounded mb-4 w-3/4"></div>
-        <div className="h-4 bg-gray-200 rounded w-2/3 mb-4"></div>
-        <div className="h-10 bg-gray-200 rounded w-full"></div>
-      </div>
-    </div>
-  )
-});
 
 interface BlogClientProps {
   initialFeaturedPost: BlogPost | null;
