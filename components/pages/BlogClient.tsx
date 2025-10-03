@@ -44,6 +44,11 @@ export default function BlogClient({
   const [error, setError] = useState<string | null>(initialError);
   const [filteredPosts, setFilteredPosts] = useState<BlogPost[]>(initialBlogPosts);
 
+  // Scroll to top when page changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [currentPage]);
+
   // Prefetch next page for faster navigation
   useEffect(() => {
     if (!categoryParam && currentPage < totalPages) {
