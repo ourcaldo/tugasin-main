@@ -149,6 +149,7 @@ export default async function Page({ params, searchParams }: PageProps) {
           currentPage={currentPage}
           totalPages={totalPages}
           postsPerPage={postsPerPage}
+          categoryParam={categorySlug}
         />
       </>
     )

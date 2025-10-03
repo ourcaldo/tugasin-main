@@ -23,6 +23,7 @@ interface BlogClientProps {
   currentPage?: number;
   totalPages?: number;
   postsPerPage?: number;
+  categoryParam?: string;
 }
 
 export default function BlogClient({ 
@@ -32,12 +33,12 @@ export default function BlogClient({
   initialError,
   currentPage: initialCurrentPage = 1,
   totalPages: initialTotalPages = 1,
-  postsPerPage = 20
+  postsPerPage = 20,
+  categoryParam: initialCategoryParam
 }: BlogClientProps) {
-  const params = useParams();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const categoryParam = params?.category as string | undefined;
+  const categoryParam = initialCategoryParam;
   
   // Get current page from URL
   const currentPage = parseInt(searchParams.get('page') || '1', 10);
@@ -64,8 +65,14 @@ export default function BlogClient({
       return;
     }
 
-    // Only fetch if page or category actually changed
-    if (prevPage.current === currentPage && prevCategory.current === categoryParam) {
+    // Check if we need to fetch:
+    // 1. Page or category changed
+    // 2. OR we have no posts (fallback when prefetch data is missing)
+    const pageChanged = prevPage.current !== currentPage;
+    const categoryChanged = prevCategory.current !== categoryParam;
+    const noPosts = blogPosts.length === 0;
+    
+    if (!pageChanged && !categoryChanged && !noPosts) {
       return;
     }
 
@@ -89,7 +96,7 @@ export default function BlogClient({
     };
 
     fetchPosts();
-  }, [currentPage, categoryParam, postsPerPage]);
+  }, [currentPage, categoryParam, postsPerPage, blogPosts.length]);
 
   // Scroll to top when page changes
   useEffect(() => {
@@ -320,9 +327,9 @@ export default function BlogClient({
                     )
                   ) : (
                     categoryParam ? (
-                      <Link href={`/blog/${categoryParam}/?page=${currentPage - 1}`}>Previous</Link>
+                      <Link href={`/blog/${categoryParam}/?page=${currentPage - 1}` as any}>Previous</Link>
                     ) : (
-                      <Link href={`/blog/?page=${currentPage - 1}`}>Previous</Link>
+                      <Link href={`/blog/?page=${currentPage - 1}` as any}>Previous</Link>
                     )
                   )}
                 </Button>
@@ -354,9 +361,9 @@ export default function BlogClient({
                             )
                           ) : (
                             categoryParam ? (
-                              <Link href={`/blog/${categoryParam}/?page=${page}`}>{page}</Link>
+                              <Link href={`/blog/${categoryParam}/?page=${page}` as any}>{page}</Link>
                             ) : (
-                              <Link href={`/blog/?page=${page}`}>{page}</Link>
+                              <Link href={`/blog/?page=${page}` as any}>{page}</Link>
                             )
                           )}
                         </Button>
@@ -373,9 +380,9 @@ export default function BlogClient({
                     <span className="cursor-not-allowed opacity-50">Next</span>
                   ) : (
                     categoryParam ? (
-                      <Link href={`/blog/${categoryParam}/?page=${currentPage + 1}`}>Next</Link>
+                      <Link href={`/blog/${categoryParam}/?page=${currentPage + 1}` as any}>Next</Link>
                     ) : (
-                      <Link href={`/blog/?page=${currentPage + 1}`}>Next</Link>
+                      <Link href={`/blog/?page=${currentPage + 1}` as any}>Next</Link>
                     )
                   )}
                 </Button>
