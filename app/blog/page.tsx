@@ -14,7 +14,7 @@ export const revalidate = 86400 // 24 hours in seconds for ISR
 export async function generateMetadata({ searchParams }: { searchParams: Promise<{ page?: string }> }) {
   const params = await searchParams
   const page = params.page ? parseInt(params.page, 10) : 1
-  const canonical = page === 1 ? `${siteConfig.url}/blog` : `${siteConfig.url}/blog?page=${page}`
+  const canonical = page === 1 ? `${siteConfig.url}/blog/` : `${siteConfig.url}/blog/?page=${page}`
   
   return genMetadata(
     page === 1 ? 'Blog & Tips Akademik' : `Blog & Tips Akademik - Halaman ${page}`,
@@ -89,13 +89,13 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ p
   
   const breadcrumbs = currentPage === 1
     ? [
-        { name: 'Beranda', url: siteConfig.url },
-        { name: 'Blog', url: `${siteConfig.url}/blog` }
+        { name: 'Beranda', url: `${siteConfig.url}/` },
+        { name: 'Blog', url: `${siteConfig.url}/blog/` }
       ]
     : [
-        { name: 'Beranda', url: siteConfig.url },
-        { name: 'Blog', url: `${siteConfig.url}/blog` },
-        { name: `Halaman ${currentPage}`, url: `${siteConfig.url}/blog?page=${currentPage}` }
+        { name: 'Beranda', url: `${siteConfig.url}/` },
+        { name: 'Blog', url: `${siteConfig.url}/blog/` },
+        { name: `Halaman ${currentPage}`, url: `${siteConfig.url}/blog/?page=${currentPage}` }
       ]
   
   const structuredData = [breadcrumbSchema(breadcrumbs)]

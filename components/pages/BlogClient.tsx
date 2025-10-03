@@ -53,7 +53,7 @@ export default function BlogClient({
   useEffect(() => {
     if (!categoryParam && currentPage < totalPages) {
       const nextPage = currentPage + 1;
-      const nextPageUrl = nextPage === 1 ? '/blog' : `/blog?page=${nextPage}`;
+      const nextPageUrl = nextPage === 1 ? '/blog/' : `/blog/?page=${nextPage}`;
       // Prefetch the next page route (cast to any to handle Next.js 15 strict typing)
       router.prefetch(nextPageUrl as any);
     }
@@ -160,7 +160,7 @@ export default function BlogClient({
             {categoryParam && (
               <div className="mt-8">
                 <Button asChild variant="outline">
-                  <Link href="/blog">
+                  <Link href="/blog/">
                     <ArrowRight className="h-4 w-4 mr-2 rotate-180" />
                     Lihat Semua Artikel
                   </Link>
@@ -242,7 +242,7 @@ export default function BlogClient({
                         </div>
                       </div>
                       <Button asChild>
-                        <Link href={`/blog/${featuredPost.category.toLowerCase().replace(/\s+/g, '-')}/${featuredPost.slug}`}>
+                        <Link href={`/blog/${featuredPost.category.toLowerCase().replace(/\s+/g, '-')}/${featuredPost.slug}/`}>
                           Baca Artikel
                           <ArrowRight className="h-4 w-4 ml-2" />
                         </Link>
@@ -295,7 +295,7 @@ export default function BlogClient({
                   </p>
                   {categoryParam && (
                     <Button asChild variant="outline">
-                      <Link href="/blog">
+                      <Link href="/blog/">
                         Lihat Semua Artikel
                       </Link>
                     </Button>
@@ -315,9 +315,9 @@ export default function BlogClient({
                   {currentPage === 1 ? (
                     <span className="cursor-not-allowed opacity-50">Previous</span>
                   ) : currentPage === 2 ? (
-                    <Link href="/blog" prefetch={true}>Previous</Link>
+                    <Link href="/blog/" prefetch={true}>Previous</Link>
                   ) : (
-                    <Link href={`/blog?page=${currentPage - 1}`} prefetch={true}>Previous</Link>
+                    <Link href={`/blog/?page=${currentPage - 1}`} prefetch={true}>Previous</Link>
                   )}
                 </Button>
 
@@ -341,9 +341,9 @@ export default function BlogClient({
                           size="sm"
                         >
                           {page === 1 ? (
-                            <Link href="/blog" prefetch={true}>{page}</Link>
+                            <Link href="/blog/" prefetch={true}>{page}</Link>
                           ) : (
-                            <Link href={`/blog?page=${page}`} prefetch={true}>{page}</Link>
+                            <Link href={`/blog/?page=${page}`} prefetch={true}>{page}</Link>
                           )}
                         </Button>
                       </React.Fragment>
@@ -358,7 +358,7 @@ export default function BlogClient({
                   {currentPage === totalPages ? (
                     <span className="cursor-not-allowed opacity-50">Next</span>
                   ) : (
-                    <Link href={`/blog?page=${currentPage + 1}`} prefetch={true}>Next</Link>
+                    <Link href={`/blog/?page=${currentPage + 1}`} prefetch={true}>Next</Link>
                   )}
                 </Button>
               </div>
@@ -377,7 +377,7 @@ export default function BlogClient({
                   categories.map((category) => (
                     <Link
                       key={category.name}
-                      href={`/blog/${category.name.toLowerCase().replace(/\s+/g, '-')}`}
+                      href={`/blog/${category.name.toLowerCase().replace(/\s+/g, '-')}/`}
                       className={`flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors ${
                         categoryParam === category.name.toLowerCase().replace(/\s+/g, '-') 
                           ? 'bg-primary/10 text-primary' 
@@ -412,7 +412,7 @@ export default function BlogClient({
                   Dapatkan tips akademik terbaru langsung di email Anda setiap minggu.
                 </p>
                 <Button asChild variant="secondary" size="sm" className="w-full">
-                  <Link href="/contact">
+                  <Link href="/contact/">
                     Berlangganan Sekarang
                   </Link>
                 </Button>

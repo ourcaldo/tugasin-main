@@ -55,10 +55,10 @@ export default async function Page({ params }: PageProps) {
     
     // Generate structured data for blog post
     const breadcrumbs = [
-      { name: 'Beranda', url: siteConfig.url },
-      { name: 'Blog', url: `${siteConfig.url}/blog` },
-      { name: category, url: `${siteConfig.url}/blog/${category}` },
-      { name: post.title, url: `${siteConfig.url}/blog/${category}/${slug}` }
+      { name: 'Beranda', url: `${siteConfig.url}/` },
+      { name: 'Blog', url: `${siteConfig.url}/blog/` },
+      { name: category, url: `${siteConfig.url}/blog/${category}/` },
+      { name: post.title, url: `${siteConfig.url}/blog/${category}/${slug}/` }
     ]
     
     const structuredData = [
@@ -119,9 +119,9 @@ export default async function Page({ params }: PageProps) {
     
     // Generate structured data for category listing
     const breadcrumbs = [
-      { name: 'Beranda', url: siteConfig.url },
-      { name: 'Blog', url: `${siteConfig.url}/blog` },
-      { name: categorySlug, url: `${siteConfig.url}/blog/${categorySlug}` }
+      { name: 'Beranda', url: `${siteConfig.url}/` },
+      { name: 'Blog', url: `${siteConfig.url}/blog/` },
+      { name: categorySlug, url: `${siteConfig.url}/blog/${categorySlug}/` }
     ]
     
     const structuredData = [
@@ -159,7 +159,7 @@ export async function generateMetadata({ params }: PageProps) {
   
   if (routeParams.length === 2) {
     const [category, slug] = routeParams
-    const canonical = `${siteConfig.url}/blog/${category}/${slug}`
+    const canonical = `${siteConfig.url}/blog/${category}/${slug}/`
     const title = slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) // Convert slug to title case
     
     return genMetadata(
@@ -173,7 +173,7 @@ export async function generateMetadata({ params }: PageProps) {
   
   if (routeParams.length === 1) {
     const [category] = routeParams
-    const canonical = `${siteConfig.url}/blog/${category}`
+    const canonical = `${siteConfig.url}/blog/${category}/`
     const categoryTitle = category.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
     
     return genMetadata(
@@ -188,7 +188,7 @@ export async function generateMetadata({ params }: PageProps) {
   return genMetadata(
     'Blog',
     'Blog Tugasin - tips dan panduan akademik',
-    `${siteConfig.url}/blog`,
+    `${siteConfig.url}/blog/`,
     `${siteConfig.url}/og-default.jpg`,
     'page'
   )

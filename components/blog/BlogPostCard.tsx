@@ -13,7 +13,8 @@ interface BlogPostCardProps {
 }
 
 export default function BlogPostCard({ post, featured = false }: BlogPostCardProps) {
-  const postUrl = `/blog/${post.slug}` as const;
+  const categorySlug = post.category.toLowerCase().replace(/\s+/g, '-');
+  const postUrl = `/blog/${categorySlug}/${post.slug}/` as const;
 
   if (featured) {
     return (
