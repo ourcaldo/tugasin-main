@@ -12,13 +12,15 @@ interface PageProps {
   params: Promise<{
     params: string[]
   }>
+  searchParams: Promise<{ page?: string }>
 }
 
 // Smart ISR configuration for dynamic blog pages with CMS awareness
 export const revalidate = 300 // 5 minutes
 
-export default async function Page({ params }: PageProps) {
+export default async function Page({ params, searchParams }: PageProps) {
   const { params: routeParams } = await params
+  const searchParamsResolved = await searchParams
   
   // Schedule intelligent background revalidation for blog posts
   scheduleBackgroundRevalidation('blog-post');
@@ -93,6 +95,8 @@ export default async function Page({ params }: PageProps) {
   // If we have 1 segment: [category] - show category listing
   if (routeParams.length === 1) {
     const [categorySlug] = routeParams
+    const currentPage = searchParamsResolved.page ? parseInt(searchParamsResolved.page, 10) : 1
+    const postsPerPage = 20
     
     // Fetch blog data with category filter
     let featuredPost: BlogPostType | null = null
@@ -104,7 +108,7 @@ export default async function Page({ params }: PageProps) {
     try {
       const [featured, postsData, cats] = await Promise.all([
         blogService.getFeaturedPost(),
-        blogService.getPostsWithPagination(1, 20, categorySlug),
+        blogService.getPostsWithPagination(currentPage, postsPerPage, categorySlug),
         blogService.getCategories()
       ])
       
@@ -129,7 +133,7 @@ export default async function Page({ params }: PageProps) {
     ]
     
     const BlogClient = (await import('@/components/pages/BlogClient')).default
-    const totalPages = Math.ceil(totalPosts / 20)
+    const totalPages = Math.ceil(totalPosts / postsPerPage)
 
     return (
       <>
@@ -142,9 +146,9 @@ export default async function Page({ params }: PageProps) {
           initialBlogPosts={blogPosts}
           initialCategories={categories}
           initialError={error}
-          currentPage={1}
+          currentPage={currentPage}
           totalPages={totalPages}
-          postsPerPage={20}
+          postsPerPage={postsPerPage}
         />
       </>
     )
