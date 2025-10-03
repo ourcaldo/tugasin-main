@@ -155,8 +155,8 @@ export class BlogService {
           author: {
             node: {
               id: post.authorId,
-              name: 'Admin',
-              slug: 'admin'
+              name: 'Tugasin',
+              slug: 'tugasin'
             }
           },
           categories: {
@@ -221,8 +221,8 @@ export class BlogService {
           author: {
             node: {
               id: post.authorId,
-              name: 'Admin',
-              slug: 'admin'
+              name: 'Tugasin',
+              slug: 'tugasin'
             }
           },
           categories: {
@@ -297,8 +297,8 @@ export class BlogService {
           author: {
             node: {
               id: post.authorId,
-              name: 'Admin',
-              slug: 'admin'
+              name: 'Tugasin',
+              slug: 'tugasin'
             }
           },
           categories: {
