@@ -158,7 +158,7 @@ export default function BlogClient({
             {categoryParam && (
               <div className="mt-8">
                 <Button asChild variant="outline">
-                  <Link href="/blog/" as any>
+                  <Link href="/blog">
                     <ArrowRight className="h-4 w-4 mr-2 rotate-180" />
                     Lihat Semua Artikel
                   </Link>
@@ -293,7 +293,7 @@ export default function BlogClient({
                   </p>
                   {categoryParam && (
                     <Button asChild variant="outline">
-                      <Link href="/blog/" as any>
+                      <Link href="/blog">
                         Lihat Semua Artikel
                       </Link>
                     </Button>
@@ -314,15 +314,15 @@ export default function BlogClient({
                     <span className="cursor-not-allowed opacity-50">Previous</span>
                   ) : currentPage === 2 ? (
                     categoryParam ? (
-                      <Link href={`/blog/${categoryParam}/`} prefetch={true} as any>Previous</Link>
+                      <Link href={`/blog/${categoryParam}`}>Previous</Link>
                     ) : (
-                      <Link href="/blog/" prefetch={true} as any>Previous</Link>
+                      <Link href="/blog">Previous</Link>
                     )
                   ) : (
                     categoryParam ? (
-                      <Link href={`/blog/${categoryParam}/?page=${currentPage - 1}` as any} prefetch={true}>Previous</Link>
+                      <Link href={`/blog/${categoryParam}/?page=${currentPage - 1}`}>Previous</Link>
                     ) : (
-                      <Link href={`/blog/?page=${currentPage - 1}` as any} prefetch={true}>Previous</Link>
+                      <Link href={`/blog/?page=${currentPage - 1}`}>Previous</Link>
                     )
                   )}
                 </Button>
@@ -348,15 +348,15 @@ export default function BlogClient({
                         >
                           {page === 1 ? (
                             categoryParam ? (
-                              <Link href={`/blog/${categoryParam}/`} prefetch={true} as any>{page}</Link>
+                              <Link href={`/blog/${categoryParam}`}>{page}</Link>
                             ) : (
-                              <Link href="/blog/" prefetch={true} as any>{page}</Link>
+                              <Link href="/blog">{page}</Link>
                             )
                           ) : (
                             categoryParam ? (
-                              <Link href={`/blog/${categoryParam}/?page=${page}` as any} prefetch={true}>{page}</Link>
+                              <Link href={`/blog/${categoryParam}/?page=${page}`}>{page}</Link>
                             ) : (
-                              <Link href={`/blog/?page=${page}` as any} prefetch={true}>{page}</Link>
+                              <Link href={`/blog/?page=${page}`}>{page}</Link>
                             )
                           )}
                         </Button>
@@ -373,9 +373,9 @@ export default function BlogClient({
                     <span className="cursor-not-allowed opacity-50">Next</span>
                   ) : (
                     categoryParam ? (
-                      <Link href={`/blog/${categoryParam}/?page=${currentPage + 1}` as any} prefetch={true}>Next</Link>
+                      <Link href={`/blog/${categoryParam}/?page=${currentPage + 1}`}>Next</Link>
                     ) : (
-                      <Link href={`/blog/?page=${currentPage + 1}` as any} prefetch={true}>Next</Link>
+                      <Link href={`/blog/?page=${currentPage + 1}`}>Next</Link>
                     )
                   )}
                 </Button>
@@ -430,7 +430,7 @@ export default function BlogClient({
                   Dapatkan tips akademik terbaru langsung di email Anda setiap minggu.
                 </p>
                 <Button asChild variant="secondary" size="sm" className="w-full">
-                  <Link href="/contact/" as any>
+                  <Link href="/contact">
                     Berlangganan Sekarang
                   </Link>
                 </Button>
