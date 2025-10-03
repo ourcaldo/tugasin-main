@@ -103,24 +103,6 @@ export default function BlogClient({
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [currentPage]);
 
-  // Prefetch next page for faster navigation
-  useEffect(() => {
-    if (currentPage < totalPages) {
-      const nextPage = currentPage + 1;
-      let nextPageUrl: string;
-      
-      if (categoryParam) {
-        // Category page pagination
-        nextPageUrl = `/blog/${categoryParam}/?page=${nextPage}`;
-      } else {
-        // Main blog page pagination
-        nextPageUrl = nextPage === 1 ? '/blog/' : `/blog/?page=${nextPage}`;
-      }
-      
-      router.prefetch(nextPageUrl as any);
-    }
-  }, [currentPage, totalPages, categoryParam, router]);
-
   const displayPosts = blogPosts;
 
   // Get current category name for display
