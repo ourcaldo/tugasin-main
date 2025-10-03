@@ -175,7 +175,7 @@ class APIClient {
     };
   }
 
-  async getPosts(page: number = 1, limit: number = 20): Promise<PostsResponse> {
+  async getPosts(page: number = 1, limit: number = 20, category?: string): Promise<PostsResponse> {
     if (!DEV_CONFIG.enableCMS) {
       throw new Error('CMS is disabled in configuration');
     }
@@ -184,10 +184,13 @@ class APIClient {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), DEV_CONFIG.cmsTimeout);
 
-      const url = `${this.baseEndpoint}/api/v1/posts?page=${page}&limit=${limit}`;
+      let url = `${this.baseEndpoint}/api/v1/posts?page=${page}&limit=${limit}`;
+      if (category) {
+        url += `&category=${encodeURIComponent(category)}`;
+      }
       
       if (DEV_CONFIG.debugMode) {
-        Logger.info(`Fetching posts from API v1: page=${page}, limit=${limit}`);
+        Logger.info(`Fetching posts from API v1: page=${page}, limit=${limit}${category ? `, category=${category}` : ''}`);
         Logger.info('URL:', url);
       }
 

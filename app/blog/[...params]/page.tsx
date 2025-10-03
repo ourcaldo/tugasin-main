@@ -92,18 +92,44 @@ export default async function Page({ params }: PageProps) {
   
   // If we have 1 segment: [category] - show category listing
   if (routeParams.length === 1) {
-    const [category] = routeParams
+    const [categorySlug] = routeParams
+    
+    // Fetch blog data with category filter
+    let featuredPost: BlogPostType | null = null
+    let blogPosts: BlogPostType[] = []
+    let categories: any[] = []
+    let error: string | null = null
+    let totalPosts = 0
+    
+    try {
+      const [featured, postsData, cats] = await Promise.all([
+        blogService.getFeaturedPost(),
+        blogService.getPostsWithPagination(1, 20, categorySlug),
+        blogService.getCategories()
+      ])
+      
+      featuredPost = featured
+      blogPosts = postsData.posts
+      categories = cats
+      totalPosts = postsData.pageInfo.totalCount
+    } catch (err) {
+      console.error('Error fetching category posts:', err)
+      error = 'Gagal memuat data blog'
+    }
     
     // Generate structured data for category listing
     const breadcrumbs = [
       { name: 'Beranda', url: siteConfig.url },
       { name: 'Blog', url: `${siteConfig.url}/blog` },
-      { name: category, url: `${siteConfig.url}/blog/${category}` }
+      { name: categorySlug, url: `${siteConfig.url}/blog/${categorySlug}` }
     ]
     
     const structuredData = [
       breadcrumbSchema(breadcrumbs)
     ]
+    
+    const BlogClient = (await import('@/components/pages/BlogClient')).default
+    const totalPages = Math.ceil(totalPosts / 20)
 
     return (
       <>
@@ -111,7 +137,15 @@ export default async function Page({ params }: PageProps) {
           type="application/ld+json"
           dangerouslySetInnerHTML={generateStructuredDataScript(structuredData)}
         />
-        <Blog />
+        <BlogClient 
+          initialFeaturedPost={featuredPost}
+          initialBlogPosts={blogPosts}
+          initialCategories={categories}
+          initialError={error}
+          currentPage={1}
+          totalPages={totalPages}
+          postsPerPage={20}
+        />
       </>
     )
   }

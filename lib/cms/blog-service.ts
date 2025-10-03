@@ -126,13 +126,13 @@ export class BlogService {
     }
   }
 
-  async getPosts(limit: number = 20, page: number = 1): Promise<BlogPost[]> {
+  async getPosts(limit: number = 20, page: number = 1, category?: string): Promise<BlogPost[]> {
     try {
       if (DEV_CONFIG.debugMode) {
-        Logger.info(`Fetching ${limit} posts from API (page ${page})`);
+        Logger.info(`Fetching ${limit} posts from API (page ${page}${category ? `, category=${category}` : ''})`);
       }
       
-      const response = await apiClient.getPosts(page, limit);
+      const response = await apiClient.getPosts(page, limit, category);
       const transformedPosts = response.posts.map(post => {
         const cmsPost: CMSPost = {
           id: post.id,
@@ -183,7 +183,7 @@ export class BlogService {
     }
   }
 
-  async getPostsWithPagination(page: number = 1, postsPerPage: number = 20): Promise<{
+  async getPostsWithPagination(page: number = 1, postsPerPage: number = 20, category?: string): Promise<{
     posts: BlogPost[];
     pageInfo: {
       hasNextPage: boolean;
@@ -195,10 +195,10 @@ export class BlogService {
   }> {
     try {
       if (DEV_CONFIG.debugMode) {
-        Logger.info(`Fetching posts for page ${page} using API pagination`);
+        Logger.info(`Fetching posts for page ${page} using API pagination${category ? ` with category=${category}` : ''}`);
       }
       
-      const response = await apiClient.getPosts(page, postsPerPage);
+      const response = await apiClient.getPosts(page, postsPerPage, category);
       const transformedPosts = response.posts.map(post => {
         const cmsPost: CMSPost = {
           id: post.id,
