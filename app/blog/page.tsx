@@ -43,17 +43,16 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ p
   let totalPosts = 0
   
   try {
-    const [featured, posts, cats, allPostsData] = await Promise.all([
+    const [featured, postsData, cats] = await Promise.all([
       blogService.getFeaturedPost(),
-      blogService.getPostsForPage(currentPage, postsPerPage),
-      blogService.getCategories(),
-      blogService.getAllPostsForSitemap()
+      blogService.getPostsWithPagination(currentPage, postsPerPage),
+      blogService.getCategories()
     ])
     
     featuredPost = featured
-    blogPosts = posts
+    blogPosts = postsData.posts
     categories = cats
-    totalPosts = allPostsData.length
+    totalPosts = postsData.pageInfo.totalCount
   } catch (err) {
     console.error('Failed to load blog data:', err)
     error = 'Gagal memuat data blog'
