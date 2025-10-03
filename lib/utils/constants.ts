@@ -50,7 +50,7 @@ export const DEV_CONFIG = {
 
 // CMS configuration
 export const CMS_CONFIG = {
-  endpoint: process.env.NEXT_PUBLIC_CMS_ENDPOINT || 'https://cms.tugasin.me/graphql',
+  endpoint: process.env.NEXT_PUBLIC_CMS_ENDPOINT || 'https://cms.tugasin.me',
   username: process.env.CMS_USERNAME || '',
   password: process.env.CMS_PASSWORD || '',
 } as const;

@@ -32,8 +32,8 @@ const ENV_VALIDATION_RULES: EnvValidationRule[] = [
     name: 'NEXT_PUBLIC_CMS_ENDPOINT',
     required: false,
     type: 'url',
-    description: 'GraphQL endpoint for content management system',
-    defaultValue: 'https://cms.tugasin.me/graphql'
+    description: 'API endpoint for content management system',
+    defaultValue: 'https://cms.tugasin.me'
   },
   {
     name: 'CMS_USERNAME',

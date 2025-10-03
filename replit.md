@@ -4,6 +4,18 @@
 This is a Next.js 15 + TypeScript application for Tugasin, an academic assistance service. The application uses Next.js App Router with modern React patterns and shadcn/ui components.
 
 ## Recent Changes
+- **2025-10-03**: ✅ **API V1 MIGRATION - REST API WITH PAGE-BASED PAGINATION**
+  - **API Endpoint Migration**: Migrated from `/api/public/posts` to `/api/v1/posts` REST API
+  - **Pagination Change**: Replaced cursor-based pagination with page/limit query parameters
+  - **GraphQL Removal**: Completely removed all GraphQL terminology and references
+  - **New API Client**: Created `api-client.ts` to replace `graphql.ts`
+  - **Response Structure**: Updated to use new API response format with `success`, `data`, `pagination` objects
+  - **Pagination Object**: Now uses `page`, `limit`, `total`, `totalPages`, `hasNextPage`, `hasPrevPage` from API
+  - **Blog Service**: Updated all methods to use page-based pagination instead of cursor-based
+  - **Sitemap**: Updated to fetch posts using page-based pagination (100 posts per page)
+  - **Token Auth**: Maintained Bearer token authorization from `.env` (CMS_TOKEN)
+  - **Consistent Flow**: Blog archive and sitemap now use the same API pagination mechanism
+
 - **2025-09-30**: ✅ **QUERY PARAMETER PAGINATION WITH ISR + PREFETCH**
   - **Pagination Route Change**: Migrated from `/blog/page/x` to `/blog?page=x` using query parameters
   - **Hybrid Rendering Strategy**: 
