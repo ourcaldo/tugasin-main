@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Suspense } from 'react'
 import { headers } from 'next/headers'
 import BlogClient from '@/components/pages/BlogClient'
 import { generateMetadata as genMetadata } from '@/lib/seo/metadata'
@@ -107,15 +107,17 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ p
         type="application/ld+json"
         dangerouslySetInnerHTML={generateStructuredDataScript(structuredData)}
       />
-      <BlogClient 
-        initialFeaturedPost={featuredPost}
-        initialBlogPosts={blogPosts}
-        initialCategories={categories}
-        initialError={error}
-        currentPage={currentPage}
-        totalPages={totalPages}
-        postsPerPage={postsPerPage}
-      />
+      <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+        <BlogClient 
+          initialFeaturedPost={featuredPost}
+          initialBlogPosts={blogPosts}
+          initialCategories={categories}
+          initialError={error}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          postsPerPage={postsPerPage}
+        />
+      </Suspense>
     </>
   )
 }

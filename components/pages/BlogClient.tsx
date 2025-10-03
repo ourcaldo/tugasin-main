@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { Calendar, User, Clock, ArrowRight, BookOpen, Lightbulb, Target, TrendingUp, AlertCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '../ui/card';
 import { Badge } from '../ui/badge';
@@ -30,19 +30,45 @@ export default function BlogClient({
   initialBlogPosts, 
   initialCategories, 
   initialError,
-  currentPage = 1,
-  totalPages = 1,
+  currentPage: initialCurrentPage = 1,
+  totalPages: initialTotalPages = 1,
   postsPerPage = 20
 }: BlogClientProps) {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const categoryParam = params?.category as string | undefined;
+  
+  // Get current page from URL
+  const currentPage = parseInt(searchParams.get('page') || '1', 10);
+  
   const [featuredPost, setFeaturedPost] = useState<BlogPost | null>(initialFeaturedPost);
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>(initialBlogPosts);
   const [categories, setCategories] = useState<BlogCategory[]>(initialCategories);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(initialError);
-  const [filteredPosts, setFilteredPosts] = useState<BlogPost[]>(initialBlogPosts);
+  const [totalPages, setTotalPages] = useState(initialTotalPages);
+
+  // Fetch posts when page or category changes
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        
+        const response = await blogService.getPostsWithPagination(currentPage, postsPerPage, categoryParam);
+        setBlogPosts(response.posts);
+        setTotalPages(response.pageInfo.totalPages);
+      } catch (err) {
+        console.error('Error fetching posts:', err);
+        setError('Gagal memuat data blog');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchPosts();
+  }, [currentPage, categoryParam, postsPerPage]);
 
   // Scroll to top when page changes
   useEffect(() => {
@@ -54,69 +80,11 @@ export default function BlogClient({
     if (!categoryParam && currentPage < totalPages) {
       const nextPage = currentPage + 1;
       const nextPageUrl = nextPage === 1 ? '/blog/' : `/blog/?page=${nextPage}`;
-      // Prefetch the next page route (cast to any to handle Next.js 15 strict typing)
       router.prefetch(nextPageUrl as any);
     }
   }, [currentPage, totalPages, categoryParam, router]);
 
-  // Load blog data from CMS (for client-side refresh only)
-  const loadBlogData = async (forceRefresh: boolean = false) => {
-    try {
-      setError(null);
-      setIsLoading(true);
-
-      // Try CMS first, if offline use cache
-      const [featured, posts, cats] = await Promise.all([
-        blogService.getFeaturedPost(),
-        blogService.getRecentPosts(50), // Get more posts for filtering  
-        blogService.getCategories()
-      ]);
-
-      setFeaturedPost(featured);
-      setBlogPosts(posts);
-      setCategories(cats);
-    } catch (err) {
-      setError('Gagal memuat data blog dari CMS');
-      
-      // Keep existing data if refresh fails
-      if (!featuredPost && !blogPosts.length) {
-        setFeaturedPost(null);
-        setBlogPosts([]);
-        setCategories([]);
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Filter posts based on category parameter
-  useEffect(() => {
-    if (categoryParam && blogPosts.length > 0) {
-      const getCategoryNameFromSlug = (slug: string) => {
-        const categoryMap: Record<string, string> = {
-          'panduan-skripsi': 'Panduan Skripsi',
-          'tips-produktivitas': 'Tips Produktivitas',
-          'metodologi': 'Metodologi',
-          'academic-writing': 'Academic Writing',
-          'mental-health': 'Mental Health',
-          'manajemen-waktu': 'Manajemen Waktu',
-          'presentasi': 'Presentasi',
-          'edukasi': 'Edukasi'
-        };
-        return categoryMap[slug] || slug;
-      };
-
-      const categoryName = getCategoryNameFromSlug(categoryParam);
-      const filtered = blogPosts.filter(post => 
-        post.category.toLowerCase() === categoryName.toLowerCase()
-      );
-      setFilteredPosts(filtered);
-    } else {
-      setFilteredPosts(blogPosts);
-    }
-  }, [categoryParam, blogPosts]);
-
-  const displayPosts = filteredPosts;
+  const displayPosts = blogPosts;
 
   // Get current category name for display
   const getCategoryDisplayName = (slug: string) => {
@@ -160,7 +128,7 @@ export default function BlogClient({
             {categoryParam && (
               <div className="mt-8">
                 <Button asChild variant="outline">
-                  <Link href="/blog/">
+                  <Link href="/blog/" as any>
                     <ArrowRight className="h-4 w-4 mr-2 rotate-180" />
                     Lihat Semua Artikel
                   </Link>
@@ -185,7 +153,7 @@ export default function BlogClient({
                       <h3 className="font-semibold text-red-800">Terjadi Kesalahan</h3>
                       <p className="text-red-600 mt-1">{error}</p>
                       <Button 
-                        onClick={() => loadBlogData(true)} 
+                        onClick={() => window.location.reload()} 
                         variant="outline" 
                         size="sm" 
                         className="mt-3"
@@ -295,7 +263,7 @@ export default function BlogClient({
                   </p>
                   {categoryParam && (
                     <Button asChild variant="outline">
-                      <Link href="/blog/">
+                      <Link href="/blog/" as any>
                         Lihat Semua Artikel
                       </Link>
                     </Button>
@@ -315,9 +283,9 @@ export default function BlogClient({
                   {currentPage === 1 ? (
                     <span className="cursor-not-allowed opacity-50">Previous</span>
                   ) : currentPage === 2 ? (
-                    <Link href="/blog/" prefetch={true}>Previous</Link>
+                    <Link href="/blog/" prefetch={true} as any>Previous</Link>
                   ) : (
-                    <Link href={`/blog/?page=${currentPage - 1}`} prefetch={true}>Previous</Link>
+                    <Link href={`/blog/?page=${currentPage - 1}` as any} prefetch={true}>Previous</Link>
                   )}
                 </Button>
 
@@ -341,9 +309,9 @@ export default function BlogClient({
                           size="sm"
                         >
                           {page === 1 ? (
-                            <Link href="/blog/" prefetch={true}>{page}</Link>
+                            <Link href="/blog/" prefetch={true} as any>{page}</Link>
                           ) : (
-                            <Link href={`/blog/?page=${page}`} prefetch={true}>{page}</Link>
+                            <Link href={`/blog/?page=${page}` as any} prefetch={true}>{page}</Link>
                           )}
                         </Button>
                       </React.Fragment>
@@ -358,7 +326,7 @@ export default function BlogClient({
                   {currentPage === totalPages ? (
                     <span className="cursor-not-allowed opacity-50">Next</span>
                   ) : (
-                    <Link href={`/blog/?page=${currentPage + 1}`} prefetch={true}>Next</Link>
+                    <Link href={`/blog/?page=${currentPage + 1}` as any} prefetch={true}>Next</Link>
                   )}
                 </Button>
               </div>
@@ -412,7 +380,7 @@ export default function BlogClient({
                   Dapatkan tips akademik terbaru langsung di email Anda setiap minggu.
                 </p>
                 <Button asChild variant="secondary" size="sm" className="w-full">
-                  <Link href="/contact/">
+                  <Link href="/contact/" as any>
                     Berlangganan Sekarang
                   </Link>
                 </Button>
