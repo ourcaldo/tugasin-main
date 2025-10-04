@@ -8,8 +8,6 @@ const nextConfig = {
   images: {
     remotePatterns: imageConfig.getRemotePatterns(),
     formats: imageConfig.formats,
-    loader: imageConfig.cdnUrl ? 'custom' : 'default',
-    loaderFile: imageConfig.cdnUrl ? './imageLoader.js' : undefined,
   },
   async headers() {
     const isDevelopment = process.env.NODE_ENV === 'development';
