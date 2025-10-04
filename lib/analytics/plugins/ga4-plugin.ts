@@ -23,7 +23,12 @@ export default function ga4Plugin(userConfig: GA4PluginConfig) {
       debug: userConfig.debug || false,
     },
     initialize: ({ config }: { config: GA4PluginConfig }) => {
-      if (typeof window === 'undefined' || !config.measurementId) {
+      if (typeof window === 'undefined') {
+        return;
+      }
+
+      if (!config.measurementId) {
+        console.warn('GA4: No measurement ID provided');
         return;
       }
 
