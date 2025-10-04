@@ -1,6 +1,6 @@
 import { apiClient, CMSPost, APIPagination } from './api-client';
 import type { BlogPost, BlogCategory } from '@/lib/utils/types';
-import { DEV_CONFIG } from '@/lib/utils/constants';
+import { DEV_CONFIG, CMS_CONFIG } from '@/lib/utils/constants';
 import { Logger } from '@/lib/utils/logger';
 import { sanitizeContent, cleanText, sanitizeUrl, validateSanitizer } from './sanitizer';
 import { cmsCache, CacheKeys } from '../cache/memory-cache';
@@ -339,67 +339,72 @@ export class BlogService {
       }
       
       if (DEV_CONFIG.debugMode) {
-        Logger.info(`Cache miss - Fetching all posts for sitemap using API pagination`);
+        Logger.info(`Cache miss - Fetching ALL posts for sitemap in single request (no pagination)`);
       }
       
-      let allPosts: BlogPost[] = [];
-      let currentPage = 1;
-      let hasNextPage = true;
-      const POSTS_PER_PAGE = 100;
+      const baseEndpoint = CMS_CONFIG.endpoint.replace(/\/graphql\/?$/, '');
+      const url = `${baseEndpoint}/api/v1/posts`;
       
-      while (hasNextPage) {
-        const response = await apiClient.getPosts(currentPage, POSTS_PER_PAGE);
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
+      
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.CMS_TOKEN}`,
+        },
+        signal: controller.signal,
+      });
+      
+      clearTimeout(timeoutId);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const apiResponse = await response.json();
+      
+      if (!apiResponse.success || !apiResponse.data) {
+        throw new Error('Failed to fetch posts from API');
+      }
+      
+      const posts = apiResponse.data.posts || apiResponse.data;
+      
+      const minimalPosts = posts.map((post: any) => {
+        const category = cleanText(post.categories?.[0]?.name || 'Umum');
         
-        const minimalPosts = response.posts.map(post => {
-          const category = cleanText(post.categories?.[0]?.name || 'Umum');
-          
-          return {
-            id: parseInt(post.id.replace(/[^0-9]/g, '')) || 0,
-            title: cleanText(post.title || ''),
-            slug: post.slug,
-            date: new Date(post.publishDate).toLocaleDateString('id-ID', {
-              day: 'numeric',
-              month: 'long',
-              year: 'numeric'
-            }),
-            category: category,
-            excerpt: '',
-            author: 'Admin',
-            readTime: '1 menit',
-            image: '',
-            content: '',
-            tags: [],
-            seo: {
-              title: '',
-              description: '',
-              focusKeywords: []
-            }
-          } as BlogPost;
-        });
-        
-        allPosts = allPosts.concat(minimalPosts);
-        hasNextPage = response.pagination.hasNextPage;
-        currentPage++;
-        
-        if (DEV_CONFIG.debugMode) {
-          Logger.info(`Fetched page ${currentPage - 1}: ${minimalPosts.length} posts. Total: ${allPosts.length}. HasNextPage: ${hasNextPage}`);
-        }
-        
-        if (allPosts.length > 10000) {
-          if (DEV_CONFIG.debugMode) {
-            Logger.warn('Reached safety limit of 10000 posts');
+        return {
+          id: parseInt(post.id.replace(/[^0-9]/g, '')) || 0,
+          title: cleanText(post.title || ''),
+          slug: post.slug,
+          date: new Date(post.publishDate).toLocaleDateString('id-ID', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+          }),
+          category: category,
+          excerpt: '',
+          author: 'Admin',
+          readTime: '1 menit',
+          image: '',
+          content: '',
+          tags: [],
+          seo: {
+            title: '',
+            description: '',
+            focusKeywords: []
           }
-          break;
-        }
-      }
+        } as BlogPost;
+      });
       
       if (DEV_CONFIG.debugMode) {
-        Logger.info(`Fetched ${allPosts.length} minimal posts for sitemap - caching for 24 hours`);
+        Logger.info(`Fetched ${minimalPosts.length} posts for sitemap in SINGLE request - caching for 24 hours`);
       }
       
-      cmsCache.set(cacheKey, allPosts, TTL_24_HOURS, ['sitemap']);
+      cmsCache.set(cacheKey, minimalPosts, TTL_24_HOURS, ['sitemap']);
       
-      return allPosts;
+      return minimalPosts;
     } catch (error) {
       if (DEV_CONFIG.debugMode) {
         Logger.error('Failed to fetch posts for sitemap:', error);
