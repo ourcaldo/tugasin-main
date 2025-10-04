@@ -152,9 +152,19 @@ const nextConfig = {
           },
         ],
       },
-      // API routes - no caching for dynamic content
+      // Sitemap API routes - 24 hour cache with stale-while-revalidate
       {
-        source: '/api/(.*)',
+        source: '/api/sitemap-post/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=86400',
+          },
+        ],
+      },
+      // API routes - no caching for dynamic content (excludes sitemap routes above)
+      {
+        source: '/api/((?!sitemap-post).*)',
         headers: [
           {
             key: 'Cache-Control',
