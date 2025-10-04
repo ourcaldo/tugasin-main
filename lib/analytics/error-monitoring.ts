@@ -4,7 +4,7 @@
  */
 
 import * as Sentry from '@sentry/nextjs';
-import { trackEvent } from './gtag';
+import analytics from './config';
 
 // Error configuration
 export const ERROR_CONFIG = {
@@ -370,17 +370,14 @@ class ErrorMonitor {
     }
 
     // Send to Google Analytics
-    trackEvent({
-      event_name: 'exception',
-      event_category: 'error',
-      event_label: errorReport.category,
-      custom_parameters: {
-        error_message: errorReport.message,
-        error_severity: errorReport.severity,
-        error_category: errorReport.category,
-        error_id: errorReport.id,
-        session_id: errorReport.sessionId,
-      },
+    analytics.track('exception', {
+      category: 'error',
+      label: errorReport.category,
+      error_message: errorReport.message,
+      error_severity: errorReport.severity,
+      error_category: errorReport.category,
+      error_id: errorReport.id,
+      session_id: errorReport.sessionId,
     });
 
     // Log to console in development
@@ -612,14 +609,11 @@ export function reportError(
     });
   }
 
-  trackEvent({
-    event_name: 'manual_error',
-    event_category: 'error',
-    event_label: category,
-    custom_parameters: {
-      error_message: error.message,
-      manual_context: JSON.stringify(context),
-    },
+  analytics.track('manual_error', {
+    category: 'error',
+    label: category,
+    error_message: error.message,
+    manual_context: JSON.stringify(context),
   });
 }
 
