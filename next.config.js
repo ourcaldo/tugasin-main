@@ -292,7 +292,7 @@ const nextConfig = {
   assetPrefix: process.env.NODE_ENV === 'production' ? undefined : '',
   trailingSlash: true,
   // Output configuration for different platforms
-  output: process.env.VERCEL ? 'standalone' : undefined,
+  output: 'standalone',
 };
 
 module.exports = nextConfig;
