@@ -12,6 +12,7 @@ import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbP
 import { TableOfContents } from '../ui/table-of-contents';
 import SEO from '@/components/layout/SEO';
 import { sanitizeContent } from '@/lib/cms/sanitizer';
+import { getCategoryNameFromSlug, getCategorySlug } from '@/lib/utils/utils';
 import type { BlogPost as BlogPostType } from '@/lib/utils/types';
 
 interface BlogPostClientProps {
@@ -36,20 +37,6 @@ export default function BlogPostClient({ post, relatedPosts, categoryParam }: Bl
       // Fallback: copy to clipboard
       navigator.clipboard.writeText(window.location.href);
     }
-  };
-
-  const getCategoryNameFromSlug = (slug: string) => {
-    const categoryMap: Record<string, string> = {
-      'panduan-skripsi': 'Panduan Skripsi',
-      'tips-produktivitas': 'Tips Produktivitas',
-      'metodologi': 'Metodologi',
-      'academic-writing': 'Academic Writing',
-      'mental-health': 'Mental Health',
-      'manajemen-waktu': 'Manajemen Waktu',
-      'presentasi': 'Presentasi',
-      'edukasi': 'Edukasi'
-    };
-    return categoryMap[slug] || slug;
   };
 
   return (

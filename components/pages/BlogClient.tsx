@@ -13,6 +13,7 @@ import BlogPostCard from '../blog/BlogPostCard';
 
 import SEO from '../layout/SEO';
 import { blogService } from '@/lib/cms/blog-service';
+import { getCategoryNameFromSlug, getCategorySlug } from '@/lib/utils/utils';
 import type { BlogPost, BlogCategory } from '@/lib/utils/types';
 
 interface BlogClientProps {
@@ -65,21 +66,6 @@ export default function BlogClient({
 
   const displayPosts = blogPosts;
 
-  // Get current category name for display
-  const getCategoryDisplayName = (slug: string) => {
-    const categoryMap: Record<string, string> = {
-      'panduan-skripsi': 'Panduan Skripsi',
-      'tips-produktivitas': 'Tips Produktivitas', 
-      'metodologi': 'Metodologi',
-      'academic-writing': 'Academic Writing',
-      'mental-health': 'Mental Health',
-      'manajemen-waktu': 'Manajemen Waktu',
-      'presentasi': 'Presentasi',
-      'edukasi': 'Edukasi'
-    };
-    return categoryMap[slug] || slug;
-  };
-
   return (
     <div className="min-h-screen bg-gray-50">
       <SEO 
@@ -94,11 +80,11 @@ export default function BlogClient({
           <div className="text-center">
             <p className="text-primary font-medium mb-4">Blog Tugasin</p>
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-              {categoryParam ? getCategoryDisplayName(categoryParam) : 'Tips & Panduan Akademik'}
+              {categoryParam ? getCategoryNameFromSlug(categoryParam) : 'Tips & Panduan Akademik'}
             </h1>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
               {categoryParam 
-                ? `Artikel terpilih dalam kategori ${getCategoryDisplayName(categoryParam)} untuk membantu perjalanan akademik Anda.`
+                ? `Artikel terpilih dalam kategori ${getCategoryNameFromSlug(categoryParam)} untuk membantu perjalanan akademik Anda.`
                 : 'Kumpulan artikel, tips, dan panduan yang membantu kamu sukses dalam perjalanan akademik. Ditulis oleh para ahli dan praktisi berpengalaman.'
               }
             </p>
@@ -188,7 +174,7 @@ export default function BlogClient({
                         </div>
                       </div>
                       <Button asChild>
-                        <Link href={`/blog/${featuredPost.category.toLowerCase().replace(/\s+/g, '-')}/${featuredPost.slug}/`}>
+                        <Link href={`/blog/${getCategorySlug(featuredPost.category)}/${featuredPost.slug}/`}>
                           Baca Artikel
                           <ArrowRight className="h-4 w-4 ml-2" />
                         </Link>
@@ -202,7 +188,7 @@ export default function BlogClient({
             {/* Blog Posts Grid */}
             <div className="mb-8">
               <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                {categoryParam ? `Artikel ${getCategoryDisplayName(categoryParam)}` : 'Artikel Terbaru'}
+                {categoryParam ? `Artikel ${getCategoryNameFromSlug(categoryParam)}` : 'Artikel Terbaru'}
               </h2>
               
               {displayPosts.length > 0 ? (
@@ -219,7 +205,7 @@ export default function BlogClient({
                   </h3>
                   <p className="text-gray-600 mb-4">
                     {categoryParam 
-                      ? `Belum ada artikel dalam kategori ${getCategoryDisplayName(categoryParam)}.`
+                      ? `Belum ada artikel dalam kategori ${getCategoryNameFromSlug(categoryParam)}.`
                       : 'Tim kami sedang menyiapkan artikel-artikel berkualitas untuk Anda.'
                     }
                   </p>
@@ -327,9 +313,9 @@ export default function BlogClient({
                   categories.map((category) => (
                     <Link
                       key={category.name}
-                      href={`/blog/${category.name.toLowerCase().replace(/\s+/g, '-')}/`}
+                      href={`/blog/${getCategorySlug(category.name)}/`}
                       className={`flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors ${
-                        categoryParam === category.name.toLowerCase().replace(/\s+/g, '-') 
+                        categoryParam === getCategorySlug(category.name)
                           ? 'bg-primary/10 text-primary' 
                           : 'text-gray-700'
                       }`}

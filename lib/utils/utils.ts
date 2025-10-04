@@ -51,3 +51,24 @@ export function getCategoryColor(category: string): string {
   };
   return colors[category] || "bg-gray-100 text-gray-800";
 }
+
+// Convert category name to URL-friendly slug
+export function getCategorySlug(category: string): string {
+  return category.toLowerCase().replace(/\s+/g, '-');
+}
+
+// Convert category slug to readable name
+export function getCategoryNameFromSlug(slug: string): string {
+  const categoryMap: Record<string, string> = {
+    'panduan-skripsi': 'Panduan Skripsi',
+    'tips-produktivitas': 'Tips Produktivitas',
+    'metodologi': 'Metodologi',
+    'academic-writing': 'Academic Writing',
+    'mental-health': 'Mental Health',
+    'manajemen-waktu': 'Manajemen Waktu',
+    'presentasi': 'Presentasi',
+    'edukasi': 'Edukasi',
+    'belajar-bahasa-jepang': 'Belajar Bahasa Jepang'
+  };
+  return categoryMap[slug] || slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+}

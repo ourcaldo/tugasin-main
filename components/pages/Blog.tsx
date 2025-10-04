@@ -13,6 +13,7 @@ import { IconMapper } from '../ui/icon-mapper';
 
 import SEO from '../layout/SEO';
 import { blogService } from '@/lib/cms/blog-service';
+import { getCategoryColor, getCategorySlug, getCategoryNameFromSlug } from '@/lib/utils/utils';
 import type { BlogPost, BlogCategory } from '@/lib/utils/types';
 
 // Dynamic import for BlogPostCard (not critical for initial load)
@@ -88,37 +89,6 @@ export default function Blog() {
   useEffect(() => {
     loadBlogData();
   }, []);
-
-
-  const getCategoryColor = (category: string) => {
-    const colors = {
-      "Panduan Skripsi": "bg-blue-100 text-blue-800",
-      "Tips Produktivitas": "bg-green-100 text-green-800",
-      "Metodologi": "bg-purple-100 text-purple-800",
-      "Academic Writing": "bg-orange-100 text-orange-800",
-      "Mental Health": "bg-pink-100 text-pink-800",
-      "Manajemen Waktu": "bg-indigo-100 text-indigo-800",
-      "Presentasi": "bg-yellow-100 text-yellow-800"
-    };
-    return colors[category as keyof typeof colors] || "bg-gray-100 text-gray-800";
-  };
-
-  const getCategorySlug = (category: string) => {
-    return category.toLowerCase().replace(/\s+/g, '-');
-  };
-
-  const getCategoryNameFromSlug = (slug: string) => {
-    const categoryMap: Record<string, string> = {
-      'panduan-skripsi': 'Panduan Skripsi',
-      'tips-produktivitas': 'Tips Produktivitas',
-      'metodologi': 'Metodologi',
-      'academic-writing': 'Academic Writing',
-      'mental-health': 'Mental Health',
-      'manajemen-waktu': 'Manajemen Waktu',
-      'presentasi': 'Presentasi'
-    };
-    return categoryMap[slug] || slug;
-  };
 
   // Determine which posts to display
   const postsToDisplay = categoryParam ? filteredPosts : filteredPosts;

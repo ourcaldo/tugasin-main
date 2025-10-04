@@ -4,7 +4,7 @@ import { Card, CardContent } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { ImageWithFallback } from '../figma/ImageWithFallback';
-import { getCategoryColor } from '@/lib/utils/utils';
+import { getCategoryColor, getCategorySlug } from '@/lib/utils/utils';
 import type { BlogPost } from '@/lib/utils/types';
 
 interface BlogPostCardProps {
@@ -13,7 +13,7 @@ interface BlogPostCardProps {
 }
 
 export default function BlogPostCard({ post, featured = false }: BlogPostCardProps) {
-  const categorySlug = post.category.toLowerCase().replace(/\s+/g, '-');
+  const categorySlug = getCategorySlug(post.category);
   const postUrl = `/blog/${categorySlug}/${post.slug}/` as const;
 
   if (featured) {

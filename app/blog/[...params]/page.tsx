@@ -6,6 +6,7 @@ import { articleSchema, breadcrumbSchema, generateStructuredDataScript } from '@
 import { siteConfig } from '@/config/site'
 import { getRevalidationForPageType, scheduleBackgroundRevalidation } from '@/lib/cache/isr-revalidation'
 import { blogService } from '@/lib/cms/blog-service'
+import { getCategoryNameFromSlug } from '@/lib/utils/utils'
 import type { BlogPost as BlogPostType } from '@/lib/utils/types'
 
 interface PageProps {
@@ -56,10 +57,11 @@ export default async function Page({ params, searchParams }: PageProps) {
     }
     
     // Generate structured data for blog post
+    const categoryName = getCategoryNameFromSlug(category);
     const breadcrumbs = [
       { name: 'Beranda', url: `${siteConfig.url}/` },
       { name: 'Blog', url: `${siteConfig.url}/blog/` },
-      { name: category, url: `${siteConfig.url}/blog/${category}/` },
+      { name: categoryName, url: `${siteConfig.url}/blog/${category}/` },
       { name: post.title, url: `${siteConfig.url}/blog/${category}/${slug}/` }
     ]
     
@@ -122,10 +124,11 @@ export default async function Page({ params, searchParams }: PageProps) {
     }
     
     // Generate structured data for category listing
+    const categoryName = getCategoryNameFromSlug(categorySlug);
     const breadcrumbs = [
       { name: 'Beranda', url: `${siteConfig.url}/` },
       { name: 'Blog', url: `${siteConfig.url}/blog/` },
-      { name: categorySlug, url: `${siteConfig.url}/blog/${categorySlug}/` }
+      { name: categoryName, url: `${siteConfig.url}/blog/${categorySlug}/` }
     ]
     
     const structuredData = [
@@ -179,7 +182,7 @@ export async function generateMetadata({ params }: PageProps) {
   if (routeParams.length === 1) {
     const [category] = routeParams
     const canonical = `${siteConfig.url}/blog/${category}/`
-    const categoryTitle = category.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+    const categoryTitle = getCategoryNameFromSlug(category)
     
     return genMetadata(
       `${categoryTitle} - Blog`,
