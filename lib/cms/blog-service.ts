@@ -339,49 +339,41 @@ export class BlogService {
       while (hasNextPage) {
         const response = await apiClient.getPosts(currentPage, POSTS_PER_PAGE);
         
-        const transformedPosts = response.posts.map(post => {
-          const cmsPost: CMSPost = {
-            id: post.id,
-            databaseId: parseInt(post.id.replace(/[^0-9]/g, '')) || 0,
-            title: post.title,
+        // For sitemaps, we only need minimal data - significantly reduces memory usage
+        const minimalPosts = response.posts.map(post => {
+          const category = cleanText(post.categories?.[0]?.name || 'Umum');
+          
+          return {
+            id: parseInt(post.id.replace(/[^0-9]/g, '')) || 0,
+            title: cleanText(post.title || ''),
             slug: post.slug,
-            excerpt: post.excerpt,
-            date: post.publishDate,
-            featuredImage: post.featuredImage ? {
-              node: { sourceUrl: post.featuredImage }
-            } : undefined,
-            fifuImageUrl: post.featuredImage,
+            date: new Date(post.publishDate).toLocaleDateString('id-ID', {
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric'
+            }),
+            category: category,
+            // These fields are not used in sitemap but required by BlogPost type
+            excerpt: '',
+            author: 'Admin',
+            readTime: '1 menit',
+            image: '',
+            content: '',
+            tags: [],
             seo: {
-              title: post.seo?.title || post.title,
-              description: post.seo?.metaDescription || post.excerpt,
-              focusKeywords: post.seo?.focusKeyword ? [post.seo.focusKeyword] : [],
-              seoScore: { score: 0 },
-              canonicalUrl: ''
-            },
-            author: {
-              node: {
-                id: post.authorId,
-                name: 'Admin',
-                slug: 'admin'
-              }
-            },
-            categories: {
-              nodes: post.categories || []
-            },
-            tags: {
-              nodes: post.tags || []
-            },
-            content: post.content
-          };
-          return transformCMSPost(cmsPost);
+              title: '',
+              description: '',
+              focusKeywords: []
+            }
+          } as BlogPost;
         });
         
-        allPosts = allPosts.concat(transformedPosts);
+        allPosts = allPosts.concat(minimalPosts);
         hasNextPage = response.pagination.hasNextPage;
         currentPage++;
         
         if (DEV_CONFIG.debugMode) {
-          Logger.info(`Fetched page ${currentPage - 1}: ${transformedPosts.length} posts. Total: ${allPosts.length}. HasNextPage: ${hasNextPage}`);
+          Logger.info(`Fetched page ${currentPage - 1}: ${minimalPosts.length} posts. Total: ${allPosts.length}. HasNextPage: ${hasNextPage}`);
         }
         
         if (allPosts.length > 10000) {
@@ -393,7 +385,7 @@ export class BlogService {
       }
       
       if (DEV_CONFIG.debugMode) {
-        Logger.info(`Fetched ${allPosts.length} posts for sitemap`);
+        Logger.info(`Fetched ${allPosts.length} minimal posts for sitemap (optimized)`);
       }
       
       return allPosts;
