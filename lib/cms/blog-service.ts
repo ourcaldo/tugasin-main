@@ -327,8 +327,19 @@ export class BlogService {
   
   async getAllPostsForSitemap(): Promise<BlogPost[]> {
     try {
+      const cacheKey = CacheKeys.SITEMAP_POSTS;
+      const TTL_24_HOURS = 24 * 60 * 60 * 1000;
+      
+      const cachedData = cmsCache.get<BlogPost[]>(cacheKey);
+      if (cachedData) {
+        if (DEV_CONFIG.debugMode) {
+          Logger.info(`Returning ${cachedData.length} cached posts for sitemap (instant)`);
+        }
+        return cachedData;
+      }
+      
       if (DEV_CONFIG.debugMode) {
-        Logger.info(`Fetching all posts for sitemap using API pagination`);
+        Logger.info(`Cache miss - Fetching all posts for sitemap using API pagination`);
       }
       
       let allPosts: BlogPost[] = [];
@@ -339,7 +350,6 @@ export class BlogService {
       while (hasNextPage) {
         const response = await apiClient.getPosts(currentPage, POSTS_PER_PAGE);
         
-        // For sitemaps, we only need minimal data - significantly reduces memory usage
         const minimalPosts = response.posts.map(post => {
           const category = cleanText(post.categories?.[0]?.name || 'Umum');
           
@@ -353,7 +363,6 @@ export class BlogService {
               year: 'numeric'
             }),
             category: category,
-            // These fields are not used in sitemap but required by BlogPost type
             excerpt: '',
             author: 'Admin',
             readTime: '1 menit',
@@ -385,8 +394,10 @@ export class BlogService {
       }
       
       if (DEV_CONFIG.debugMode) {
-        Logger.info(`Fetched ${allPosts.length} minimal posts for sitemap (optimized)`);
+        Logger.info(`Fetched ${allPosts.length} minimal posts for sitemap - caching for 24 hours`);
       }
+      
+      cmsCache.set(cacheKey, allPosts, TTL_24_HOURS, ['sitemap']);
       
       return allPosts;
     } catch (error) {

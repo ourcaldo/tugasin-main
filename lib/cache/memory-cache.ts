@@ -477,6 +477,7 @@ export const CacheKeys = {
   recentPosts: (limit: number) => `blog:recent:${limit}`,
   cmsStatus: () => 'cms:status',
   cmsHealth: () => 'cms:health',
+  SITEMAP_POSTS: 'sitemap:all-posts',
 };
 
 // Export default instance
