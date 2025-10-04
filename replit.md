@@ -4,6 +4,16 @@
 This is a Next.js 15 + TypeScript application for Tugasin, an academic assistance service. The application uses Next.js App Router with modern React patterns and shadcn/ui components.
 
 ## Recent Changes
+- **2025-10-04**: ✅ **DOCKER CONTAINERIZATION & SITEMAP PERFORMANCE OPTIMIZATION**
+  - **Sitemap Performance Fix**: Reduced generation time from 17-22s to 2-5s (first request) and <100ms (cached)
+  - **Single API Request**: Changed from 10-50 paginated API calls to 1 non-paginated request fetching all posts
+  - **Memory Caching**: Implemented 24-hour memory cache for sitemap data with SITEMAP_POSTS cache key
+  - **Docker Setup**: Created multi-stage Dockerfile with Node 20 Alpine for optimized production builds
+  - **GitHub Actions**: Added automated CI/CD workflow for publishing to GitHub Container Registry (GHCR)
+  - **Standalone Output**: Enabled Next.js standalone output for Docker containerization
+  - **Environment Setup**: Automated .env.example to .env copy during Docker build process
+  - **Docker Ignore**: Added comprehensive .dockerignore for optimized build context
+
 - **2025-10-03**: ✅ **BLOG UX IMPROVEMENTS - PAGINATION, CATEGORY FILTERING & URL STRUCTURE**
   - **Pagination Scroll Fix**: Added automatic scroll-to-top when page changes for better UX
   - **API-Level Category Filtering**: Replaced client-side filtering with REST API `?category=` parameter
@@ -97,6 +107,24 @@ This is a Next.js 15 + TypeScript application for Tugasin, an academic assistanc
 - Next.js development server with hot module replacement
 
 ## Deployment
+
+### Replit Deployment
 - Target: Autoscale (stateless website)
 - Build: npm run build (Next.js production build)
 - Serve: npm start (Next.js production server)
+
+### Docker Deployment
+- **Image Registry**: GitHub Container Registry (ghcr.io)
+- **Base Image**: node:20-alpine (multi-stage build)
+- **Build Process**: 
+  1. Dependencies stage (npm ci)
+  2. Builder stage (Next.js standalone build with .env from .env.example)
+  3. Runner stage (minimal production image)
+- **Port**: 5000
+- **Automated CI/CD**: GitHub Actions workflow triggers on push to main/master or version tags
+- **Image Tags**: 
+  - `latest` (default branch)
+  - `main` or `master` (branch name)
+  - `v*` (semantic version tags)
+- **Security**: Runs as non-root user (nextjs:nodejs with UID 1001)
+- **Standalone Output**: Next.js configured for standalone builds (includes minimal server.js)
