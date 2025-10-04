@@ -4,8 +4,7 @@
  */
 
 import Analytics from 'analytics';
-// @ts-ignore - No type definitions available
-import googleAnalytics from '@analytics/google-analytics';
+import ga4Plugin from './plugins/ga4-plugin';
 import postHogPlugin from './plugins/posthog-plugin';
 import sentryPlugin from './plugins/sentry-plugin';
 
@@ -19,12 +18,8 @@ const plugins = [];
 
 if (GA_MEASUREMENT_ID) {
   plugins.push(
-    googleAnalytics({
-      measurementIds: [GA_MEASUREMENT_ID],
-      gtagConfig: {
-        anonymize_ip: true,
-        cookie_flags: 'SameSite=Strict;Secure',
-      },
+    ga4Plugin({
+      measurementId: GA_MEASUREMENT_ID,
       debug: IS_DEV,
     })
   );
