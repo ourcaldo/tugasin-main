@@ -5,5 +5,9 @@ export default function imageLoader({ src, width, quality }) {
     return `${cdnUrl}${src}?w=${width}&q=${quality || 75}`;
   }
   
-  return src;
+  if (src.startsWith('http://') || src.startsWith('https://')) {
+    return src;
+  }
+  
+  return `${src}?w=${width}&q=${quality || 75}`;
 }
