@@ -4,7 +4,7 @@
  */
 
 import { onCLS, onFCP, onINP, onLCP, onTTFB } from 'web-vitals';
-import { trackEvent } from './gtag';
+import analytics from './config';
 
 // Performance thresholds based on Core Web Vitals guidelines
 export const PERFORMANCE_THRESHOLDS = {
@@ -61,20 +61,17 @@ function getPerformanceRating(metricName: keyof typeof PERFORMANCE_THRESHOLDS, v
  * Send performance metric to analytics
  */
 function sendToAnalytics(metric: PerformanceMetric): void {
-  // Send to Google Analytics
-  trackEvent({
-    event_name: 'web_vitals',
-    event_category: 'performance',
-    event_label: metric.name,
+  // Send to Analytics
+  analytics.track('web_vitals', {
+    category: 'performance',
+    label: metric.name,
     value: Math.round(metric.name === 'CLS' ? metric.value * 1000 : metric.value),
-    custom_parameters: {
-      metric_rating: metric.rating,
-      metric_id: metric.id,
-      metric_value: metric.value,
-      metric_delta: metric.delta,
-      page_path: window.location.pathname,
-      ...metric.attribution,
-    },
+    metric_rating: metric.rating,
+    metric_id: metric.id,
+    metric_value: metric.value,
+    metric_delta: metric.delta,
+    page_path: window.location.pathname,
+    ...metric.attribution,
   });
 
   // Send to console in development
@@ -100,16 +97,13 @@ function checkPerformanceBudget(metric: PerformanceMetric): void {
     console.warn(`⚠️ Performance Budget Exceeded: ${metric.name} (${metric.value}) > ${budget}`);
     
     // Send budget alert
-    trackEvent({
-      event_name: 'performance_budget_exceeded',
-      event_category: 'performance',
-      event_label: metric.name,
+    analytics.track('performance_budget_exceeded', {
+      category: 'performance',
+      label: metric.name,
       value: metric.value,
-      custom_parameters: {
-        budget_limit: budget,
-        overage: metric.value - budget,
-        overage_percentage: ((metric.value - budget) / budget * 100).toFixed(2),
-      },
+      budget_limit: budget,
+      overage: metric.value - budget,
+      overage_percentage: ((metric.value - budget) / budget * 100).toFixed(2),
     });
 
     // Trigger alert in development
@@ -294,15 +288,12 @@ export function initializeWebVitals(): void {
       const longTaskObserver = new PerformanceObserver((list) => {
         list.getEntries().forEach((entry) => {
           if (entry.duration > 50) { // Tasks longer than 50ms
-            trackEvent({
-              event_name: 'long_task',
-              event_category: 'performance',
-              event_label: 'main_thread_blocking',
+            analytics.track('long_task', {
+              category: 'performance',
+              label: 'main_thread_blocking',
               value: Math.round(entry.duration),
-              custom_parameters: {
-                task_duration: entry.duration,
-                task_start: entry.startTime,
-              },
+              task_duration: entry.duration,
+              task_start: entry.startTime,
             });
           }
         });
@@ -319,17 +310,14 @@ export function initializeWebVitals(): void {
         if (lcpEntries.length > 0) {
           const lastEntry = lcpEntries[lcpEntries.length - 1] as any;
           
-          trackEvent({
-            event_name: 'lcp_element',
-            event_category: 'performance',
-            event_label: lastEntry.element?.tagName || 'unknown',
+          analytics.track('lcp_element', {
+            category: 'performance',
+            label: lastEntry.element?.tagName || 'unknown',
             value: Math.round(lastEntry.startTime),
-            custom_parameters: {
-              element_id: lastEntry.element?.id,
-              element_class: lastEntry.element?.className,
-              element_url: lastEntry.url,
-              element_size: lastEntry.size,
-            },
+            element_id: lastEntry.element?.id,
+            element_class: lastEntry.element?.className,
+            element_url: lastEntry.url,
+            element_size: lastEntry.size,
           });
         }
       });
@@ -346,17 +334,14 @@ export function initializeWebVitals(): void {
         const report = await generatePerformanceReport();
         
         // Send aggregated performance report
-        trackEvent({
-          event_name: 'performance_report',
-          event_category: 'performance',
-          event_label: 'page_load_complete',
-          custom_parameters: {
-            metrics_count: report.metrics.length,
-            good_metrics: report.metrics.filter(m => m.rating === 'good').length,
-            poor_metrics: report.metrics.filter(m => m.rating === 'poor').length,
-            connection_type: report.connectionType,
-            total_resources: report.resourceTiming.length,
-          },
+        analytics.track('performance_report', {
+          category: 'performance',
+          label: 'page_load_complete',
+          metrics_count: report.metrics.length,
+          good_metrics: report.metrics.filter(m => m.rating === 'good').length,
+          poor_metrics: report.metrics.filter(m => m.rating === 'poor').length,
+          connection_type: report.connectionType,
+          total_resources: report.resourceTiming.length,
         });
 
         if (process.env.NODE_ENV === 'development') {
@@ -383,15 +368,12 @@ export function measurePerformance<T>(
   return Promise.resolve(operation()).then((result) => {
     const duration = performance.now() - startTime;
     
-    trackEvent({
-      event_name: 'custom_timing',
-      event_category: 'performance',
-      event_label: name,
+    analytics.track('custom_timing', {
+      category: 'performance',
+      label: name,
       value: Math.round(duration),
-      custom_parameters: {
-        operation_name: name,
-        duration_ms: duration,
-      },
+      operation_name: name,
+      duration_ms: duration,
     });
 
     if (process.env.NODE_ENV === 'development') {
@@ -420,17 +402,14 @@ export function monitorResourceLoading(): void {
         const loadTime = resource.responseEnd - resource.startTime;
         
         if (loadTime > 1000) { // Resources taking longer than 1 second
-          trackEvent({
-            event_name: 'slow_resource',
-            event_category: 'performance',
-            event_label: resource.initiatorType,
+          analytics.track('slow_resource', {
+            category: 'performance',
+            label: resource.initiatorType,
             value: Math.round(loadTime),
-            custom_parameters: {
-              resource_name: resource.name,
-              resource_type: resource.initiatorType,
-              load_time: loadTime,
-              transfer_size: resource.transferSize,
-            },
+            resource_name: resource.name,
+            resource_type: resource.initiatorType,
+            load_time: loadTime,
+            transfer_size: resource.transferSize,
           });
         }
       }
