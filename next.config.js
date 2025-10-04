@@ -8,6 +8,8 @@ const nextConfig = {
   images: {
     remotePatterns: imageConfig.getRemotePatterns(),
     formats: imageConfig.formats,
+    loader: imageConfig.cdnUrl ? 'custom' : 'default',
+    loaderFile: imageConfig.cdnUrl ? './imageLoader.js' : undefined,
   },
   async headers() {
     const isDevelopment = process.env.NODE_ENV === 'development';
@@ -289,7 +291,9 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   // Environment-specific configuration
-  assetPrefix: process.env.NODE_ENV === 'production' ? undefined : '',
+  assetPrefix: process.env.NEXT_PUBLIC_CDN_URL && process.env.NODE_ENV === 'production' 
+    ? process.env.NEXT_PUBLIC_CDN_URL 
+    : (process.env.NODE_ENV === 'production' ? undefined : ''),
   trailingSlash: true,
   // Output configuration for different platforms
   output: 'standalone',
