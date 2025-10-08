@@ -4,7 +4,7 @@ export const revalidate = 3600
 
 export async function GET() {
   const cmsEndpoint = process.env.NEXT_PUBLIC_CMS_ENDPOINT
-  const cmsToken = process.env.CMS_API_TOKEN
+  const cmsToken = process.env.CMS_TOKEN
   
   if (!cmsEndpoint || !cmsToken) {
     return new NextResponse('CMS configuration missing', { status: 500 })
