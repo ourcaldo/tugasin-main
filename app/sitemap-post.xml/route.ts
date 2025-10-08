@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { headers } from 'next/headers'
 
 export const revalidate = 3600
 
@@ -11,6 +12,11 @@ export async function GET() {
   }
 
   try {
+    const headersList = await headers()
+    const host = headersList.get('host') || 'tugasin.me'
+    const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http'
+    const frontendDomain = `${protocol}://${host}`
+
     const response = await fetch(`${cmsEndpoint}/api/v1/sitemaps/sitemap-post.xml`, {
       headers: {
         'Authorization': `Bearer ${cmsToken}`
@@ -22,7 +28,11 @@ export async function GET() {
       throw new Error(`CMS returned ${response.status}`)
     }
 
-    const xmlContent = await response.text()
+    let xmlContent = await response.text()
+    
+    const cmsBaseUrl = cmsEndpoint.replace(/\/graphql\/?$/, '')
+    const regex = new RegExp(`${cmsBaseUrl}/api/v1/sitemaps/sitemap-post-([0-9]+)\\.xml`, 'g')
+    xmlContent = xmlContent.replace(regex, `${frontendDomain}/sitemap-post-$1.xml`)
 
     return new NextResponse(xmlContent, {
       headers: {
