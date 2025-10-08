@@ -1,8 +1,11 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, NextRequest } from 'next/server'
 
 export const revalidate = 3600
 
-export async function GET() {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   const cmsEndpoint = process.env.NEXT_PUBLIC_CMS_ENDPOINT
   const cmsToken = process.env.CMS_API_TOKEN
   
@@ -11,7 +14,9 @@ export async function GET() {
   }
 
   try {
-    const response = await fetch(`${cmsEndpoint}/api/v1/sitemaps/sitemap-post.xml`, {
+    const { id } = await params
+    
+    const response = await fetch(`${cmsEndpoint}/api/v1/sitemaps/sitemap-post-${id}.xml`, {
       headers: {
         'Authorization': `Bearer ${cmsToken}`
       },
@@ -31,13 +36,13 @@ export async function GET() {
       },
     })
   } catch (error) {
-    console.error('Error proxying blog sitemap from CMS:', error)
+    console.error('Error proxying chunked blog sitemap from CMS:', error)
     
-    const emptySitemapIndex = `<?xml version="1.0" encoding="UTF-8"?>
-<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-</sitemapindex>`
+    const emptySitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+</urlset>`
     
-    return new NextResponse(emptySitemapIndex, {
+    return new NextResponse(emptySitemap, {
       headers: {
         'Content-Type': 'application/xml',
         'Cache-Control': 'public, max-age=3600',
