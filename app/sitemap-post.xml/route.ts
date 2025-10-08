@@ -1,21 +1,17 @@
 import { NextResponse } from 'next/server'
-import { headers } from 'next/headers'
 
 export const revalidate = 3600
 
 export async function GET() {
   const cmsEndpoint = process.env.NEXT_PUBLIC_CMS_ENDPOINT
   const cmsToken = process.env.CMS_TOKEN
+  const frontendDomain = process.env.NEXT_PUBLIC_SITE_URL || 'https://tugasin.me'
   
   if (!cmsEndpoint || !cmsToken) {
     return new NextResponse('CMS configuration missing', { status: 500 })
   }
 
   try {
-    const headersList = await headers()
-    const host = headersList.get('host') || 'tugasin.me'
-    const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http'
-    const frontendDomain = `${protocol}://${host}`
 
     const response = await fetch(`${cmsEndpoint}/api/v1/sitemaps/sitemap-post.xml`, {
       headers: {
