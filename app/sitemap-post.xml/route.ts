@@ -12,8 +12,7 @@ export async function GET() {
   }
 
   try {
-    const cmsBaseUrl = cmsEndpoint.replace(/\/graphql\/?$/, '')
-    const response = await fetch(`${cmsBaseUrl}/api/v1/sitemaps`, {
+    const response = await fetch(`${cmsEndpoint}/api/v1/sitemaps`, {
       headers: {
         'Authorization': `Bearer ${cmsToken}`
       },
