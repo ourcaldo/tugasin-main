@@ -1,0 +1,36 @@
+Before, we have a changes in sitemap generation function for the blog, please dig to that feature so you have better understand.
+
+Now, i need you to edit again that function, when we call the API /sitemaps, the API will give data like this:
+{
+"success": true,
+"data": {
+"sitemaps": [{
+"type": "root",
+"url": "https://mc-0li8vr9j2f.bunny.run/api/v1/sitemaps/sitemap.xml"
+}, {
+"type": "pages",
+"url": "https://mc-0li8vr9j2f.bunny.run/api/v1/sitemaps/sitemap-pages.xml"
+}, {
+"type": "blog",
+"url": "https://mc-0li8vr9j2f.bunny.run/api/v1/sitemaps/sitemap-post.xml",
+"index": "https://mc-0li8vr9j2f.bunny.run/api/v1/sitemaps/sitemap-post.xml",
+"references": ["https://mc-0li8vr9j2f.bunny.run/api/v1/sitemaps/sitemap-post-1.xml", "https://mc-0li8vr9j2f.bunny.run/api/v1/sitemaps/sitemap-post-2.xml", "https://mc-0li8vr9j2f.bunny.run/api/v1/sitemaps/sitemap-post-3.xml", "https://mc-0li8vr9j2f.bunny.run/api/v1/sitemaps/sitemap-post-4.xml"]
+}]
+},
+"cached": false
+}
+
+As you see, the url is using "https://mc-0li8vr9j2f.bunny.run" which is the cms endpoint. All is use that cms endpoint, except for the references in blog sitemap, which is inside https://mc-0li8vr9j2f.bunny.run/api/v1/sitemaps/sitemap-post-1.xml will use loc our frontend domain tugasin.me .
+
+Now, for the our sitemap blog itself is using /site sitemap-post.xml which now proxied to https://mc-0li8vr9j2f.bunny.run/api/v1/sitemaps/sitemap-post.xml data, but we didn't change the domain yet.
+
+So, this time I need you to made function, to make sure that not only proxied, but we also change the domain so it's using our url format, which is domain.com/sitemap-post.xml and the chunk version is /sitemap-post-1.xml and all of that will be proxied to their destination based on API response.
+
+For example
+domain.com/sitemap-post.xml -> proxied to https://mc-0li8vr9j2f.bunny.run/api/v1/sitemaps/sitemap-post.xml
+/sitemap-post-1.xml -> proxied to https://mc-0li8vr9j2f.bunny.run/api/v1/sitemaps/sitemap-post-1.xml
+and so-on.
+
+For the chunk version inside the https://mc-0li8vr9j2f.bunny.run/api/v1/sitemaps/sitemap-post-1.xml we didn't change domain, as it's already use our frontend domain, the loc will be domain.com, not cms.domain.com.
+
+Do you understand about this? If yes, you can start to fix this
