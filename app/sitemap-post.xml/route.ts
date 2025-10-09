@@ -26,8 +26,8 @@ export async function GET() {
 
     let xmlContent = await response.text()
     
-    const cmsBaseUrl = cmsEndpoint.replace(/\/graphql\/?$/, '')
-    const regex = new RegExp(`${cmsBaseUrl}/api/v1/sitemaps/sitemap-post-([0-9]+)\\.xml`, 'g')
+    // Replace any domain + /api/v1/sitemaps/sitemap-post-X.xml with frontendDomain/sitemap-post-X.xml
+    const regex = /https?:\/\/[^\/]+\/api\/v1\/sitemaps\/sitemap-post-([0-9]+)\.xml/g
     xmlContent = xmlContent.replace(regex, `${frontendDomain}/sitemap-post-$1.xml`)
 
     return new NextResponse(xmlContent, {
