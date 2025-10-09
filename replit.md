@@ -160,3 +160,4 @@ This is a Next.js 15 + TypeScript application for Tugasin, an academic assistanc
   - `v*` (semantic version tags)
 - **Security**: Runs as non-root user (nextjs:nodejs with UID 1001)
 - **Standalone Output**: Next.js configured for standalone builds (includes minimal server.js)
+- Using webhook
