@@ -12,8 +12,8 @@ export async function GET() {
   }
 
   try {
-
-    const response = await fetch(`${cmsEndpoint}/api/v1/sitemaps/sitemap-post.xml`, {
+    const cmsBaseUrl = cmsEndpoint.replace(/\/graphql\/?$/, '')
+    const response = await fetch(`${cmsBaseUrl}/api/v1/sitemaps`, {
       headers: {
         'Authorization': `Bearer ${cmsToken}`
       },
@@ -24,11 +24,26 @@ export async function GET() {
       throw new Error(`CMS returned ${response.status}`)
     }
 
-    let xmlContent = await response.text()
+    const data = await response.json()
+    const blogSitemap = data.data.sitemaps.find((s: any) => s.type === 'blog')
     
-    // Replace any domain + /api/v1/sitemaps/sitemap-post-X.xml with frontendDomain/sitemap-post-X.xml
-    const regex = /https?:\/\/[^\/]+\/api\/v1\/sitemaps\/sitemap-post-([0-9]+)\.xml/g
-    xmlContent = xmlContent.replace(regex, `${frontendDomain}/sitemap-post-$1.xml`)
+    if (!blogSitemap?.references) {
+      throw new Error('Blog sitemap references not found')
+    }
+
+    const sitemaps = blogSitemap.references.map((ref: string) => {
+      const match = ref.match(/sitemap-post-(\d+)\.xml/)
+      const id = match ? match[1] : ''
+      return `<sitemap>
+<loc>${frontendDomain}/sitemap-post-${id}.xml</loc>
+<lastmod>${new Date().toISOString()}</lastmod>
+</sitemap>`
+    }).join('\n')
+
+    const xmlContent = `<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${sitemaps}
+</sitemapindex>`
 
     return new NextResponse(xmlContent, {
       headers: {
@@ -37,7 +52,7 @@ export async function GET() {
       },
     })
   } catch (error) {
-    console.error('Error proxying blog sitemap from CMS:', error)
+    console.error('Error generating blog sitemap from API:', error)
     
     const emptySitemapIndex = `<?xml version="1.0" encoding="UTF-8"?>
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
