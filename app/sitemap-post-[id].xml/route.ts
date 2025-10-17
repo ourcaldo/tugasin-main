@@ -1,10 +1,16 @@
 import { NextResponse, NextRequest } from 'next/server'
 
 export const revalidate = 3600
+export const dynamic = 'force-dynamic'
+
+// Tell Next.js not to pre-generate these routes at build time
+export async function generateStaticParams() {
+  return []
+}
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  context: { params: Promise<{ id: string }> }
 ) {
   const cmsEndpoint = process.env.NEXT_PUBLIC_CMS_ENDPOINT
   const cmsToken = process.env.CMS_TOKEN
@@ -14,7 +20,13 @@ export async function GET(
   }
 
   try {
-    const { id } = await params
+    // Safely await params with null check
+    const resolvedParams = await context.params
+    if (!resolvedParams || !resolvedParams.id) {
+      throw new Error('Missing id parameter')
+    }
+    
+    const { id } = resolvedParams
     
     const response = await fetch(`${cmsEndpoint}/api/v1/sitemaps/sitemap-post-${id}.xml`, {
       headers: {
