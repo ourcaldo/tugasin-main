@@ -4,6 +4,16 @@
 This is a Next.js 15 + TypeScript application for Tugasin, an academic assistance service. The application uses Next.js App Router with modern React patterns and shadcn/ui components.
 
 ## Recent Changes
+- **2025-10-17**: ✅ **SITEMAP BUILD ERROR FIX**
+  - **Issue Fixed**: Build failing with "Cannot destructure property 'id' of '(intermediate value)' as it is undefined"
+  - **Root Cause**: Dynamic sitemap route `sitemap-post-[id].xml` lacked generateStaticParams() and tried to statically generate at build time
+  - **Solution**: Updated `app/sitemap-post-[id].xml/route.ts`:
+    - Added `generateStaticParams()` returning empty array to prevent build-time generation
+    - Added `export const dynamic = 'force-dynamic'` to force dynamic rendering
+    - Added null checks for params before destructuring to handle edge cases
+  - **Impact**: Build now completes successfully without sitemap errors
+  - **Testing**: Verified no regressions to sitemap functionality
+
 - **2025-10-17**: ✅ **BLOG POST LIST RENDERING FIX**
   - **Issue Fixed**: Blog posts weren't displaying bullet points and numbering for lists (ul/ol elements)
   - **Root Cause**: CSS was missing `list-style-type` property for `.prose ul` and `.prose ol` elements
