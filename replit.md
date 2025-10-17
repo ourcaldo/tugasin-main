@@ -4,6 +4,17 @@
 This is a Next.js 15 + TypeScript application for Tugasin, an academic assistance service. The application uses Next.js App Router with modern React patterns and shadcn/ui components.
 
 ## Recent Changes
+- **2025-10-17**: ✅ **BLOG POST LIST RENDERING FIX**
+  - **Issue Fixed**: Blog posts weren't displaying bullet points and numbering for lists (ul/ol elements)
+  - **Root Cause**: CSS was missing `list-style-type` property for `.prose ul` and `.prose ol` elements
+  - **Solution**: Added proper list styling to `styles/globals.css`:
+    - `list-style-type: disc` for unordered lists (ul)
+    - `list-style-type: decimal` for ordered lists (ol)
+    - `list-style-position: outside` for proper marker positioning
+    - `display: list-item` on li elements to guard against upstream overrides
+  - **Backend Verification**: Confirmed CMS sends list HTML correctly and sanitizer preserves ul, ol, li tags
+  - **Testing**: Recommended to smoke-test blog posts with nested lists in production
+
 - **2025-10-04**: ✅ **ANALYTICS VERIFICATION & DOCKER BUILD FIX**
   - **Analytics Status**: Verified all three analytics services working correctly in Replit environment:
     - GA4 (G-15MHZ6EXEN): ✅ Initialized and tracking events successfully
