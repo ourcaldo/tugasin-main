@@ -9,6 +9,10 @@ import { Card, CardContent } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { ImageWithFallback } from '../figma/ImageWithFallback';
 import type { BlogPost } from '@/lib/utils/types';
+import FAQ from '../shared/FAQ';
+import SupplementalContent from '../shared/SupplementalContent';
+import { FAQS } from '@/data/contact';
+import { HOMEPAGE_SUPPLEMENTAL_CONTENT } from '@/data/supplemental';
 
 // Dynamic imports for below-the-fold sections
 const TestimonialsSection = dynamic(() => import('../sections/TestimonialsSection'), {
@@ -171,8 +175,8 @@ export default function Homepage({ recentPosts = [] }: HomepageProps) {
                 Solusi Akademik Terpercaya
               </Badge>
               <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 mb-6">
-                Stress Tugas? 
-                <span className="text-primary block">Serahkan ke Tugasin!</span>
+                Tugas numpuk bikin stress? 
+                <span className="text-primary block">Serahin aja ke Tugasin!</span>
               </h1>
               <p className="text-xl text-gray-600 mb-8 max-w-lg">
                 Dari tugas harian sampai skripsi, kami bantu kamu selesaikan dengan mudah. 
@@ -278,8 +282,14 @@ export default function Homepage({ recentPosts = [] }: HomepageProps) {
       {/* Testimonials Section - Dynamically Imported */}
       <TestimonialsSection testimonials={testimonials} />
 
+      {/* FAQ Section */}
+      <FAQ faqs={FAQS} />
+
       {/* Blog Section - Dynamically Imported */}
       <BlogPreviewSection recentPosts={recentPosts} isLoadingPosts={isLoadingPosts} />
+
+      {/* Supplemental Content Section */}
+      <SupplementalContent htmlContent={HOMEPAGE_SUPPLEMENTAL_CONTENT} />
 
       {/* CTA Section */}
       <section className="py-20 bg-primary text-white">

@@ -3,6 +3,8 @@
 import { Button } from '../ui/button';
 import { Card, CardContent } from '../ui/card';
 import { Badge } from '../ui/badge';
+import { MessageCircle } from 'lucide-react';
+import { CONTACT_INFO } from '@/lib/utils/constants';
 
 interface Service {
   icon: React.ReactNode;
@@ -41,8 +43,11 @@ export default function ServicesSection({ services }: ServicesSectionProps) {
                 <h3 className="font-semibold text-xl mb-2">{service.title}</h3>
                 <p className="text-gray-600 mb-4">{service.description}</p>
                 <div className="text-2xl font-bold text-primary mb-4">{service.price}</div>
-                <Button className="w-full" variant={service.popular ? "default" : "outline"}>
-                  Pesan Sekarang
+                <Button className="w-full" variant={service.popular ? "default" : "outline"} asChild>
+                  <a href={CONTACT_INFO.whatsapp} target="_blank" rel="noopener noreferrer">
+                    <MessageCircle className="mr-2 h-4 w-4" />
+                    Konsultasi Sekarang
+                  </a>
                 </Button>
               </CardContent>
             </Card>

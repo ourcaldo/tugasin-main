@@ -4,6 +4,26 @@
 This is a Next.js 15 + TypeScript application for Tugasin, an academic assistance service. The application uses Next.js App Router with modern React patterns and shadcn/ui components.
 
 ## Recent Changes
+- **2025-10-25**: ✅ **UX ENHANCEMENTS - FAQ & SUPPLEMENTAL CONTENT ADDITIONS**
+  - **New Components**: Created reusable FAQ and SupplementalContent components for better content organization
+    - `components/shared/FAQ.tsx` - Accordion-based FAQ component with customizable title and description
+    - `components/shared/SupplementalContent.tsx` - Expandable content section with "Read More" functionality (shows 20% preview with gradient shadow, SEO-friendly with full content in noscript tag)
+  - **Homepage Updates** (`components/pages/Homepage.tsx`):
+    - Changed hero headline from "Stress Tugas? Serahkan ke Tugasin!" to "Tugas numpuk bikin stress? Serahin aja ke Tugasin!" for better engagement
+    - Added FAQ section before blog preview section for improved information accessibility
+    - Added supplemental content section after blog preview and before CTA section with detailed service information
+  - **Layanan Page Updates** (`components/pages/Layanan.tsx`):
+    - Added FAQ section after "Kenapa Tugasin Berbeda?" section
+    - Added supplemental content section with comprehensive service details and pricing information
+  - **Services Section Enhancement** (`components/sections/ServicesSection.tsx`):
+    - Changed button text from "Pesan Sekarang" to "Konsultasi Sekarang" for clearer call-to-action
+    - Updated button to link to WhatsApp URL from environment variable (NEXT_PUBLIC_WHATSAPP_URL)
+    - Added MessageCircle icon to button for better visual communication
+    - Button now opens in new tab with proper rel attributes for security
+  - **Data Layer**: Created `data/supplemental.tsx` with HOMEPAGE_SUPPLEMENTAL_CONTENT and LAYANAN_SUPPLEMENTAL_CONTENT for maintainable content management
+  - **SEO Improvements**: Supplemental content rendered in full for search engines while maintaining clean UX with expand/collapse functionality
+  - **Accessibility**: All new sections follow existing design patterns with proper semantic HTML and ARIA support
+
 - **2025-10-17**: ✅ **SITEMAP BUILD ERROR FIX**
   - **Issue Fixed**: Build failing with "Cannot destructure property 'id' of '(intermediate value)' as it is undefined"
   - **Root Cause**: Dynamic sitemap route `sitemap-post-[id].xml` lacked generateStaticParams() and tried to statically generate at build time

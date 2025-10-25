@@ -5,6 +5,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import SEO from '@/components/layout/SEO';
+import FAQ from '../shared/FAQ';
+import SupplementalContent from '../shared/SupplementalContent';
+import { FAQS } from '@/data/contact';
+import { LAYANAN_SUPPLEMENTAL_CONTENT } from '@/data/supplemental';
 
 // Dynamic imports for service components (below the fold)
 const ServiceCard = dynamic(() => import('../services/ServiceCard'), {
@@ -358,6 +362,12 @@ export default function Layanan() {
           </div>
         </div>
       </section>
+
+      {/* FAQ Section */}
+      <FAQ faqs={FAQS} />
+
+      {/* Supplemental Content Section */}
+      <SupplementalContent htmlContent={LAYANAN_SUPPLEMENTAL_CONTENT} />
 
       {/* CTA Section */}
       <section className="py-20 bg-primary text-white">
