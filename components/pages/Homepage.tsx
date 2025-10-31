@@ -167,7 +167,7 @@ export default function Homepage({ recentPosts = [] }: HomepageProps) {
     <div className="min-h-screen">
       
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-blue-50 to-indigo-100 py-16 lg:py-24">
+      <section className="relative bg-gradient-to-br from-blue-50 to-indigo-100 py-[50px]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="text-center lg:text-left">
