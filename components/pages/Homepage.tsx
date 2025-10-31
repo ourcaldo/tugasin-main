@@ -167,22 +167,21 @@ export default function Homepage({ recentPosts = [] }: HomepageProps) {
     <div className="min-h-screen">
       
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-blue-50 to-indigo-100 py-20 lg:py-32">
+      <section className="relative bg-gradient-to-br from-blue-50 to-indigo-100 py-16 lg:py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="text-center lg:text-left">
               <Badge variant="secondary" className="mb-4">
                 Solusi Akademik Terpercaya
               </Badge>
-              <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 mb-6">
-                Tugas numpuk bikin stress? 
-                <span className="text-primary block">Serahin aja ke Tugasin!</span>
+              <h1 className="text-3xl lg:text-5xl font-bold text-gray-900 mb-6">
+                Tugas numpuk bikin stress? <span className="text-primary">Serahin aja ke Tugasin!</span>
               </h1>
-              <p className="text-xl text-gray-600 mb-8 max-w-lg">
+              <p className="text-xl text-gray-600 mb-8 max-w-lg mx-auto lg:mx-0">
                 Dari tugas harian sampai skripsi, kami bantu kamu selesaikan dengan mudah. 
                 Fokus ke hal yang lebih penting, biar kami yang handle tugasnya!
               </p>
-              <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                 <Button size="lg" asChild>
                   <a href="https://wa.me/6281234567890" target="_blank" rel="noopener noreferrer">
                     <MessageCircle className="mr-2 h-5 w-5" />
