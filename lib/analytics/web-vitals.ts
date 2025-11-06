@@ -15,16 +15,6 @@ export const PERFORMANCE_THRESHOLDS = {
   TTFB: { good: 800, poor: 1800 },      // Time to First Byte
 };
 
-// Performance budget alerts
-export const PERFORMANCE_BUDGETS = {
-  LCP: 2500,
-  INP: 200,
-  CLS: 0.1,
-  FCP: 1800,
-  TTFB: 800,
-  bundleSize: 200 * 1024, // 200KB
-  totalBlockingTime: 200,
-};
 
 interface PerformanceMetric {
   name: string;
@@ -83,70 +73,6 @@ function sendToAnalytics(metric: PerformanceMetric): void {
       attribution: metric.attribution,
     });
   }
-
-  // Check performance budgets
-  checkPerformanceBudget(metric);
-}
-
-/**
- * Check if metric exceeds performance budget
- */
-function checkPerformanceBudget(metric: PerformanceMetric): void {
-  const budget = PERFORMANCE_BUDGETS[metric.name as keyof typeof PERFORMANCE_BUDGETS];
-  if (budget && metric.value > budget) {
-    console.warn(`⚠️ Performance Budget Exceeded: ${metric.name} (${metric.value}) > ${budget}`);
-    
-    // Send budget alert
-    analytics.track('performance_budget_exceeded', {
-      category: 'performance',
-      label: metric.name,
-      value: metric.value,
-      budget_limit: budget,
-      overage: metric.value - budget,
-      overage_percentage: ((metric.value - budget) / budget * 100).toFixed(2),
-    });
-
-    // Trigger alert in development
-    if (process.env.NODE_ENV === 'development') {
-      showPerformanceAlert(metric, budget);
-    }
-  }
-}
-
-/**
- * Show performance alert in development
- */
-function showPerformanceAlert(metric: PerformanceMetric, budget: number): void {
-  const alertDiv = document.createElement('div');
-  alertDiv.style.cssText = `
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background: #ff6b6b;
-    color: white;
-    padding: 10px 15px;
-    border-radius: 5px;
-    font-family: monospace;
-    font-size: 12px;
-    z-index: 10000;
-    max-width: 300px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-  `;
-  
-  alertDiv.innerHTML = `
-    <strong>⚠️ Performance Budget Alert</strong><br>
-    <strong>${metric.name}:</strong> ${metric.value.toFixed(2)}ms<br>
-    <strong>Budget:</strong> ${budget}ms<br>
-    <strong>Overage:</strong> ${(metric.value - budget).toFixed(2)}ms
-  `;
-
-  document.body.appendChild(alertDiv);
-  
-  setTimeout(() => {
-    if (alertDiv.parentNode) {
-      alertDiv.parentNode.removeChild(alertDiv);
-    }
-  }, 5000);
 }
 
 /**
