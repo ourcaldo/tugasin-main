@@ -8,6 +8,42 @@ export async function generateStaticParams() {
   return []
 }
 
+async function fetchWithRetry(url: string, options: RequestInit, maxRetries = 3): Promise<Response> {
+  const timeout = parseInt(process.env.CMS_TIMEOUT || '10000', 10)
+  
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), timeout)
+      
+      const response = await fetch(url, {
+        ...options,
+        signal: controller.signal,
+      })
+      
+      clearTimeout(timeoutId)
+      
+      if (response.ok) {
+        return response
+      }
+      
+      if (attempt === maxRetries) {
+        throw new Error(`CMS returned ${response.status} after ${maxRetries} attempts`)
+      }
+      
+      await new Promise(resolve => setTimeout(resolve, 1000 * attempt))
+    } catch (error) {
+      if (attempt === maxRetries) {
+        throw error
+      }
+      
+      await new Promise(resolve => setTimeout(resolve, 1000 * attempt))
+    }
+  }
+  
+  throw new Error('Failed to fetch after retries')
+}
+
 export async function GET(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
@@ -20,7 +56,6 @@ export async function GET(
   }
 
   try {
-    // Safely await params with null check
     const resolvedParams = await context.params
     if (!resolvedParams || !resolvedParams.id) {
       throw new Error('Missing id parameter')
@@ -28,16 +63,12 @@ export async function GET(
     
     const { id } = resolvedParams
     
-    const response = await fetch(`${cmsEndpoint}/api/v1/sitemaps/sitemap-post-${id}.xml`, {
+    const response = await fetchWithRetry(`${cmsEndpoint}/api/v1/sitemaps/sitemap-post-${id}.xml`, {
       headers: {
         'Authorization': `Bearer ${cmsToken}`
       },
       next: { revalidate: 3600 }
     })
-
-    if (!response.ok) {
-      throw new Error(`CMS returned ${response.status}`)
-    }
 
     const xmlContent = await response.text()
 
@@ -48,7 +79,14 @@ export async function GET(
       },
     })
   } catch (error) {
-    console.error('Error proxying chunked blog sitemap from CMS:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    
+    if (process.env.NODE_ENV === 'development') {
+      console.error('=== Chunked Blog Sitemap Error ===')
+      console.error('Error:', errorMessage)
+      console.error('CMS Endpoint:', cmsEndpoint)
+      console.error('==================================')
+    }
     
     const emptySitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">

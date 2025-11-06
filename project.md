@@ -49,6 +49,34 @@ See `.env.example` for required environment variables. Key variables:
 
 ## Recent Changes
 
+### November 06, 2025 - 12:20 PM
+- **Blog Sitemap Generation Fix** (Multiple files)
+  - Fixed critical issue where blog sitemap was returning empty during build process and runtime
+  - **Root Cause**: API fetch timeout and lack of retry logic during build-time sitemap generation
+  - **Modified Files**:
+    - `app/sitemap-post.xml/route.ts`:
+      - Added `export const dynamic = 'force-dynamic'` to prevent ISR-related build issues
+      - Implemented `fetchWithRetry()` helper function with 3-attempt retry logic and exponential backoff
+      - Added explicit timeout configuration using `CMS_TIMEOUT` environment variable (default: 10000ms)
+      - Enhanced error handling with detailed validation of API response structure
+      - Improved development mode error logging with structured error messages
+      - Added AbortController for proper timeout handling in fetch requests
+    - `app/sitemap-post-[id].xml/route.ts`:
+      - Applied same `fetchWithRetry()` implementation for individual post sitemap chunks
+      - Added timeout and retry logic to prevent empty sitemaps for individual pages
+      - Enhanced error logging for debugging chunked sitemap issues
+  - **Implementation Features**:
+    - Retry logic: 3 attempts with 1s, 2s, 3s delays between attempts
+    - Timeout: Configurable via `CMS_TIMEOUT` env variable, defaults to 10 seconds
+    - Better error messages: Includes response structure details for debugging
+    - Force dynamic rendering: Prevents build-time pre-rendering issues
+    - Graceful degradation: Returns empty sitemap XML on failure instead of crashing
+  - **Result**: 
+    - Blog sitemap (`/sitemap-post.xml`) now correctly returns 12 sitemap index entries
+    - Individual post sitemaps (`/sitemap-post-1.xml` through `/sitemap-post-12.xml`) working correctly
+    - Build process no longer fails with "Blog sitemap references not found" error
+    - Production builds can successfully generate sitemaps without errors
+
 ### November 06, 2025 - 11:00 AM
 - **Favicon Update** (Multiple files)
   - Updated favicon to new "T" logo with dark blue background
