@@ -49,6 +49,18 @@ See `.env.example` for required environment variables. Key variables:
 
 ## Recent Changes
 
+### November 06, 2025 - 11:00 AM
+- **Favicon Update** (Multiple files)
+  - Updated favicon to new "T" logo with dark blue background
+  - **New Files**:
+    - `public/favicon.png` - New favicon image (dark blue "T" letter on transparent background)
+  - **Modified Files** (`app/layout.tsx`):
+    - Added `icons` configuration to metadata object
+    - Set favicon.png as icon, shortcut, and apple-touch-icon
+  - **Implementation**:
+    - Favicon now appears in browser tabs, bookmarks, and mobile home screens
+    - Uses PNG format for better quality and transparency support
+
 ### November 06, 2025 - 10:55 AM
 - **Complete Web Vitals Removal** (Multiple files)
   - Completely removed all web vitals monitoring code from the project as requested

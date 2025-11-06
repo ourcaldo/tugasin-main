@@ -17,6 +17,11 @@ export const metadata = {
   authors: [{ name: 'Tugasin' }],
   creator: 'Tugasin',
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:5000'),
+  icons: {
+    icon: '/favicon.png',
+    shortcut: '/favicon.png',
+    apple: '/favicon.png',
+  },
   formatDetection: {
     telephone: false,
   },
