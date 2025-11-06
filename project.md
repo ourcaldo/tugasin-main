@@ -49,6 +49,18 @@ See `.env.example` for required environment variables. Key variables:
 
 ## Recent Changes
 
+### November 06, 2025 - 05:15 AM
+- **Post Redirect HTTP Status Code Implementation** (`app/blog/[...params]/page.tsx`)
+  - Implemented explicit HTTP status code handling using `Response.redirect()` for accurate status codes
+  - All redirect types now use correct HTTP status codes:
+    - 301 (Moved Permanently): Explicit 301 redirect for permanent content moves
+    - 302 (Found): Explicit 302 redirect for temporary content moves
+    - 307 (Temporary Redirect): Explicit 307 redirect preserving request method
+    - 308 (Permanent Redirect): Explicit 308 redirect preserving request method
+    - 410 (Gone): Returns custom 410 response indicating content is permanently removed
+  - Converts relative URLs to absolute URLs using `siteConfig.url` for proper redirect handling
+  - Properly honors exact HTTP status codes from CMS backend for optimal SEO
+
 ### November 06, 2025 - 05:10 AM
 - **Post Redirect Feature Implementation** (Multiple files)
   - Added comprehensive redirect handling system for blog posts supporting post-to-post and post-to-URL redirects
@@ -71,7 +83,7 @@ See `.env.example` for required environment variables. Key variables:
     - Integrated redirect checking before rendering blog post pages
     - Fetches raw CMS post data to access redirect configuration
     - Calls `redirectHandler.handlePostRedirect()` to process redirects
-    - Performs Next.js server-side redirect using `redirect()` when redirect is configured
+    - Performs Next.js server-side redirect with proper HTTP status codes
     - Maintains backward compatibility - only redirects when explicitly configured in CMS
   - **Implementation Features**:
     - Server-side redirects for optimal SEO (proper HTTP status codes)

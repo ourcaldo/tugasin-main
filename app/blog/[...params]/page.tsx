@@ -1,6 +1,6 @@
 import Blog from '@/components/pages/Blog'
 import BlogPostClient from '@/components/pages/BlogPostClient'
-import { notFound, redirect as nextRedirect } from 'next/navigation'
+import { notFound, redirect as nextRedirect, permanentRedirect } from 'next/navigation'
 import { generateMetadata as genMetadata } from '@/lib/seo/metadata'
 import { articleSchema, breadcrumbSchema, generateStructuredDataScript } from '@/lib/seo/structured-data'
 import { siteConfig } from '@/config/site'
@@ -51,9 +51,30 @@ export default async function Page({ params, searchParams }: PageProps) {
         category
       )
       
-      // If redirect is needed, perform the redirect
-      if (redirectResult.shouldRedirect && redirectResult.redirectUrl) {
-        nextRedirect(redirectResult.redirectUrl)
+      // If redirect is needed, perform the redirect with proper HTTP status
+      if (redirectResult.shouldRedirect) {
+        const httpStatus = redirectResult.httpStatus || 302
+        
+        // Handle 410 Gone - return custom 410 response
+        if (httpStatus === 410) {
+          return new Response('Gone', {
+            status: 410,
+            statusText: 'Gone',
+            headers: {
+              'Content-Type': 'text/plain',
+            },
+          })
+        }
+        
+        // Ensure absolute URL for redirects
+        let redirectUrl = redirectResult.redirectUrl || '/'
+        if (!redirectUrl.startsWith('http')) {
+          redirectUrl = `${siteConfig.url}${redirectUrl.startsWith('/') ? redirectUrl : '/' + redirectUrl}`
+        }
+        
+        // Handle redirects with explicit status codes
+        // Use Response.redirect to set exact HTTP status codes (301, 302, 307, 308)
+        return Response.redirect(redirectUrl, httpStatus)
       }
       
       // No redirect, continue with normal flow
