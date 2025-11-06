@@ -49,6 +49,30 @@ See `.env.example` for required environment variables. Key variables:
 
 ## Recent Changes
 
+### November 06, 2025 - 04:50 PM
+- **Trailing Slash URL Standardization (SEO Enhancement)** (`middleware.ts`)
+  - Enforced trailing slash convention across all URLs for SEO consistency and canonical URL management
+  - **Implementation**:
+    - Added automatic 301 permanent redirect from non-trailing slash URLs to trailing slash versions
+    - Applies to all content pages: `/blog/category/slug` → `/blog/category/slug/` (301 redirect)
+    - Excludes root path (`/`), API routes (`/api/*`), and files with extensions (`.xml`, `.json`, etc.)
+    - Updated content type detection logic to handle both trailing and non-trailing slash versions during redirect
+  - **SEO Benefits**:
+    - Prevents duplicate content issues (same page accessible via two URLs)
+    - Establishes consistent canonical URL format across the site
+    - 301 redirects preserve search engine rankings and link equity
+    - Ensures all internal and external links resolve to the same canonical version
+  - **Technical Details**:
+    - Middleware checks `pathname` before processing any request
+    - Uses `NextResponse.redirect(url, 301)` for permanent redirects
+    - Regex pattern excludes files: `!pathname.match(/\.[a-zA-Z0-9]+$/)`
+    - Zero performance impact (middleware runs before page rendering)
+  - **Result**: 
+    - All URLs now consistently use trailing slashes as canonical format
+    - Non-trailing slash URLs automatically redirect with proper 301 status
+    - Improved SEO through URL standardization
+    - Better crawlability for search engines
+
 ### November 06, 2025 - 04:40 PM
 - **Blog Article Page Trailing Slash Fix** (Multiple files)
   - Fixed critical error where blog article pages with trailing slashes caused "Server Components render error" and 404 responses
