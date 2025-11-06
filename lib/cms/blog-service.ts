@@ -165,7 +165,8 @@ export class BlogService {
           tags: {
             nodes: post.tags || []
           },
-          content: post.content
+          content: post.content,
+          redirect: post.redirect || null
         };
         return transformCMSPost(cmsPost);
       });
@@ -231,7 +232,8 @@ export class BlogService {
           tags: {
             nodes: post.tags || []
           },
-          content: post.content
+          content: post.content,
+          redirect: post.redirect || null
         };
         return transformCMSPost(cmsPost);
       });
@@ -307,7 +309,8 @@ export class BlogService {
           tags: {
             nodes: post.tags || []
           },
-          content: post.content
+          content: post.content,
+          redirect: post.redirect || null
         };
         return transformCMSPost(cmsPost);
       });

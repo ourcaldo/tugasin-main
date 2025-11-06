@@ -1,6 +1,23 @@
 import { DEV_CONFIG, CMS_CONFIG } from '@/lib/utils/constants';
 import { Logger } from '@/lib/utils/logger';
 
+export interface PostRedirectTargetPost {
+  postId: string;
+  slug: string;
+  title: string;
+}
+
+export interface PostRedirectTargetURL {
+  url: string;
+}
+
+export interface PostRedirect {
+  type: 'post' | 'url';
+  httpStatus: 301 | 302 | 307 | 308 | 410;
+  target: PostRedirectTargetPost | PostRedirectTargetURL;
+  notes?: string;
+}
+
 export interface APIPost {
   id: string;
   title: string;
@@ -30,6 +47,7 @@ export interface APIPost {
     name: string;
     slug: string;
   }>;
+  redirect: PostRedirect | null;
 }
 
 export interface APIPagination {
@@ -100,6 +118,7 @@ export interface CMSPost {
     }>;
   };
   content: string;
+  redirect: PostRedirect | null;
 }
 
 export interface PostsResponse {
@@ -171,7 +190,8 @@ class APIClient {
       tags: {
         nodes: apiPost.tags || []
       },
-      content: apiPost.content
+      content: apiPost.content,
+      redirect: apiPost.redirect || null
     };
   }
 
