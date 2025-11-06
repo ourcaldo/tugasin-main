@@ -1,11 +1,13 @@
 import Blog from '@/components/pages/Blog'
 import BlogPostClient from '@/components/pages/BlogPostClient'
-import { notFound } from 'next/navigation'
+import { notFound, redirect as nextRedirect } from 'next/navigation'
 import { generateMetadata as genMetadata } from '@/lib/seo/metadata'
 import { articleSchema, breadcrumbSchema, generateStructuredDataScript } from '@/lib/seo/structured-data'
 import { siteConfig } from '@/config/site'
 import { getRevalidationForPageType, scheduleBackgroundRevalidation } from '@/lib/cache/isr-revalidation'
 import { blogService } from '@/lib/cms/blog-service'
+import { apiClient } from '@/lib/cms/api-client'
+import { redirectHandler } from '@/lib/cms/redirect-handler'
 import { getCategoryNameFromSlug } from '@/lib/utils/utils'
 import type { BlogPost as BlogPostType } from '@/lib/utils/types'
 
@@ -36,7 +38,25 @@ export default async function Page({ params, searchParams }: PageProps) {
     let error: string | null = null
     
     try {
-      // Fetch the main post
+      // First, fetch the raw CMS post to check for redirects
+      const cmsPostResponse = await apiClient.getPostBySlug(slug)
+      
+      if (!cmsPostResponse || !cmsPostResponse.post) {
+        notFound()
+      }
+      
+      // Check if post has a redirect configured
+      const redirectResult = await redirectHandler.handlePostRedirect(
+        cmsPostResponse.post.redirect,
+        category
+      )
+      
+      // If redirect is needed, perform the redirect
+      if (redirectResult.shouldRedirect && redirectResult.redirectUrl) {
+        nextRedirect(redirectResult.redirectUrl)
+      }
+      
+      // No redirect, continue with normal flow
       post = await blogService.getPostBySlug(slug)
       
       if (!post) {
@@ -48,7 +68,6 @@ export default async function Page({ params, searchParams }: PageProps) {
       relatedPosts = categoryPosts.filter((p: BlogPostType) => p.id !== post!.id).slice(0, 3)
         
     } catch (err) {
-      console.error('Error fetching blog post:', err)
       error = 'Gagal memuat artikel'
     }
     

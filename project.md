@@ -49,6 +49,37 @@ See `.env.example` for required environment variables. Key variables:
 
 ## Recent Changes
 
+### November 06, 2025 - 05:10 AM
+- **Post Redirect Feature Implementation** (Multiple files)
+  - Added comprehensive redirect handling system for blog posts supporting post-to-post and post-to-URL redirects
+  - **Type Definitions** (`lib/cms/api-client.ts`):
+    - Added `PostRedirect` interface with support for redirect types ('post' | 'url')
+    - Added `PostRedirectTargetPost` and `PostRedirectTargetURL` interfaces for typed redirect targets
+    - Supports HTTP status codes: 301 (Permanent), 302 (Temporary), 307, 308, 410 (Gone)
+    - Updated `APIPost` and `CMSPost` interfaces to include optional `redirect` field
+  - **Redirect Handler Service** (`lib/cms/redirect-handler.ts`):
+    - Created dedicated `RedirectHandler` class to handle redirect logic in a well-refactored manner
+    - `handlePostRedirect()`: Processes redirect data and returns redirect URL
+    - For post-to-post redirects: Fetches target post data and constructs proper blog URL
+    - For post-to-URL redirects: Returns the raw URL directly
+    - Includes helper methods: `isPermanentRedirect()`, `isTemporaryRedirect()`, `getRedirectStatusText()`
+    - Proper error handling and debug logging support
+  - **Blog Service Updates** (`lib/cms/blog-service.ts`):
+    - Updated all CMSPost transformations to include redirect data from API responses
+    - Modified `getPosts()`, `getPostsWithPagination()`, and `getPostsForPage()` methods
+  - **Blog Page Component** (`app/blog/[...params]/page.tsx`):
+    - Integrated redirect checking before rendering blog post pages
+    - Fetches raw CMS post data to access redirect configuration
+    - Calls `redirectHandler.handlePostRedirect()` to process redirects
+    - Performs Next.js server-side redirect using `redirect()` when redirect is configured
+    - Maintains backward compatibility - only redirects when explicitly configured in CMS
+  - **Implementation Features**:
+    - Server-side redirects for optimal SEO (proper HTTP status codes)
+    - Supports content consolidation (post-to-post) and external migrations (post-to-URL)
+    - Respects HTTP status codes from CMS (301, 302, 307, 308, 410)
+    - Debug logging for redirect processing when debug mode is enabled
+    - No breaking changes - existing posts without redirects work normally
+
 ### October 31, 2025 - 06:35 AM
 - **Comprehensive Project Analysis** (`PROJECT_ANALYSIS.md`)
   - Created detailed 15-section analysis document covering:
