@@ -9,15 +9,15 @@ packages = ["openssl", "postgresql"]
 [deployment]
 deploymentTarget = "autoscale"
 build = ["npm", "run", "build"]
-run = ["gunicorn", "--bind", "0.0.0.0:5000", "main:app"]
+run = ["npm", "run"]
 
 [[ports]]
 localPort = 5000
 externalPort = 80
 
 [[ports]]
-localPort = 34227
-externalPort = 3002
+localPort = 41947
+externalPort = 3001
 
 [[ports]]
 localPort = 46695
