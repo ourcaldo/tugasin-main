@@ -38,16 +38,46 @@ export default async function Page({ params, searchParams }: PageProps) {
     let error: string | null = null
     
     try {
-      // First, fetch the raw CMS post to check for redirects
-      const cmsPostResponse = await apiClient.getPostBySlug(slug)
+      // First, fetch the raw API response to check for redirects (including tombstone pattern)
+      const rawResponse = await apiClient.getRawPostBySlug(slug)
       
-      if (!cmsPostResponse || !cmsPostResponse.post) {
+      // Check for tombstone pattern: post not found but redirect exists
+      if (!rawResponse.success && rawResponse.redirect) {
+        const redirectResult = await redirectHandler.handlePostRedirect(
+          rawResponse.redirect,
+          category
+        )
+        
+        if (redirectResult.shouldRedirect) {
+          const httpStatus = redirectResult.httpStatus || 302
+          
+          if (httpStatus === 410) {
+            return new Response('Gone', {
+              status: 410,
+              statusText: 'Gone',
+              headers: {
+                'Content-Type': 'text/plain',
+              },
+            })
+          }
+          
+          let redirectUrl = redirectResult.redirectUrl || '/'
+          if (!redirectUrl.startsWith('http')) {
+            redirectUrl = `${siteConfig.url}${redirectUrl.startsWith('/') ? redirectUrl : '/' + redirectUrl}`
+          }
+          
+          return Response.redirect(redirectUrl, httpStatus)
+        }
+      }
+      
+      // Check if post exists
+      if (!rawResponse.success || !rawResponse.data) {
         notFound()
       }
       
       // Check if post has a redirect configured
       const redirectResult = await redirectHandler.handlePostRedirect(
-        cmsPostResponse.post.redirect,
+        rawResponse.data.redirect,
         category
       )
       

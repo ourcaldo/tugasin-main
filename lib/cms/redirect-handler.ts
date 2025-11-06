@@ -44,9 +44,24 @@ export class RedirectHandler {
         
         if (!targetPost || !targetPost.post) {
           if (DEV_CONFIG.debugMode) {
-            Logger.error('Target post not found for redirect:', postTarget.postId);
+            Logger.warn('Target post not found for redirect, using fallback category:', postTarget.postId);
           }
-          return { shouldRedirect: false };
+          const redirectUrl = `/blog/${currentCategory}/${postTarget.slug}`;
+          
+          if (DEV_CONFIG.debugMode) {
+            Logger.info('Redirect to post (fallback):', {
+              targetSlug: postTarget.slug,
+              fallbackCategory: currentCategory,
+              redirectUrl
+            });
+          }
+
+          return {
+            shouldRedirect: true,
+            redirectUrl,
+            httpStatus: redirect.httpStatus,
+            targetSlug: postTarget.slug
+          };
         }
 
         const targetCategory = targetPost.post.categories.nodes[0]?.slug || currentCategory;
@@ -68,9 +83,16 @@ export class RedirectHandler {
         };
       } catch (error) {
         if (DEV_CONFIG.debugMode) {
-          Logger.error('Error fetching target post for redirect:', error);
+          Logger.warn('Error fetching target post for redirect, using fallback:', error);
         }
-        return { shouldRedirect: false };
+        const redirectUrl = `/blog/${currentCategory}/${postTarget.slug}`;
+        
+        return {
+          shouldRedirect: true,
+          redirectUrl,
+          httpStatus: redirect.httpStatus,
+          targetSlug: postTarget.slug
+        };
       }
     }
 

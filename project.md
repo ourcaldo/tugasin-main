@@ -49,6 +49,35 @@ See `.env.example` for required environment variables. Key variables:
 
 ## Recent Changes
 
+### November 06, 2025 - 12:30 PM
+- **Post Redirect Tombstone Pattern Implementation** (Multiple files)
+  - Completed full implementation of the tombstone pattern for deleted posts with active redirects
+  - **API Client Updates** (`lib/cms/api-client.ts`):
+    - Updated `APISinglePostResponse` interface to support tombstone pattern
+    - Added optional `data`, `error`, and top-level `redirect` fields for handling deleted posts with redirects
+    - Created new `getRawPostBySlug()` method to fetch complete API response including tombstone redirects
+    - Enhanced `getPostBySlug()` error handling to detect and log tombstone redirects
+    - Proper handling of API responses where `success: false` but `redirect` is present
+  - **Redirect Handler Improvements** (`lib/cms/redirect-handler.ts`):
+    - Enhanced post-to-post redirect handling with fallback category support
+    - Changed error handling from returning `{ shouldRedirect: false }` to using fallback redirects
+    - When target post fetch fails, now constructs redirect URL using current category as fallback
+    - Prevents broken redirect chains by always attempting redirect even if target post is unavailable
+    - Improved debug logging for fallback scenarios
+  - **Blog Page Tombstone Support** (`app/blog/[...params]/page.tsx`):
+    - Implemented full tombstone pattern detection before checking post existence
+    - Checks for `!rawResponse.success && rawResponse.redirect` to catch deleted posts with redirects
+    - Processes tombstone redirects with same priority as active post redirects
+    - Ensures SEO-friendly redirects persist even after content deletion
+    - Maintains backward compatibility with existing redirect implementation
+  - **Implementation Features**:
+    - SEO-preserved URL transitions for deleted content
+    - Graceful handling of missing target posts in redirect chains
+    - Debug logging for troubleshooting redirect issues
+    - Full alignment with API documentation tombstone pattern specification
+    - Proper HTTP status code preservation (301, 302, 307, 308, 410)
+    - Zero breaking changes to existing functionality
+
 ### November 06, 2025 - 05:15 AM
 - **Post Redirect HTTP Status Code Implementation** (`app/blog/[...params]/page.tsx`)
   - Implemented explicit HTTP status code handling using `Response.redirect()` for accurate status codes

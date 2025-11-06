@@ -70,8 +70,10 @@ export interface APIPostsResponse {
 
 export interface APISinglePostResponse {
   success: boolean;
-  data: APIPost;
+  data?: APIPost;
   cached?: boolean;
+  error?: string;
+  redirect?: PostRedirect;
 }
 
 export interface CMSPost {
@@ -279,8 +281,18 @@ class APIClient {
 
       const apiResponse: APISinglePostResponse = await response.json();
 
-      if (!apiResponse.success || !apiResponse.data) {
-        throw new Error('Failed to fetch post from API');
+      if (!apiResponse.success) {
+        if (DEV_CONFIG.debugMode) {
+          Logger.warn('Post fetch unsuccessful:', apiResponse.error);
+          if (apiResponse.redirect) {
+            Logger.info('Tombstone redirect found:', apiResponse.redirect);
+          }
+        }
+        throw new Error(apiResponse.error || 'Failed to fetch post from API');
+      }
+
+      if (!apiResponse.data) {
+        throw new Error('No post data in response');
       }
 
       const cmsPost = this.transformAPIPostToCMSPost(apiResponse.data);
@@ -293,6 +305,54 @@ class APIClient {
       return {
         post: cmsPost
       };
+    } catch (error) {
+      if (DEV_CONFIG.debugMode) {
+        Logger.error('API error:', error);
+      }
+      throw error;
+    }
+  }
+
+  async getRawPostBySlug(slug: string): Promise<APISinglePostResponse> {
+    if (!DEV_CONFIG.enableCMS) {
+      throw new Error('CMS is disabled in configuration');
+    }
+
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), DEV_CONFIG.cmsTimeout);
+
+      const url = `${this.baseEndpoint}/api/v1/posts/${slug}`;
+      
+      if (DEV_CONFIG.debugMode) {
+        Logger.info('Fetching raw post response by slug:', slug);
+        Logger.info('URL:', url);
+      }
+
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: this.getHeaders(),
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const apiResponse: APISinglePostResponse = await response.json();
+
+      if (DEV_CONFIG.debugMode) {
+        Logger.info('Raw API response:', {
+          success: apiResponse.success,
+          hasData: !!apiResponse.data,
+          hasRedirect: !!apiResponse.redirect,
+          error: apiResponse.error
+        });
+      }
+
+      return apiResponse;
     } catch (error) {
       if (DEV_CONFIG.debugMode) {
         Logger.error('API error:', error);
