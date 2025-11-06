@@ -23,8 +23,13 @@ interface PageProps {
 export const dynamic = 'force-dynamic'
 
 export default async function Page({ params, searchParams }: PageProps) {
-  const { params: routeParams } = await params
+  const { params: rawParams } = await params
   const searchParamsResolved = await searchParams
+  
+  // Filter out empty segments caused by trailing slashes
+  // e.g., /blog/category/slug/ becomes ['category', 'slug', '']
+  // We need to remove the empty string to get proper routing
+  const routeParams = rawParams.filter(param => param !== '')
   
   // Schedule intelligent background revalidation for blog posts
   scheduleBackgroundRevalidation('blog-post');
@@ -258,7 +263,10 @@ export default async function Page({ params, searchParams }: PageProps) {
 }
 
 export async function generateMetadata({ params }: PageProps) {
-  const { params: routeParams } = await params
+  const { params: rawParams } = await params
+  
+  // Filter out empty segments caused by trailing slashes (same as in Page component)
+  const routeParams = rawParams.filter(param => param !== '')
   
   if (routeParams.length === 2) {
     const [category, slug] = routeParams

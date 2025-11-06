@@ -49,6 +49,33 @@ See `.env.example` for required environment variables. Key variables:
 
 ## Recent Changes
 
+### November 06, 2025 - 04:40 PM
+- **Blog Article Page Trailing Slash Fix** (Multiple files)
+  - Fixed critical error where blog article pages with trailing slashes caused "Server Components render error" and 404 responses
+  - **Root Cause**: Next.js catch-all route `[...params]` was parsing URLs with trailing slashes (e.g., `/blog/lifestyle/slug/`) as `['lifestyle', 'slug', '']`, creating an empty third segment that broke routing logic
+  - **Modified Files**:
+    - `app/blog/[...params]/page.tsx`:
+      - Added filtering logic to remove empty segments from params array: `const routeParams = rawParams.filter(param => param !== '')`
+      - Applied same filtering to both main Page component (line 35) and generateMetadata function (line 272)
+      - Ensures consistent routing regardless of trailing slash presence
+      - Added descriptive comments explaining the filtering logic
+    - `lib/cms/api-client.ts`:
+      - Enhanced `getRawPostBySlug()` method to handle 404 responses gracefully
+      - Changed from throwing error on 404 to returning proper APISinglePostResponse with `success: false`
+      - Prevents cryptic "Server Components render error" from propagating to user
+      - Maintains error throwing for other HTTP errors (500, 503, etc.)
+      - Added debug logging for 404 cases
+  - **Implementation Details**:
+    - Trailing slash URLs now correctly parsed: `/blog/category/slug/` → `['category', 'slug']`
+    - URL without trailing slash also works: `/blog/category/slug` → `['category', 'slug']`
+    - Eliminates redirect loops and routing mismatches
+    - 404 posts now properly trigger Next.js notFound() instead of showing cryptic errors
+  - **Result**: 
+    - Blog article pages work correctly with or without trailing slashes
+    - No more "Server Components render error" for non-existent posts
+    - Proper 404 handling with user-friendly error pages
+    - Improved debugging with clear 404 logging in development mode
+
 ### November 06, 2025 - 12:30 PM
 - **Google Tag Manager (GTM) Integration** (Multiple files)
   - Added production-ready Google Tag Manager integration to analytics stack

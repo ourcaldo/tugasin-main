@@ -338,6 +338,17 @@ class APIClient {
       clearTimeout(timeoutId);
 
       if (!response.ok) {
+        // For 404, return a proper error response instead of throwing
+        // This allows the page component to handle it gracefully
+        if (response.status === 404) {
+          if (DEV_CONFIG.debugMode) {
+            Logger.warn(`Post not found (404): ${slug}`);
+          }
+          return {
+            success: false,
+            error: 'Post not found'
+          };
+        }
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
