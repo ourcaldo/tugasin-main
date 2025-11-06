@@ -1,13 +1,15 @@
 /**
  * Analytics Configuration using getanalytics.io
- * Centralized analytics setup with GA4, PostHog, and Sentry
+ * Centralized analytics setup with GTM, GA4, PostHog, and Sentry
  */
 
 import Analytics from 'analytics';
+import gtmPlugin from './plugins/gtm-plugin';
 import ga4Plugin from './plugins/ga4-plugin';
 import postHogPlugin from './plugins/posthog-plugin';
 import sentryPlugin from './plugins/sentry-plugin';
 
+const GTM_CONTAINER_ID = process.env.NEXT_PUBLIC_GTM_CONTAINER_ID;
 const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 const POSTHOG_KEY = process.env.NEXT_PUBLIC_POSTHOG_KEY;
 const POSTHOG_HOST = process.env.NEXT_PUBLIC_POSTHOG_HOST || 'https://us.i.posthog.com';
@@ -16,6 +18,17 @@ const IS_DEV = process.env.NODE_ENV === 'development';
 
 const plugins = [];
 
+// Google Tag Manager - Load first to capture all events
+if (GTM_CONTAINER_ID) {
+  plugins.push(
+    gtmPlugin({
+      containerId: GTM_CONTAINER_ID,
+      debug: IS_DEV,
+    })
+  );
+}
+
+// Google Analytics 4 - Can run independently alongside GTM
 if (GA_MEASUREMENT_ID) {
   plugins.push(
     ga4Plugin({
@@ -55,4 +68,4 @@ const analytics = Analytics({
 
 export default analytics;
 
-export { GA_MEASUREMENT_ID, POSTHOG_KEY, SENTRY_DSN };
+export { GTM_CONTAINER_ID, GA_MEASUREMENT_ID, POSTHOG_KEY, SENTRY_DSN };

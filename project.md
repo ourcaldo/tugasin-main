@@ -15,7 +15,7 @@ This project uses Supabase as the database. Database structure and schema detail
 - **UI Library**: Radix UI with shadcn/ui components
 - **Styling**: Tailwind CSS
 - **Icons**: Lucide React
-- **Analytics**: Google Analytics 4, PostHog, Sentry (via GetAnalytics.io)
+- **Analytics**: Google Tag Manager, Google Analytics 4, PostHog, Sentry (via GetAnalytics.io)
 - **Database**: Supabase
 - **Deployment**: Configured for Replit (port 5000, host 0.0.0.0)
 
@@ -48,6 +48,46 @@ See `.env.example` for required environment variables. Key variables:
 - `DATABASE_URL` - Supabase database connection string
 
 ## Recent Changes
+
+### November 06, 2025 - 12:30 PM
+- **Google Tag Manager (GTM) Integration** (Multiple files)
+  - Added production-ready Google Tag Manager integration to analytics stack
+  - **Modified Files**:
+    - `.env.example`:
+      - Added `NEXT_PUBLIC_GTM_CONTAINER_ID=GTM-XXXXXXX` environment variable
+      - Positioned GTM in Analytics Configuration section alongside GA4
+    - `lib/analytics/plugins/gtm-plugin.ts` (NEW FILE):
+      - Created custom GTM plugin following the same architecture as GA4 plugin
+      - Implements proper dataLayer initialization and event tracking
+      - Supports GTM container environments with auth and preview parameters
+      - Includes noscript fallback iframe for non-JavaScript browsers
+      - Production-ready error handling (silent failures, no user-facing console logs)
+      - Debug mode logging only enabled in development environment
+      - Supports custom dataLayer names for advanced use cases
+    - `lib/analytics/config.ts`:
+      - Added GTM plugin import and initialization
+      - GTM loads first to capture all subsequent events
+      - GA4 and GTM run independently for maximum flexibility
+      - Added `GTM_CONTAINER_ID` to exported constants
+  - **Implementation Features**:
+    - Automatic dataLayer initialization and event pushing
+    - Page view tracking with full page metadata (title, path, URL, referrer)
+    - Custom event tracking with category, action, label, and value
+    - User identification tracking for logged-in users
+    - Script loading with error handling and ad blocker detection
+    - Environment-specific configuration (auth/preview for staging environments)
+    - No user-facing console logs in production
+    - Follows getanalytics.io plugin architecture for consistency
+  - **Production Benefits**:
+    - Tag management without code changes
+    - Single container for multiple tracking tools
+    - A/B testing and conversion tracking support
+    - Server-side tagging capability
+    - Works alongside existing GA4 implementation
+  - **Usage**: 
+    - Set `NEXT_PUBLIC_GTM_CONTAINER_ID` in environment variables
+    - GTM will automatically initialize and track all analytics events
+    - Compatible with GTM environment parameters for staging/testing
 
 ### November 06, 2025 - 12:20 PM
 - **Blog Sitemap Generation Fix** (Multiple files)
