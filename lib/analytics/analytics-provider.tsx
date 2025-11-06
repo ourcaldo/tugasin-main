@@ -8,7 +8,6 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode, Suspense } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import analytics from './config';
-import { initializeWebVitals, measurePerformance, monitorResourceLoading } from './web-vitals';
 
 interface AnalyticsContextType {
   isInitialized: boolean;
@@ -17,7 +16,6 @@ interface AnalyticsContextType {
   trackConversion: (type: string, value?: number) => void;
   trackServiceInquiry: (serviceType: string, method: string) => void;
   trackUserJourney: (stage: string) => void;
-  measurePerformance: <T>(name: string, operation: () => T | Promise<T>) => Promise<T>;
   setUserProperties: (properties: Record<string, any>) => void;
   identifyUser: (userId: string, traits?: Record<string, any>) => void;
 }
@@ -47,9 +45,6 @@ export function AnalyticsProvider({ children }: AnalyticsProviderProps) {
     const initializeServices = async () => {
       try {
         console.log('📊 Initializing analytics services...');
-
-        initializeWebVitals();
-        monitorResourceLoading();
         
         setIsInitialized(true);
         
@@ -118,10 +113,6 @@ export function AnalyticsProvider({ children }: AnalyticsProviderProps) {
         session_timestamp: Date.now(),
         category: 'engagement',
       });
-    },
-
-    measurePerformance: async function<T>(name: string, operation: () => T | Promise<T>): Promise<T> {
-      return measurePerformance(name, operation);
     },
 
     setUserProperties: (properties: Record<string, any>) => {
