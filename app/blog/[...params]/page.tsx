@@ -18,8 +18,9 @@ interface PageProps {
   searchParams: Promise<{ page?: string }>
 }
 
-// Smart ISR configuration for dynamic blog pages with CMS awareness
-export const revalidate = 300 // 5 minutes
+// Force dynamic rendering for redirect support
+// Redirects cannot be cached as they need to check real-time redirect configuration
+export const dynamic = 'force-dynamic'
 
 export default async function Page({ params, searchParams }: PageProps) {
   const { params: routeParams } = await params
@@ -32,61 +33,25 @@ export default async function Page({ params, searchParams }: PageProps) {
   if (routeParams.length === 2) {
     const [category, slug] = routeParams
     
-    // Fetch blog post data on the server for faster loading
-    let post: BlogPostType | null = null
-    let relatedPosts: BlogPostType[] = []
-    let error: string | null = null
+    // First, fetch the raw API response to check for redirects (including tombstone pattern)
+    // This MUST be outside try-catch because redirect functions throw errors internally
+    const rawResponse = await apiClient.getRawPostBySlug(slug)
     
-    try {
-      // First, fetch the raw API response to check for redirects (including tombstone pattern)
-      const rawResponse = await apiClient.getRawPostBySlug(slug)
+    // Check for tombstone pattern: post not found but redirect exists
+    if (!rawResponse.success && rawResponse.redirect) {
+      console.log('[BLOG-PAGE] Tombstone redirect detected for:', slug);
       
-      // Check for tombstone pattern: post not found but redirect exists
-      if (!rawResponse.success && rawResponse.redirect) {
-        const redirectResult = await redirectHandler.handlePostRedirect(
-          rawResponse.redirect,
-          category
-        )
-        
-        if (redirectResult.shouldRedirect) {
-          const httpStatus = redirectResult.httpStatus || 302
-          
-          if (httpStatus === 410) {
-            return new Response('Gone', {
-              status: 410,
-              statusText: 'Gone',
-              headers: {
-                'Content-Type': 'text/plain',
-              },
-            })
-          }
-          
-          let redirectUrl = redirectResult.redirectUrl || '/'
-          if (!redirectUrl.startsWith('http')) {
-            redirectUrl = `${siteConfig.url}${redirectUrl.startsWith('/') ? redirectUrl : '/' + redirectUrl}`
-          }
-          
-          return Response.redirect(redirectUrl, httpStatus)
-        }
-      }
-      
-      // Check if post exists
-      if (!rawResponse.success || !rawResponse.data) {
-        notFound()
-      }
-      
-      // Check if post has a redirect configured
       const redirectResult = await redirectHandler.handlePostRedirect(
-        rawResponse.data.redirect,
+        rawResponse.redirect,
         category
       )
       
-      // If redirect is needed, perform the redirect with proper HTTP status
       if (redirectResult.shouldRedirect) {
         const httpStatus = redirectResult.httpStatus || 302
+        const redirectPath = redirectResult.redirectUrl || '/'
         
-        // Handle 410 Gone - return custom 410 response
         if (httpStatus === 410) {
+          console.log('[BLOG-PAGE] Tombstone 410 Gone response');
           return new Response('Gone', {
             status: 410,
             statusText: 'Gone',
@@ -96,17 +61,77 @@ export default async function Page({ params, searchParams }: PageProps) {
           })
         }
         
-        // Ensure absolute URL for redirects
-        let redirectUrl = redirectResult.redirectUrl || '/'
-        if (!redirectUrl.startsWith('http')) {
-          redirectUrl = `${siteConfig.url}${redirectUrl.startsWith('/') ? redirectUrl : '/' + redirectUrl}`
-        }
+        console.log('[BLOG-PAGE] Tombstone redirect to:', redirectPath, 'with status:', httpStatus);
         
-        // Handle redirects with explicit status codes
-        // Use Response.redirect to set exact HTTP status codes (301, 302, 307, 308)
-        return Response.redirect(redirectUrl, httpStatus)
+        // Use Next.js redirect functions (these throw errors internally to trigger redirect)
+        if (httpStatus === 301 || httpStatus === 308) {
+          permanentRedirect(redirectPath)
+        } else {
+          nextRedirect(redirectPath)
+        }
+      }
+    }
+    
+    // Check if post exists
+    if (!rawResponse.success || !rawResponse.data) {
+      notFound()
+    }
+    
+    // Check if post has a redirect configured
+    console.log('[BLOG-PAGE] Checking for redirect on post:', slug, {
+      hasRedirect: !!rawResponse.data.redirect,
+      redirectData: rawResponse.data.redirect
+    });
+    
+    const redirectResult = await redirectHandler.handlePostRedirect(
+      rawResponse.data.redirect,
+      category
+    )
+    
+    console.log('[BLOG-PAGE] Redirect result:', redirectResult);
+    
+    // If redirect is needed, perform the redirect with proper HTTP status
+    if (redirectResult.shouldRedirect) {
+      const httpStatus = redirectResult.httpStatus || 302
+      
+      // Handle 410 Gone - return custom 410 response
+      if (httpStatus === 410) {
+        console.log('[BLOG-PAGE] Returning 410 Gone response');
+        return new Response('Gone', {
+          status: 410,
+          statusText: 'Gone',
+          headers: {
+            'Content-Type': 'text/plain',
+          },
+        })
       }
       
+      // Build redirect URL (relative path only, Next.js handles absolute URLs)
+      const redirectPath = redirectResult.redirectUrl || '/'
+      
+      console.log('[BLOG-PAGE] Performing redirect:', {
+        from: `/blog/${category}/${slug}`,
+        to: redirectPath,
+        httpStatus
+      });
+      
+      // Use Next.js redirect functions for proper server-side redirects
+      // These work correctly with App Router and throw errors internally to stop execution
+      if (httpStatus === 301 || httpStatus === 308) {
+        permanentRedirect(redirectPath)
+      } else {
+        nextRedirect(redirectPath)
+      }
+    }
+    
+    console.log('[BLOG-PAGE] No redirect needed, continuing with normal render');
+    
+    // Fetch blog post data on the server for faster loading
+    let post: BlogPostType | null = null
+    let relatedPosts: BlogPostType[] = []
+    let error: string | null = null
+    
+    try {
       // No redirect, continue with normal flow
       post = await blogService.getPostBySlug(slug)
       
